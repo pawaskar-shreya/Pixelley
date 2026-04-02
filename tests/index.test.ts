@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker";
 import axios from "axios";
 
 const BACKEND_URL = "http://localhost:3000"
+const WS_URL = "ws://localhost:3001"
 
 describe("Authentication", () => {
     test("If user is able to Sign Up only once", async () => {
@@ -795,3 +796,247 @@ describe("Admin endpoints", () => {
     })
 })
 
+describe("Websocket Tests", () => {
+    // create 2 users, create a map, create a space, 
+
+    let adminToken = "";
+    let adminId = "";
+    let userToken = "";
+    let userId = "";
+    let mapId = "";
+    let spaceId = "";
+
+    let ws1: WebSocket;
+    let ws2: WebSocket;
+
+    type WSMessage = {
+        type: string, 
+        payload?: any, 
+        users?: any
+    }
+
+    let ws1Messages: WSMessage[] = [];
+    let ws2Messages: WSMessage[] = [];
+    let adminX;
+    let adminY; 
+    let userX; 
+    let userY;
+
+    // haven't created elements for HTTP server
+    async function setupHTTP() {
+        let AdminUsername = faker.internet.username();
+        let AdminPassword = faker.internet.password();
+
+        // signup and signin as Admin
+        const signupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
+            AdminUsername, 
+            AdminPassword, 
+            type: "admin"
+        })
+        
+        const adminId = signupResponse.data.userId;
+
+        const signinResponse = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+            AdminUsername, 
+            AdminPassword
+        })
+
+        adminToken = signinResponse.data.token;
+
+        // signup and signin as User
+        let username = faker.internet.username();
+        let password = faker.internet.password();
+
+        const userSignupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
+            username, 
+            password, 
+            type: "user"
+        })
+
+        const userId = userSignupResponse.data.userId;
+
+        const userSigninResponse = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+            username, 
+            password
+        })
+
+        userToken = userSigninResponse.data.token;
+
+        // create a map 
+        const createMap = await axios.post(`${BACKEND_URL}/api/v1/admin/map`, {
+            thumbnail: "https://thumbnail.com/a.png",
+            dimensions: "100x200",
+            name: "100 person interview room",
+            defaultElements: []
+        }, {
+            headers: {
+                Authorization: `Bearer ${adminToken}`
+            }
+        })
+
+        mapId = createMap.data.id;
+
+        // create a space
+        const createSpaceResponse = await axios.post(`${BACKEND_URL}/api/v1/space`, {
+            name: "Test",
+            dimensions: "100x200",
+            mapId
+        }, {
+            headers: {
+                Authorization: `Bearer ${userToken}`
+            }
+        })
+        spaceId = createSpaceResponse.data.spaceId;
+    }
+
+    async function setupWS() {
+        // This is the correct order,   create a ws client -> attach handlers -> await onopen
+        // Attach the handlers before onopen fires, so that no messages are missed
+
+        // ws client for one user
+        ws1 = new WebSocket(WS_URL);
+
+        ws1.onmessage = (event) => {
+            ws1Messages.push(JSON.parse(event.data));       // event.data would be a string as we can only pass binary data and strings on a wss. So, JSON.parse it
+        }
+
+        await new Promise(r => {
+            ws1.onopen = r;
+        })
+
+        // ws client for another user
+        ws2 = new WebSocket(WS_URL);
+
+        ws2.onmessage = (event) => {
+            ws2Messages.push(JSON.parse(event.data));
+        }
+
+        await new Promise(r => {
+            ws2.onopen = r;
+        })
+    }
+
+    // We are polling using setInterval to see if any msg has arrived from the server
+    // If the message is there, we resolve immediately, or else we resolve as soon as we get the message
+    // There is a better event driven way to do this
+    async function waitForAndPopLatestMessage(messageArray: WSMessage[]) : Promise<WSMessage> {
+        return new Promise(resolve => {
+            if(messageArray.length > 0) {
+                resolve(messageArray.shift()!);             // ! is the non-null operator, telling TS that this is never going to be undefined
+            } else {
+                let interval = setInterval(() => {
+                    if(messageArray.length > 0) {
+                        resolve(messageArray.shift()!);
+                        clearInterval(interval);
+                    }
+                }, 100);
+            }
+        })
+    }
+
+    beforeAll(async () => {
+        setupHTTP();
+        setupWS();
+    })
+
+    test("Get back ack for joinng the space", async () => {
+        // first user joins
+        ws1.send(JSON.stringify({
+            type: "join",
+            payload: {
+                spaceId,
+                token: adminToken
+            }
+        }))
+
+        let message1 = await waitForAndPopLatestMessage(ws1Messages);       // admin getting space-joined ack
+        let adminX = message1.payload.spawn.x;
+        let adminY = message1.payload.spawn.y;
+
+        // second user joins
+        ws2.send(JSON.stringify({
+           type: "join",
+            payload: {
+                spaceId,
+                token: userToken
+            } 
+        }))
+
+        let message2 = await waitForAndPopLatestMessage(ws2Messages);       // user getting space-joined ack
+        let userX = message2.payload.spawn.x;
+        let userY = message2.payload.spawn.y;
+
+        let message3 = await waitForAndPopLatestMessage(ws1Messages);       // user-join event received by admin when user joins
+
+        expect(message1.type).toBe("space-joined");
+        expect(message2.type).toBe("space-joined");
+
+        // We have created the ws clients in such a way that ws1 connects and only then ws2 connects
+        expect(message1.users.lengthh).toBe(0);                     // Admin joins first, hence receives 0
+        expect(message2.users.lengthh).toBe(1);                     // User joins second, hence receives 1
+
+        expect(message3.type).toBe("user-join");
+        expect(message3.payload.userId).toBe(userId);
+        expect(message3.payload.x).toBe(userX);
+        expect(message3.payload.y).toBe(userY);
+    })
+
+    test("User should not be able to move across the boundary of the wall", async () => {
+        ws1.send(JSON.stringify({
+            type: "move",
+            payload: {
+                x: 100000, 
+                y: 200000
+            }
+        }))
+
+        let message1 = await waitForAndPopLatestMessage(ws1Messages);
+
+        expect(message1.type).toBe("movement-rejected");
+        expect(message1.payload.x).toBe(adminX);
+        expect(message1.payload.y).toBe(adminY);
+    })
+
+    test("User should not be able to move more than 1 block at a time", async () => {
+        ws1.send(JSON.stringify({
+            type: "move",
+            payload: {
+                x: adminX! + 2, 
+                y: adminY
+            }
+        }))
+
+        let message1 = await waitForAndPopLatestMessage(ws1Messages);
+
+        expect(message1.type).toBe("movement-rejected");
+        expect(message1.payload.x).toBe(adminX);
+        expect(message1.payload.y).toBe(adminY);
+    })
+
+    test("Correct movement should be broadcasted to all the other users in the room", async () => {
+        ws1.send(JSON.stringify({
+            type: "move",
+            payload: {
+                x: adminX! + 1, 
+                y: adminY
+            }
+        }))
+
+        let message2 = await waitForAndPopLatestMessage(ws2Messages);
+
+        // The other user will receive a movement event
+        expect(message2.type).toBe("movement");
+        expect(message2.payload.x).toBe(adminX! + 1);
+        expect(message2.payload.y).toBe(adminY);
+        expect(message2.payload.userId).toBe(adminId);
+    })
+
+    test("If a user leaves, other user should receive the leave event", async () => {
+        ws1.close()         // user1 aka admin left
+
+        let message2 = await waitForAndPopLatestMessage(ws2Messages);
+
+        expect(message2.type).toBe("user-left");
+        expect(message2.payload.userId).toBe(adminId);
+    })
+})
