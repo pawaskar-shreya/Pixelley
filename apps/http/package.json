@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -b",
+    "build": "esbuild src/index.ts --platform=node --bundle --outdir=dist",
     "dev": "tsc -b && tsc dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,7 +15,8 @@
     "@types/express": "^5.0.6"
   },
   "dependencies": {
-    "@pixelly/db": "*",
+    "@pixelley/db": "*",
+    "esbuild": "^0.28.0",
     "express": "^5.2.1",
     "zod": "^4.3.6"
   }

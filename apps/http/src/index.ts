@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import { router } from "./routes/v1";
 
 const app = express();
