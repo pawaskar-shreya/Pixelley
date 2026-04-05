@@ -1,9 +1,10 @@
-import zod, { httpUrl } from "zod";
+import { Role } from "@pixelley/db/prisma";
+import zod from "zod";
 
 export const SignupSchema = zod.object({
     username: zod.email(),
     password: zod.string().min(10),
-    type: zod.enum(["Admin", "User"])
+    role: zod.enum(["Admin", "User"])
 })
 
 export const SigninSchema = zod.object({
@@ -56,3 +57,20 @@ export const CreateMap = zod.object({
         })
     )
 })
+
+// Extending the req obj globally to include uesrID, role and username
+declare global {
+  namespace Express {
+    export interface Request {
+      userId?: string;
+      username?: string;
+      role?: Role;
+    }
+  }
+}
+
+export const BulkMetadataSchema = zod.string()                                       // ids of type string
+    .transform(                                             // are transformed to an array to strings by splitting at ","
+        (val) => val.split(",")
+    )
+    .pipe(zod.array(zod.string()))              // the generated output is passed through pipe to check if it is really an array of numbers

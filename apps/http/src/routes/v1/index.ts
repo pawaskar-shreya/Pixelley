@@ -3,9 +3,9 @@ import { userRouter } from "./user";
 import { adminRouter } from "./admin";
 import { spaceRouter } from "./space";
 import { SigninSchema, SignupSchema } from "../../types";
-import { json, jwt, success } from "zod";
 import { prisma } from "@pixelley/db/prisma"
-import bcrypt from "bcrypt";
+import { hash, compare } from "../../scrypt"
+import jwt from "jsonwebtoken";
 
 export const router = Router();
 
@@ -13,29 +13,35 @@ router.post("/signup", async (req, res) => {
     const parsedData = SignupSchema.safeParse(req.body);
 
     if(!parsedData.success) {
-        res.status(400).json({
+        return res.status(400).json({
             message: "Invalid Inputs for Signup"
         })
-
-        return
     }
 
-    const hashedPassword = await bcrypt.hash(parsedData.data.password, 10);
+    const hashedPassword = await hash(parsedData.data.password);
+    console.log(hashedPassword);
 
     try {
+        console.log("hiawoien");
+
+        console.log(parsedData.data)
+
         const user = await prisma.user.create({
             data: {
                 username: parsedData.data.username, 
                 password: hashedPassword, 
-                type: parsedData.data.type             // I am using an enum here, harkirat has diff code
+                role: parsedData.data.role             // I am using an enum here, harkirat has diff code
             }
         })
 
-        res.status(200).json({
+        console.log(user);
+
+        return res.status(200).json({
             userId: user.id
         })
     } catch(e) {
-        res.status(400).json({
+        console.log(e);
+        return res.status(400).json({
             message: "Username already taken"
         })
     }
@@ -45,43 +51,46 @@ router.post("/signin", async (req, res) => {
     const parsedData = SigninSchema.safeParse(req.body);
 
     if(!parsedData.success) {
-        res.status(403).json({
+        return res.status(403).json({
             message: "Enter valid username and password"
-        })
-
-        return 
+        }) 
     }
 
-    // try {
-    //     const user = await prisma.user.findUnique({
-    //         where: {
-    //             username: parsedData.data.username
-    //         }
-    //     })
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                username: parsedData.data.username
+            }
+        })
 
-    //     if(!user) {
-    //         res.status(403).json({
-    //             message: "Username does not exist"
-    //         })
-    //     }
+        if(!user) {
+            return res.status(403).json({
+                message: "Username does not exist"
+            })
+        }
 
-    //     const isValid = bcrypt.compare(parsedData.data.password, user.password);
+        const isValid = compare(parsedData.data.password, user!.password);
 
-    //     if(!isValid) {
-    //         res.status(403).json({
-    //             message: "Invalid password"
-    //         })
-    //         return
-    //     }
+        if(!isValid) {
+            return res.status(403).json({
+                message: "Invalid password"
+            })
+        }
 
-    //     const token = jwt.
+        const token = jwt.sign({
+            userId: user.id,
+            username: parsedData.data.username, 
+            role: user.role
+        }, process.env.JWT_PASSWORD as string)
 
-    //     res.status(200).json({
-    //         token: ""
-    //     })
-    // } catch(e) {
-
-    // }
+        return res.status(200).json({
+            token
+        })
+    } catch(e) {
+        return res.status(400).json({
+            message: "Internal Server Error"
+        })
+    }
 })
 
 router.get("/avatars", (req, res) => {
