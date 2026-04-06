@@ -43,27 +43,21 @@ userRouter.post("/metadata/bulk", userMiddleware, async (req, res) => {
         })
     }
 
-    try {
-        const metadata = await prisma.user.findMany({
-            where: {
-                id: {
-                    in: parsedData.data
-                }
-            }, select: {
-                id: true, 
-                avatar: true
+    const metadata = await prisma.user.findMany({
+        where: {
+            id: {
+                in: parsedData.data
             }
-        })
+        }, select: {
+            id: true, 
+            avatar: true
+        }
+    })
 
-        return res.status(200).json({
-            avatars: metadata.map(m => ({
-                userId: m.id, 
-                imageUrl: m.avatar?.imageUrl
-            }))
-        })
-    } catch(e) {
-        return res.status(400).json({
-            message: "Send valid Input"
-        })
-    }
+    return res.status(200).json({
+        avatars: metadata.map(m => ({
+            userId: m.id, 
+            imageUrl: m.avatar?.imageUrl
+        }))
+    })
 })

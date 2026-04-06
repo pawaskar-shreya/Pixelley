@@ -18,6 +18,8 @@
       "persistent": true
     }, "db:generate": {
       "cache": false
+    }, "test": {
+      "cache":false
     }
   }
 }

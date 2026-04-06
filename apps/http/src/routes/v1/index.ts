@@ -93,12 +93,30 @@ router.post("/signin", async (req, res) => {
     }
 })
 
-router.get("/avatars", (req, res) => {
+router.get("/avatars", async (req, res) => {
+    const allAvatars = await prisma.avatar.findMany();
 
+    return res.status(200).json({
+        avatars: allAvatars.map(a => ({
+            id: a.id, 
+            name: a.name, 
+            imageUrl: a.imageUrl
+        }))
+    })
 })
 
-router.get("/elements", (req, res) => {
-    
+router.get("/elements", async (req, res) => {
+    const allElements = await prisma.element.findMany();
+
+    return res.status(200).json({
+        elements: allElements.map(ele => ({
+            id: ele.id, 
+            imageUrl: ele.imageUrl, 
+            width: ele.width, 
+            height: ele.height, 
+            static: ele.static
+        }))
+    })
 })
 
 router.use("/user", userRouter);

@@ -40,6 +40,10 @@ export const UpdateElementSchema = zod.object({
     imageUrl: zod.httpUrl()
 })
 
+export const DeleteElementSchema = zod.object({
+    id: zod.string(), 
+})
+
 export const CreateAvatarSchema = zod.object({
     imageUrl: zod.httpUrl(), 
     name: zod.string()
@@ -74,3 +78,8 @@ export const BulkMetadataSchema = zod.string()                                  
         (val) => val.split(",")
     )
     .pipe(zod.array(zod.string()))              // the generated output is passed through pipe to check if it is really an array of numbers
+
+// This type is to ensure that the path params are always string and not string[] or undefined
+export type Params = {
+    spaceId: string;
+};
