@@ -1,6 +1,46 @@
 import { beforeAll, describe, expect, expectTypeOf, it, test } from "vitest";
 import { faker } from "@faker-js/faker";
-import axios from "axios";
+import axios2 from "axios";
+import type { AxiosResponse, AxiosError } from "axios";
+
+const axios = {
+    post: async (...args: Parameters<typeof axios2.post>) : Promise<AxiosResponse> => {
+        try {
+            const res = await axios2.post(...args);
+            return res;
+        } catch(e) {
+            const err = e as AxiosError;
+            return err.response as AxiosResponse;
+        }
+    }, 
+    put: async (...args: Parameters<typeof axios2.post>) : Promise<AxiosResponse> => {
+        try {
+            const res = await axios2.put(...args);
+            return res;
+        } catch(e) {
+            const err = e as AxiosError;
+            return err.response as AxiosResponse;
+        }
+    }, 
+    get: async (...args: Parameters<typeof axios2.post>) : Promise<AxiosResponse> => {
+        try {
+            const res = await axios2.get(...args);
+            return res;
+        } catch(e) {
+            const err = e as AxiosError;
+            return err.response as AxiosResponse;
+        }
+    }, 
+    delete: async (...args: Parameters<typeof axios2.post>) : Promise<AxiosResponse> => {
+        try {
+            const res = await axios2.delete(...args);
+            return res;
+        } catch(e) {
+            const err = e as AxiosError;
+            return err.response as AxiosResponse;
+        }
+    }
+}
 
 const BACKEND_URL = "http://localhost:3000"
 const WS_URL = "ws://localhost:3001"
@@ -13,7 +53,7 @@ describe("Authentication", () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type : "admin"
+            role : "admin"
         });
         expect(response.status).toBe(200);
 
@@ -21,7 +61,7 @@ describe("Authentication", () => {
         const updatedResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type : "admin"
+            role : "admin"
         });
         expect(response.status).toBe(400);
     })
@@ -33,21 +73,21 @@ describe("Authentication", () => {
         const onlyUsernameResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password: "", 
-            type: "user" 
+            role: "user" 
         })
         expect(onlyUsernameResponse.status).toBe(400);
 
         const onlyPasswordResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username: "",
             password, 
-            type: "user" 
+            role: "user" 
         })
         expect(onlyPasswordResponse.status).toBe(400);
 
         const bothEmpty = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username: "",
             password: "", 
-            type: "user" 
+            role: "user" 
         })
         expect(bothEmpty.status).toBe(400);
     })
@@ -59,7 +99,7 @@ describe("Authentication", () => {
         await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type: "admin" 
+            role: "admin" 
         })
 
         const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
@@ -77,7 +117,7 @@ describe("Authentication", () => {
         await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type: "user"
+            role: "user"
         })
 
         const wrongPassword = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
@@ -108,7 +148,7 @@ describe("User metadata endpoints", () => {
         await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type: "admin"
+            role: "admin"
         })
 
         const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
@@ -168,7 +208,7 @@ describe("User avatar endpoints", () => {
         const signupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password,
-            type: "admin"
+            role: "admin"
         })
 
         userId = signupResponse.data.userId;
@@ -225,7 +265,7 @@ describe("Space endpoints", () => {
         const signupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             AdminUsername, 
             AdminPassword, 
-            type: "admin"
+            role: "admin"
         })
 
         adminId = signupResponse.data.userId;
@@ -294,7 +334,7 @@ describe("Space endpoints", () => {
         const userSignupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type: "user"
+            role: "user"
         })
 
         userId = userSignupResponse.data.userId;
@@ -317,7 +357,7 @@ describe("Space endpoints", () => {
                 Authorization: `Bearer ${userToken}`
             }
         })
-
+        expect(createSpaceResponse.status).toBe(200);
         expect(createSpaceResponse.data.spaceId).toBeDefined();
     })
 
@@ -331,6 +371,7 @@ describe("Space endpoints", () => {
             }
         })
 
+        expect(createSpaceResponse.data.status).toBe(200);
         expect(createSpaceResponse.data.spaceId).toBeDefined();
     })
 
@@ -479,7 +520,7 @@ describe("Arena endpoints", () => {
         const signupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             AdminUsername, 
             AdminPassword, 
-            type: "admin"
+            role: "admin"
         })
 
         adminId = signupResponse.data.userId;
@@ -498,7 +539,7 @@ describe("Arena endpoints", () => {
         const userSignupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type: "user"
+            role: "user"
         })
 
         userId = userSignupResponse.data.userId;
@@ -603,8 +644,7 @@ describe("Arena endpoints", () => {
 
         await axios.delete(`${BACKEND_URL}/api/v1/space/element`, {
             data: {
-                spaceId, 
-                elementId: getArenaBeforeDelete.data.elements[0].id
+                userId,
             }, 
             headers: {
                 Authorization: `Bearer ${userToken}`
@@ -670,7 +710,7 @@ describe("Admin endpoints", () => {
         const signupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             AdminUsername, 
             AdminPassword, 
-            type: "admin"
+            role: "admin"
         })
 
         adminId = signupResponse.data.userId;
@@ -689,7 +729,7 @@ describe("Admin endpoints", () => {
         const userSignupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type: "user"
+            role: "user"
         })
 
         userId = userSignupResponse.data.userId;
@@ -831,7 +871,7 @@ describe("Websocket Tests", () => {
         const signupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             AdminUsername, 
             AdminPassword, 
-            type: "admin"
+            role: "admin"
         })
         
         const adminId = signupResponse.data.userId;
@@ -850,7 +890,7 @@ describe("Websocket Tests", () => {
         const userSignupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username, 
             password, 
-            type: "user"
+            role: "user"
         })
 
         const userId = userSignupResponse.data.userId;
