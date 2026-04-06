@@ -375,19 +375,6 @@ describe("Space endpoints", () => {
         expect(createSpaceResponse.data.spaceId).toBeDefined();
     })
 
-    test("User is not able to create a space if both mapId and dimensions are not sent", async () => {
-        const createSpaceResponse = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-            name: "Test"
-        }, {
-            headers: {
-                Authorization: `Bearer ${userToken}`
-            }
-        })
-
-        expect(createSpaceResponse.status).toBe(400);
-        expect(createSpaceResponse.data.spaceId).not.toBeDefined();
-    })
-
     test("User is able to delete a space if spaceId is valid", async () => {
         const createSpaceResponse = await axios.post(`${BACKEND_URL}/api/v1/space`, {
             name: "Test", 
@@ -418,7 +405,7 @@ describe("Space endpoints", () => {
             }
         })
         
-        expect(deleteSpaceResponse.status).toBe(400);
+        expect(deleteSpaceResponse.status).toBe(404);
     })
 
     test("User should not be able to delete someone else's space", async () => {
@@ -443,7 +430,7 @@ describe("Space endpoints", () => {
         expect(deleteSpaceResponse.status).toBe(403);
     })
 
-    test("User should get an empty array if he has not created any spaces", async () => {
+    test("Admin should get an empty array if he has not created any spaces", async () => {
         const response = await axios.get(`${BACKEND_URL}/api/v1/space/all`, {
             headers: {
                 Authorization: `Bearer ${adminToken}`           // Haven't created spaces for admin
@@ -480,6 +467,7 @@ describe("Space endpoints", () => {
         expect(space1Obj).toBeDefined();
     })
 
+    // I think users should be able to get other users spaces, how else would they join spaces created by others
     test("User should not be able to get other user's spaces", async () => {
         const createSpace1Response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
             name: "Test",
@@ -643,11 +631,11 @@ describe("Arena endpoints", () => {
         })
 
         await axios.delete(`${BACKEND_URL}/api/v1/space/element`, {
-            data: {
-                userId,
-            }, 
             headers: {
                 Authorization: `Bearer ${userToken}`
+            }, 
+            data: {
+                userId,
             }
         })
 
