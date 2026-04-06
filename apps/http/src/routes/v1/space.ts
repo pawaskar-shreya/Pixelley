@@ -72,7 +72,7 @@ spaceRouter.post("/", userMiddleware, async (req, res) => {
 
             // Dont do the http response inside transactions, keep transactions purely for DB operations
             return res.status(200).json({
-                message: "Space created successfully"
+                spaceId: newSpace.id
             })
         }
     } catch(e) {

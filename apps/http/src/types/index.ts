@@ -19,7 +19,7 @@ export const UpdateMetadataSchema = zod.object({
 export const CreateSpaceSchema = zod.object({
     name: zod.string(),
     dimensions: zod.string().regex(/^[0-9]{1-4}x[0-9]{1-4}$/),
-    mapId: zod.string(),
+    mapId: zod.string().optional(),
 })
 
 export const AddElementSchema = zod.object({

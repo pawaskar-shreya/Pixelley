@@ -357,7 +357,7 @@ describe("Space endpoints", () => {
                 Authorization: `Bearer ${userToken}`
             }
         })
-
+        expect(createSpaceResponse.status).toBe(200);
         expect(createSpaceResponse.data.spaceId).toBeDefined();
     })
 
@@ -371,6 +371,7 @@ describe("Space endpoints", () => {
             }
         })
 
+        expect(createSpaceResponse.data.status).toBe(200);
         expect(createSpaceResponse.data.spaceId).toBeDefined();
     })
 
