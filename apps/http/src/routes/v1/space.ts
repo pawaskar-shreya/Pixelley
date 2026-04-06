@@ -84,6 +84,42 @@ spaceRouter.post("/", userMiddleware, async (req, res) => {
     }
 })
 
+
+spaceRouter.delete("/element", userMiddleware, async (req, res) => {
+    const parsedData = DeleteElementSchema.safeParse(req.body);
+
+    if(!parsedData.success) {
+        return res.status(400).json({
+            message: "Send valid Input"
+        })
+    }
+
+    const spaceElement = await prisma.spaceElements.findUnique({
+        where: {
+            id: parsedData.data.id
+        }, 
+        include: {
+            space: true
+        }
+    })
+
+    if(!spaceElement?.space.creatorId || spaceElement.space.creatorId !== req.userId) {
+        return res.status(403).json({
+            message: "Unauthorized"
+        })
+    }
+
+    await prisma.spaceElements.delete({
+        where: {
+            id: parsedData.data.id
+        }
+    })
+
+    return res.status(200).json({
+        message: "Element deleted successfully"
+    })
+})
+
 spaceRouter.delete("/:spaceId", userMiddleware, async (req: Request<Params>, res) => {
     const spaceId = req.params.spaceId;
 
@@ -97,7 +133,7 @@ spaceRouter.delete("/:spaceId", userMiddleware, async (req: Request<Params>, res
     })
 
     if(!space) {
-        return res.status(400).json({
+        return res.status(404).json({
             message: "Space not found"
         })
     }
@@ -234,40 +270,5 @@ spaceRouter.post("/element", userMiddleware, async (req, res) => {
 
     return res.status(200).json({
         message: "New element created"
-    })
-})
-
-spaceRouter.delete("/element", userMiddleware, async (req, res) => {
-    const parsedData = DeleteElementSchema.safeParse(req.body);
-
-    if(!parsedData.success) {
-        return res.status(400).json({
-            message: "Send valid Input"
-        })
-    }
-
-    const spaceElement = await prisma.spaceElements.findUnique({
-        where: {
-            id: parsedData.data.id
-        }, 
-        include: {
-            space: true
-        }
-    })
-
-    if(!spaceElement?.space.creatorId || spaceElement.space.creatorId !== req.userId) {
-        return res.status(403).json({
-            message: "Unauthorized"
-        })
-    }
-
-    await prisma.spaceElements.delete({
-        where: {
-            id: parsedData.data.id
-        }
-    })
-
-    return res.status(200).json({
-        message: "Element deleted successfully"
     })
 })

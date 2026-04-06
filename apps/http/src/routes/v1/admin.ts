@@ -4,8 +4,9 @@ import { CreateAvatarSchema, CreateElementSchema, CreateMap, UpdateElementSchema
 import { prisma } from "@pixelley/db/prisma";
 
 export const adminRouter = Router();
+adminRouter.use(adminMiddleware);
 
-adminRouter.post("/element", adminMiddleware, async (req, res) => {
+adminRouter.post("/element", async (req, res) => {
     const parsedData = CreateElementSchema.safeParse(req.body);
 
     if(!parsedData.success) {
@@ -28,7 +29,7 @@ adminRouter.post("/element", adminMiddleware, async (req, res) => {
     })
 })
 
-adminRouter.put("/element/:elementId", adminMiddleware, async (req, res) => {
+adminRouter.put("/element/:elementId", async (req, res) => {
     const parsedData = UpdateElementSchema.safeParse(req.body);
     const imageId = req.params.elementId as string;
 
@@ -52,7 +53,7 @@ adminRouter.put("/element/:elementId", adminMiddleware, async (req, res) => {
     })
 })
 
-adminRouter.post("/avatar", adminMiddleware, async (req, res) => {
+adminRouter.post("/avatar", async (req, res) => {
     const parsedData = CreateAvatarSchema.safeParse(req.body);
     
     if(!parsedData.success) {
@@ -73,7 +74,7 @@ adminRouter.post("/avatar", adminMiddleware, async (req, res) => {
     })
 })
 
-adminRouter.post("/map", adminMiddleware, async (req, res) => {
+adminRouter.post("/map", async (req, res) => {
     const parsedData = CreateMap.safeParse(req.body);
 
     if(!parsedData.success) {
