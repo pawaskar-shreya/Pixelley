@@ -19,7 +19,6 @@ router.post("/signup", async (req, res) => {
     }
 
     const hashedPassword = await hash(parsedData.data.password);
-    console.log(hashedPassword);
 
     try {
         console.log("hiawoien");
