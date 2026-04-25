@@ -73,7 +73,7 @@ export default function Space() {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black flex">
       <div className="flex-1 relative">
-        <PhaserGame spaceData={spaceData} />
+        <PhaserGame spaceData={spaceData} spaceId={spaceId} />
         <GameHUD onToggleElements={() => setShowElementsPanel(!showElementsPanel)} />
       </div>
       

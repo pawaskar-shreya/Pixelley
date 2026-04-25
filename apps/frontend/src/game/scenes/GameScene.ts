@@ -36,17 +36,28 @@ export class GameScene extends Phaser.Scene {
     const username = user?.username || 'Player';
 
     // Create world
-    this.worldMap = new WorldMap(this, 1600, 1200);
+    const spaceId = (this.registry.get('spaceId') as string | undefined) ?? '';
+    const spaceData = this.registry.get('spaceData') as SpaceData | undefined;
+    // Only the first space (mock seed: s1) gets the office map.
+    const isOfficeSpace = spaceId === 's1';
+    const dims = spaceData?.dimensions?.split('x').map(n => Number(n.trim())) ?? [];
+    const defaultWidth = Number.isFinite(dims[0]) ? (dims[0] as number) : 1600;
+    const defaultHeight = Number.isFinite(dims[1]) ? (dims[1] as number) : 1200;
+
+    // Office reference image is 1024x896; use that to prevent cropping/distortion.
+    const width = isOfficeSpace ? 1024 : defaultWidth;
+    const height = isOfficeSpace ? 896 : defaultHeight;
+
+    this.worldMap = new WorldMap(this, { theme: isOfficeSpace ? 'office' : 'default', width, height });
     this.elementsGroup = this.physics.add.staticGroup();
 
     // Load initial elements
-    const spaceData = this.registry.get('spaceData') as SpaceData | undefined;
     if (spaceData?.elements) {
       this.loadElements(spaceData.elements);
     }
 
     // Create local player
-    this.localPlayer = new PlayerEntity(this, 400, 300, userId, username, true);
+    this.localPlayer = new PlayerEntity(this, 120, 260, userId, username, true, isOfficeSpace);
     
     // Setup collision
     this.physics.add.collider(this.localPlayer, this.worldMap.getColliders());
@@ -112,7 +123,17 @@ export class GameScene extends Phaser.Scene {
   setupNetworking() {
     wsClient.on('playerJoined', (data: any) => {
       if (!this.remotePlayers.has(data.id)) {
-        const remotePlayer = new PlayerEntity(this, data.x, data.y, data.id, `Player ${data.id.slice(-4)}`, false);
+        const spaceId = (this.registry.get('spaceId') as string | undefined) ?? '';
+        const isOfficeSpace = spaceId === 's1';
+        const remotePlayer = new PlayerEntity(
+          this,
+          data.x,
+          data.y,
+          data.id,
+          `Player ${data.id.slice(-4)}`,
+          false,
+          isOfficeSpace
+        );
         this.remotePlayers.set(data.id, remotePlayer);
       }
     });

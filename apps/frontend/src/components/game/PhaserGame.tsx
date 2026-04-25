@@ -4,9 +4,10 @@ import { SpaceData } from '../../lib/types';
 
 interface PhaserGameProps {
   spaceData?: SpaceData;
+  spaceId?: string;
 }
 
-export default function PhaserGame({ spaceData }: PhaserGameProps) {
+export default function PhaserGame({ spaceData, spaceId }: PhaserGameProps) {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
 
@@ -31,6 +32,9 @@ export default function PhaserGame({ spaceData }: PhaserGameProps) {
           if (spaceData) {
             gameRef.current.registry.set('spaceData', spaceData);
           }
+          if (spaceId) {
+            gameRef.current.registry.set('spaceId', spaceId);
+          }
         });
       };
 
@@ -43,7 +47,7 @@ export default function PhaserGame({ spaceData }: PhaserGameProps) {
         gameRef.current = null;
       }
     };
-  }, [spaceData]);
+  }, [spaceData, spaceId]);
 
   return <div ref={gameContainerRef} className="absolute inset-0 w-full h-full" />;
 }

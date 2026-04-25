@@ -8,7 +8,15 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
   public targetY: number;
   private isLocal: boolean;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, id: string, name: string, isLocal: boolean = false) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    id: string,
+    name: string,
+    isLocal: boolean = false,
+    useOfficeCharacter: boolean = false
+  ) {
     super(scene, x, y);
     this.isLocal = isLocal;
     this.targetX = x;
@@ -19,8 +27,13 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     this.add(shadow);
 
     // Sprite
-    const textureKey = isLocal ? 'player' : 'remote_player';
-    this.sprite = scene.add.sprite(0, 0, textureKey);
+    if (useOfficeCharacter && scene.textures.exists('office_assets')) {
+      const frame = isLocal ? 97 : 98; // character frames from the spritesheet (bottom rows)
+      this.sprite = scene.add.sprite(0, 0, 'office_assets', frame).setScale(2);
+    } else {
+      const textureKey = isLocal ? 'player' : 'remote_player';
+      this.sprite = scene.add.sprite(0, 0, textureKey);
+    }
     this.add(this.sprite);
 
     // Nametag

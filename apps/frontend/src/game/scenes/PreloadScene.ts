@@ -7,7 +7,15 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
-    // Load any actual assets here
+    // Office map assets (served from /public)
+    // Use absolute paths so this works on non-root routes (e.g. /space)
+    this.load.image('office_map_small', '/assets/office/PixelOffice.png');
+    this.load.image('office_map_large', '/assets/office/LargePixelOffice.png');
+    // Sprite sheet of office parts (16x16 tiles; some props span multiple tiles)
+    this.load.spritesheet('office_assets', '/assets/office/PixelOfficeAssets.png', {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
   }
 
   createTexture(key: string, color: number) {
