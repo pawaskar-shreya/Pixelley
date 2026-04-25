@@ -1,0 +1,23 @@
+{
+  "name": "@pixelley/ws",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild src/index.ts --platform=node --bundle --outdir=dist --format=esm --external:express --external:@prisma/client --external:@prisma/adapter-pg --external:pg --external:jsonwebtoken --external:zod --external:dotenv --external:fs",
+    "start": "node dist/index.js",
+    "dev": "npm run build && npm run start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@pixelley/db": "*",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/ws": "^8.18.1",
+    "dotenv": "^17.4.2",
+    "jsonwebtoken": "^9.0.3",
+    "ws": "^8.20.0"
+  }
+}
