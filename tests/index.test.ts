@@ -975,8 +975,8 @@ describe("Websocket Tests", () => {
     }
 
     beforeAll(async () => {
-        setupHTTP();
-        setupWS();
+        await setupHTTP();
+        await setupWS();
     })
 
     test("Get back ack for joinng the space", async () => {

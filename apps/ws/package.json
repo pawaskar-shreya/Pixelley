@@ -13,6 +13,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/ws": "^8.18.1"
+    "@pixelley/db": "*",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/ws": "^8.18.1",
+    "dotenv": "^17.4.2",
+    "jsonwebtoken": "^9.0.3",
+    "ws": "^8.20.0"
   }
 }
