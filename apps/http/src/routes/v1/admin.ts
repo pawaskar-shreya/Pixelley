@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { adminMiddleware } from "../../middleware/admin";
 import { CreateAvatarSchema, CreateElementSchema, CreateMap, UpdateElementSchema } from "../../types";
-import { prisma } from "@pixelley/db/prisma";
+import { prisma } from "@pixelley/db";
 
 export const adminRouter = Router();
 adminRouter.use(adminMiddleware);

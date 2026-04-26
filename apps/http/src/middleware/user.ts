@@ -1,4 +1,4 @@
-import { Role } from "@pixelley/db/prisma";
+import { Role } from "@pixelley/db";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken"
 
