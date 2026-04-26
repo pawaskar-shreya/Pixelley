@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { OutgoingMessage } from "./types";
-import { prisma } from "@pixelley/db/prisma";
+import { prisma } from "@pixelley/db";
 import { RoomManager } from "./RoomManager";
 import jwt, { JwtPayload } from "jsonwebtoken"; 
 import dotenv from "dotenv";

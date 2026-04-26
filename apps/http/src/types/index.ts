@@ -1,4 +1,4 @@
-import { Role } from "@pixelley/db/prisma";
+import { Role } from "@pixelley/db";
 import zod from "zod";
 
 export const SignupSchema = zod.object({

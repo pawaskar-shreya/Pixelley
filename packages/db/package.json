@@ -1,16 +1,23 @@
 {
   "name": "@pixelley/db",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
-  "main": "index.js",
+   "scripts": {
+    "build": "prisma generate && tsc",
+    "dev": "prisma generate && tsc --watch",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
   "exports": {
-    "./prisma": "./src/index.ts"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
   },
-  "scripts": {
-    "db:generate": "prisma generate",
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "keywords": [],
   "author": "",
   "license": "ISC",

@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 import { AddElementSchema, CreateSpaceSchema, DeleteElementSchema, Params } from "../../types";
 import { userMiddleware } from "../../middleware/user";
-import { prisma } from "@pixelley/db/prisma";
+import { prisma } from "@pixelley/db";
 
 export const spaceRouter = Router();
 
