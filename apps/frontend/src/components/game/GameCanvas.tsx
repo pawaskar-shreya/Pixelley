@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import PhaserGame from './PhaserGame';
 import GameHUD from './GameHUD';
-import { wsClient } from '../../lib/networking/wsClient';
+import { wsClient } from '../../lib/wsClient';
 import { useGameUIStore } from '../../lib/store';
 
 export default function GameCanvas() {

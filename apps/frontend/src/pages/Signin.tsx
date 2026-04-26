@@ -1,67 +1,59 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { useAuthStore } from '../lib/store';
+import { Avatar } from '../lib/types';
 
-export default function Signin() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+export default function AvatarSelection() {
+  const [avatars, setAvatars] = useState<Avatar[]>([]);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const setToken = useAuthStore(state => state.setToken);
-  const setUser = useAuthStore(state => state.setUser);
 
-  const handleSignin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    api.getAvatars()
+      .then(res => {
+        setAvatars(res.avatars || []);
+        setLoading(false);
+      })
+      .catch(console.error);
+  }, []);
+
+  const handleSave = async () => {
+    if (!selectedAvatar) return;
     try {
-      const res = await api.signin({ username, password });
-      localStorage.setItem('token', res.token);
-      setToken(res.token);
-      // We don't have a /me endpoint in the prompt, so we mock the user object for now
-      setUser({ id: username, username }); 
+      await api.updateMetadata({ avatarId: selectedAvatar });
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  if (loading) return <div className="p-8 text-center">Loading avatars...</div>;
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign In to ZEP</h2>
-        {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4">{error}</div>}
-        <form onSubmit={handleSignin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+    <div className="max-w-4xl mx-auto p-8">
+      <h1 className="text-3xl font-bold mb-8">Select Your Avatar</h1>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        {avatars.map(avatar => (
+          <div
+            key={avatar.id}
+            onClick={() => setSelectedAvatar(avatar.id)}
+            className={`cursor-pointer rounded-lg p-4 border-2 transition-all ${
+              selectedAvatar === avatar.id ? 'border-blue-500 bg-blue-50' : 'border-transparent hover:border-gray-200'
+            }`}
           >
-            Sign In
-          </button>
-        </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account? <Link to="/auth/signup" className="text-blue-600 hover:underline">Sign Up</Link>
-        </p>
+            <img src={avatar.imageUrl} alt={avatar.name} className="w-full aspect-square object-contain mb-2" />
+            <p className="text-center font-medium">{avatar.name}</p>
+          </div>
+        ))}
       </div>
+      <button
+        onClick={handleSave}
+        disabled={!selectedAvatar}
+        className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium disabled:opacity-50"
+      >
+        Save & Continue
+      </button>
     </div>
   );
 }

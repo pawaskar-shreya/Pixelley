@@ -35,9 +35,8 @@ export class WorldMap {
   }
 
   private buildOffice(scene: Phaser.Scene) {
-    // Render the exact reference map as a single background image.
-    // Important: ensure the world bounds match the image size (set by GameScene for office spaces).
-    scene.add.image(0, 0, 'office_map_large').setOrigin(0, 0).setDepth(GAME_CONFIG.DEPTHS.GROUND);
+    this.drawOfficeBase(scene);
+    this.drawOfficeElements(scene);
 
     // Colliders are invisible static bodies; the map art already contains the props visually.
     // Outer bounds blockers (keep players inside world)
@@ -57,6 +56,54 @@ export class WorldMap {
 
     // Bottom-right cluster (trash/plant/table)
     this.addRectCollider(600, 790, 420, 80);
+  }
+
+  private drawOfficeBase(scene: Phaser.Scene) {
+    const rows = Math.ceil(this.bounds.height / GAME_CONFIG.TILE_SIZE);
+    scene.add.rectangle(0, 0, this.bounds.width, GAME_CONFIG.TILE_SIZE * 9, 0xd9dce3).setOrigin(0, 0).setDepth(GAME_CONFIG.DEPTHS.GROUND);
+    scene.add.rectangle(0, GAME_CONFIG.TILE_SIZE * 6, this.bounds.width, 6, 0xa8b1bf).setOrigin(0, 0).setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
+
+    for (let y = 9; y < rows; y++) {
+      const color = y % 2 === 0 ? 0x4fa7db : 0x3c95cd;
+      scene.add.rectangle(0, y * GAME_CONFIG.TILE_SIZE, this.bounds.width, GAME_CONFIG.TILE_SIZE, color).setOrigin(0, 0).setDepth(GAME_CONFIG.DEPTHS.GROUND);
+      scene.add.rectangle(0, y * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE - 3, this.bounds.width, 3, 0x2f6e9f).setOrigin(0, 0).setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
+    }
+  }
+
+  private drawOfficeElements(scene: Phaser.Scene) {
+    const hasDesk = scene.textures.exists('office_desk');
+    const hasChair = scene.textures.exists('office_chair');
+    const hasPlant = scene.textures.exists('office_plant');
+
+    if (!(hasDesk && hasChair && hasPlant)) {
+      return;
+    }
+
+    const deskScale = 2.2;
+    const chairScale = 2;
+    const plantScale = 2.2;
+    const workerScale = 2;
+
+    [420, 580, 740].forEach(y => {
+      [180, 360, 540, 720, 900].forEach(x => {
+        scene.add.image(x, y, 'office_desk').setScale(deskScale).setDepth(GAME_CONFIG.DEPTHS.WALLS);
+        scene.add.image(x - 16, y + 24, 'office_chair').setScale(chairScale).setDepth(GAME_CONFIG.DEPTHS.WALLS + 1);
+      });
+    });
+
+    scene.add.image(390, 320, 'office_plant').setScale(plantScale).setDepth(GAME_CONFIG.DEPTHS.WALLS + 1);
+    scene.add.image(620, 320, 'office_plant').setScale(plantScale).setDepth(GAME_CONFIG.DEPTHS.WALLS + 1);
+    scene.add.image(860, 830, 'office_plant').setScale(plantScale).setDepth(GAME_CONFIG.DEPTHS.WALLS + 1);
+
+    if (scene.textures.exists('office_worker_1')) {
+      scene.add.image(270, 460, 'office_worker_1').setScale(workerScale).setDepth(GAME_CONFIG.DEPTHS.PLAYERS - 1);
+    }
+    if (scene.textures.exists('office_worker_2')) {
+      scene.add.image(870, 640, 'office_worker_2').setScale(workerScale).setDepth(GAME_CONFIG.DEPTHS.PLAYERS - 1);
+    }
+    if (scene.textures.exists('office_worker_4')) {
+      scene.add.image(510, 800, 'office_worker_4').setScale(workerScale).setDepth(GAME_CONFIG.DEPTHS.PLAYERS - 1);
+    }
   }
 
   private buildDefault(scene: Phaser.Scene) {

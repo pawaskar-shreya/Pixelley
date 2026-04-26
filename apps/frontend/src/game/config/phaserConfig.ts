@@ -13,7 +13,7 @@ export const getPhaserConfig = (parent: HTMLElement): Phaser.Types.Core.GameConf
     default: 'arcade',
     arcade: {
       gravity: { x: 0, y: 0 },
-      debug: false,
+      debug: true,
     },
   },
   scene: [BootScene, PreloadScene, GameScene],

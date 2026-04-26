@@ -19,16 +19,6 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-  preload() {
-    const spaceData = this.registry.get('spaceData') as SpaceData | undefined;
-    if (spaceData?.elements) {
-      spaceData.elements.forEach(el => {
-        if (!this.textures.exists(`element_${el.element.id}`)) {
-          this.load.image(`element_${el.element.id}`, el.element.imageUrl);
-        }
-      });
-    }
-  }
 
   create() {
     const { user } = useAuthStore.getState();
@@ -164,6 +154,8 @@ export class GameScene extends Phaser.Scene {
       moveVector.x * GAME_CONFIG.PLAYER_SPEED,
       moveVector.y * GAME_CONFIG.PLAYER_SPEED
     );
+
+    this.localPlayer.update(time, delta);
 
     // Send movement to server (throttle to ~10fps)
     if (time - this.lastSendTime > 100 && (moveVector.x !== 0 || moveVector.y !== 0)) {
