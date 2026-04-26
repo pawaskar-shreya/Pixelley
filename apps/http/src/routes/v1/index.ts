@@ -3,7 +3,7 @@ import { userRouter } from "./user";
 import { adminRouter } from "./admin";
 import { spaceRouter } from "./space";
 import { SigninSchema, SignupSchema } from "../../types";
-import { prisma } from "@pixelley/db/prisma"
+import { prisma } from "@pixelley/db";
 import { hash, compare } from "../../scrypt"
 import jwt from "jsonwebtoken";
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { BulkMetadataSchema, UpdateMetadataSchema } from "../../types";
-import { prisma } from "@pixelley/db/prisma";
+import { prisma } from "@pixelley/db";
 import { userMiddleware } from "../../middleware/user";
 
 export const userRouter = Router();
