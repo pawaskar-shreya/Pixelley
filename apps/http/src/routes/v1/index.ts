@@ -21,11 +21,6 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await hash(parsedData.data.password);
 
     try {
-        console.log("hiawoien");
-
-        console.log(parsedData.data)
-        console.log("DB URL:", process.env.DATABASE_URL);
-
         const user = await prisma.user.create({
             data: {
                 username: parsedData.data.username, 
@@ -33,8 +28,6 @@ router.post("/signup", async (req, res) => {
                 role: parsedData.data.role             // I am using an enum here, harkirat has diff code
             }
         })
-
-        console.log(user + "-----------------------------");
 
         return res.status(200).json({
             userId: user.id
