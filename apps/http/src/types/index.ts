@@ -2,7 +2,7 @@ import { Role } from "@pixelley/db";
 import zod from "zod";
 
 export const SignupSchema = zod.object({
-    username: zod.email(),
+    username: zod.string().email(),
     password: zod.string().min(10),
     role: zod.enum(["Admin", "User"])
 })
@@ -18,10 +18,10 @@ export const UpdateMetadataSchema = zod.object({
 
 export const CreateSpaceSchema = zod.object({
     name: zod.string(),
-    dimensions: zod.string().regex(/^[0-9]{1-4}x[0-9]{1-4}$/),
     mapId: zod.string().optional(),
+    dimensions: zod.string().trim().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
 })
-
+  
 export const AddElementSchema = zod.object({
     elementId: zod.string(), 
     spaceId: zod.string(), 
@@ -51,7 +51,7 @@ export const CreateAvatarSchema = zod.object({
 
 export const CreateMap = zod.object({
     thumbnail: zod.httpUrl(), 
-    dimensions: zod.string().regex(/^[0-9]{1-4}x[0-9]{1-4}$/),
+    dimensions: zod.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
     name: zod.string(), 
     defaultElements: zod.array(
         zod.object({

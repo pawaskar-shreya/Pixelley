@@ -8,7 +8,24 @@ export const spaceRouter = Router();
 spaceRouter.post("/", userMiddleware, async (req, res) => {
     const parsedData = CreateSpaceSchema.safeParse(req.body);
 
+    // console.log("FULL BODY:", req.body);
+    // console.log("SCHEMA REGEX CHECK:", /^[0-9]{1,4}x[0-9]{1,4}$/.test("400x400"));
+    // console.log("Runtime schema ioawenfaoi" + CreateSpaceSchema.shape.dimensions);
+
+    // console.log("----------------------------------------------")
+    // console.log(parsedData.data)
+    // console.log(parsedData.success)
+    // console.log(parsedData.error)
+    // console.log("----------------------------------------------")
+
+    // console.log("RAW:", req.body.dimensions);
+    // console.log("TYPE:", typeof req.body.dimensions);
+    // console.log("CHARS:", [...req.body.dimensions]);
+
+    // console.log("----------------------------------------------")
+
     if(!parsedData.success) {
+        // console.log("inside the ifffafa" + parsedData.error.format());
         return res.status(400).json({
             message: "Send valid Input"
         })
@@ -79,7 +96,7 @@ spaceRouter.post("/", userMiddleware, async (req, res) => {
         console.log(e);
 
         return res.status(400).json({
-            message: "Send valid Input"
+            message: "Space not created"
         })
     }
 })

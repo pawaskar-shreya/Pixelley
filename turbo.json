@@ -5,6 +5,7 @@
     "build": {
       "dependsOn": ["^build", "^db:generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": ["DATABASE_URL"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**", "generated/**"]
     },
     "lint": {
@@ -15,12 +16,14 @@
     },
     "dev": {
       "dependsOn": ["^build"],
+      "env": ["DATABASE_URL"],
       "cache": false,
       "persistent": true
     }, "db:generate": {
       "cache": false
     }, "test": {
-      "cache":false
+      "cache":false,
+      "env": ["DATABASE_URL"]
     }
   }
 }

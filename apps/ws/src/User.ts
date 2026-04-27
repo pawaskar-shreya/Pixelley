@@ -92,6 +92,7 @@ export class User {
                     const yDisplacement = Math.abs(this.y - moveY);
 
                     // Todo: Don't let them get on top of static elements and outside the wall
+                    // Maybe they can pass past each other
                     if((xDisplacement == 1 && yDisplacement == 0) || (yDisplacement == 1 && xDisplacement == 0)) {
                         this.x = moveX; 
                         this.y = moveY;
