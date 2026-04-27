@@ -13,7 +13,7 @@ export default function Signup() {
     e.preventDefault();
     try {
       await api.signup({ username, password, type });
-      navigate('/auth/signin');
+      navigate('/signin');
     } catch (err: any) {
       setError(err.message);
     }

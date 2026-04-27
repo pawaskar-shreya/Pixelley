@@ -19,12 +19,12 @@ router.post("/signup", async (req, res) => {
     }
 
     const hashedPassword = await hash(parsedData.data.password);
-    console.log(hashedPassword);
 
     try {
         console.log("hiawoien");
 
         console.log(parsedData.data)
+        console.log("DB URL:", process.env.DATABASE_URL);
 
         const user = await prisma.user.create({
             data: {
@@ -34,7 +34,7 @@ router.post("/signup", async (req, res) => {
             }
         })
 
-        console.log(user);
+        console.log(user + "-----------------------------");
 
         return res.status(200).json({
             userId: user.id
@@ -42,7 +42,7 @@ router.post("/signup", async (req, res) => {
     } catch(e) {
         console.log(e);
         return res.status(400).json({
-            message: "Username already taken"
+            message: "Failed to create user"
         })
     }
 })

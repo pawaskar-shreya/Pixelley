@@ -2,7 +2,7 @@ import { Role } from "@pixelley/db";
 import zod from "zod";
 
 export const SignupSchema = zod.object({
-    username: zod.email(),
+    username: zod.string().email(),
     password: zod.string().min(10),
     role: zod.enum(["Admin", "User"])
 })
