@@ -24,7 +24,7 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     this.targetY = y;
     this.usingJulia = scene.textures.exists('julia_idle');
 
-    console.log(`🎮 PlayerEntity [${id}] usingJulia=${this.usingJulia} isLocal=${isLocal}`);
+    console.log(`PlayerEntity [${id}] usingJulia=${this.usingJulia} isLocal=${isLocal}`);
 
     // Shadow
     const shadow = scene.add.ellipse(
@@ -111,9 +111,9 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
           frameRate,
           repeat: -1,
         });
-        console.log('✅ Anim created:', key);
+        console.log('Anim created:', key);
       } else if (!scene.textures.exists(texture)) {
-        console.warn(`⚠️ Missing texture for anim "${key}": needs "${texture}"`);
+        console.warn(`Missing texture for anim "${key}": needs "${texture}"`);
       }
     });
   }

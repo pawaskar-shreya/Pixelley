@@ -7,7 +7,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
-    // Julia spritesheets — separate PNG per direction
+    // Julia spritesheets : separate PNG per direction
     this.load.spritesheet('julia_idle',         '/free-office-pixel-art/Julia-Idle.png',        { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('julia_walk_forward', '/free-office-pixel-art/Julia_walk_Foward.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('julia_walk_left',    '/free-office-pixel-art/Julia_walk_Left.png',   { frameWidth: 64, frameHeight: 64 });
