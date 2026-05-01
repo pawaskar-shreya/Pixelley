@@ -14,81 +14,64 @@ datasource db {
 }
 
 model User {
-  id       String  @id @unique @default(cuid())
-  username String  @unique
-  password String  
-  avatarId String?
-  role     Role
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+  name     String
+  gender   String
+  avatarId String
 
-  space    Space[]
-  avatar   Avatar?   @relation(fields: [avatarId], references: [id])
+  avatar        Avatar         @relation(fields: [avatarId], references: [id])
+  spaceElements SpaceElement[]
+}
+
+model Avatar {
+  id       String @id @default(cuid())
+  name     String
+  gender   String
+  idleUrl  String
+  leftUrl  String
+  rightUrl String
+  upUrl    String
+  downUrl  String
+
+  users User[]
 }
 
 model Space {
-  id          String  @id @unique @default(cuid())
+  id          String @id @default(cuid())
   name        String
   width       Int
   height      Int
-  thumbnail   String?
-  creatorId   String
+  tilemapUrl  String                    // R2 object key -> Phaser Tiled JSON
+  thumbnail   String                    // R2 object key -> dashboard preview
 
-  creator     User    @relation(fields: [creatorId], references: [id])
-
-  spaceElements SpaceElements[]
+  elements      Element[]
+  spaceElements SpaceElement[]
 }
 
-model SpaceElements {
-  id        String @id @unique @default(cuid())
+model Element {
+  id           String  @id @default(cuid())
+  spaceId      String
+  name         String
+  width        Int
+  height       Int
+  isCollidable Boolean @default(false)
+  imageUrl     String                     // R2 object key for sprite of the element
+
+  space         Space          @relation(fields: [spaceId], references: [id])
+  spaceElements SpaceElement[]
+}
+
+model SpaceElement {
+  id        String @id @default(cuid())
   elementId String
   spaceId   String
+  addedById String
   x         Int
   y         Int
 
   space     Space   @relation(fields: [spaceId], references: [id])
   element   Element @relation(fields: [elementId], references: [id])
-}
-
-model Element {
-  id       String @id @unique @default(cuid())
-  width    Int
-  height   Int
-  static   Boolean
-  imageUrl String
-
-  spaceElements SpaceElements[]
-  mapElements   MapElements[]
-}
-
-model Map {
-  id              String  @id @unique @default(cuid())
-  width           Int
-  height          Int
-  name            String
-  thumbnail       String
-
-  mapElements     MapElements[]
-}
-
-model MapElements {
-  id        String  @id @unique @default(cuid())
-  mapId     String
-  elementId String
-  x         Int?
-  y         Int?
-
-  map       Map       @relation(fields: [mapId], references: [id])
-  elements  Element   @relation(fields: [elementId], references: [id])
-}
-
-model Avatar {
-  id       String  @id @unique @default(cuid())
-  imageUrl String?
-  name     String?
-
-  users    User[]
-}
-
-enum Role {
-  Admin
-  User
+  addedBy   User    @relation(fields: [addedById], references: [id])
 }

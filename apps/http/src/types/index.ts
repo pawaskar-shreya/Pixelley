@@ -1,26 +1,21 @@
-import { Role } from "@pixelley/db";
 import zod from "zod";
 
 export const SignupSchema = zod.object({
     username: zod.string().email(),
-    password: zod.string().min(10),
-    role: zod.enum(["Admin", "User"])
+    password: zod.string().min(8, "Password too short").regex(/^\S+$/, "No spaces allowed"),
+    name: zod.string().trim().min(1).max(20),
+    gender: zod.string()
 })
 
 export const SigninSchema = zod.object({
     username: zod.email(), 
-    password: zod.string().min(10)
+    password: zod.string().min(8, "Password too short").regex(/^\S+$/, "No spaces allowed"),
 })
 
-export const UpdateMetadataSchema = zod.object({
-    avatarId: zod.string()
-})
-
-export const CreateSpaceSchema = zod.object({
-    name: zod.string(),
-    mapId: zod.string().optional(),
-    dimensions: zod.string().trim().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
-})
+// ------------ TODO: Add avatar selection
+// export const UpdateMetadataSchema = zod.object({
+//     avatarId: zod.string()
+// })
   
 export const AddElementSchema = zod.object({
     elementId: zod.string(), 
@@ -29,37 +24,8 @@ export const AddElementSchema = zod.object({
     y: zod.number()
 })
 
-export const CreateElementSchema = zod.object({
-    imageUrl: zod.httpUrl(), 
-    width: zod.number(), 
-    height: zod.number(), 
-    static: zod.boolean()
-})
-
-export const UpdateElementSchema = zod.object({
-    imageUrl: zod.httpUrl()
-})
-
 export const DeleteElementSchema = zod.object({
     id: zod.string(), 
-})
-
-export const CreateAvatarSchema = zod.object({
-    imageUrl: zod.httpUrl(), 
-    name: zod.string()
-})
-
-export const CreateMap = zod.object({
-    thumbnail: zod.httpUrl(), 
-    dimensions: zod.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
-    name: zod.string(), 
-    defaultElements: zod.array(
-        zod.object({
-            elementId: zod.string(), 
-            x: zod.number(),
-            y: zod.number()
-        })
-    )
 })
 
 // Extending the req obj globally to include uesrID, role and username
@@ -68,7 +34,7 @@ declare global {
     export interface Request {
       userId?: string;
       username?: string;
-      role?: Role;
+      gender: string;
     }
   }
 }

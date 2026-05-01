@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { userRouter } from "./user";
-import { adminRouter } from "./admin";
 import { spaceRouter } from "./space";
 import { SigninSchema, SignupSchema } from "../../types";
 import { prisma } from "@pixelley/db";
@@ -21,11 +20,22 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await hash(parsedData.data.password);
 
     try {
+        const avatar = await prisma.avatar.findFirst({
+            where: {
+                gender: parsedData.data.gender
+            }, 
+            select: {
+                id: true
+            }
+        })
+
         const user = await prisma.user.create({
             data: {
                 username: parsedData.data.username, 
                 password: hashedPassword, 
-                role: parsedData.data.role             // I am using an enum here, harkirat has diff code
+                name: parsedData.data.name,
+                gender: parsedData.data.gender,
+                avatarId: avatar?.id!
             }
         })
 
@@ -72,12 +82,17 @@ router.post("/signin", async (req, res) => {
 
         const token = jwt.sign({
             userId: user.id,
-            username: parsedData.data.username, 
-            role: user.role
+            username: parsedData.data.username
         }, process.env.JWT_PASSWORD as string)
 
         return res.status(200).json({
-            token
+            token, 
+            user : {
+                id: user.id, 
+                name: user.name,
+                gender: user.gender, 
+                avatarId: user.avatarId
+            }
         })
     } catch(e) {
         return res.status(400).json({
@@ -86,32 +101,19 @@ router.post("/signin", async (req, res) => {
     }
 })
 
-router.get("/avatars", async (req, res) => {
-    const allAvatars = await prisma.avatar.findMany();
+// ------------ TODO: Add avatar selection
 
-    return res.status(200).json({
-        avatars: allAvatars.map(a => ({
-            id: a.id, 
-            name: a.name, 
-            imageUrl: a.imageUrl
-        }))
-    })
-})
+// router.get("/avatars", async (req, res) => {
+//     const allAvatars = await prisma.avatar.findMany();
 
-router.get("/elements", async (req, res) => {
-    const allElements = await prisma.element.findMany();
-
-    return res.status(200).json({
-        elements: allElements.map(ele => ({
-            id: ele.id, 
-            imageUrl: ele.imageUrl, 
-            width: ele.width, 
-            height: ele.height, 
-            static: ele.static
-        }))
-    })
-})
+//     return res.status(200).json({
+//         avatars: allAvatars.map(a => ({
+//             id: a.id, 
+//             name: a.name, 
+//             imageUrl: a.imageUrl
+//         }))
+//     })
+// })
 
 router.use("/user", userRouter);
-router.use("/admin", adminRouter);
 router.use("/space", spaceRouter);

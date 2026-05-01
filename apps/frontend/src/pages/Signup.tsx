@@ -5,14 +5,15 @@ import { api } from '../lib/api';
 export default function Signup() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [type, setType] = useState<'user' | 'admin'>('user');
+  const [name, setName] = useState('');
+  const [gender, setGender] = useState<'Female' | 'Male'>('Female');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.signup({ username, password, type });
+      await api.signup({ username, password, gender });
       navigate('/signin');
     } catch (err: any) {
       setError(err.message);
@@ -26,12 +27,24 @@ export default function Signup() {
         {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4">{error}</div>}
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
+            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+              placeholder='Enter your name'
+              required
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+              placeholder='Enter your email'
               required
             />
           </div>
@@ -42,18 +55,19 @@ export default function Signup() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+              placeholder='Enter your password'
               required
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Type</label>
             <select
-              value={type}
-              onChange={(e) => setType(e.target.value as any)}
+              value={gender}
+              onChange={(e) => setGender(e.target.value as any)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
             </select>
           </div>
           <button

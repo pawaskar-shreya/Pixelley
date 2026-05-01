@@ -1,8 +1,9 @@
 export interface User {
   id: string;
   username: string;
-  avatarUrl?: string;
-  type?: 'admin' | 'user';
+  name: string;
+  avatarId: string;
+  gender: 'Female' | 'Male';
 }
 
 export interface PlayerState {
@@ -19,23 +20,26 @@ export interface GameState {
 
 export interface Avatar {
   id: string;
-  imageUrl: string;
   name: string;
+  idleUrl: string;
 }
 
 export interface Space {
   id: string;
   name: string;
-  dimensions: string;
-  thumbnail?: string;
+  width: string;
+  height: string;
+  tilemapUrl: string;
+  thumbnail: string;
 }
 
 export interface Element {
   id: string;
+  spaceId: string;
   imageUrl: string;
   width: number;
   height: number;
-  static: boolean;
+  isCollidable: boolean;
 }
 
 export interface SpaceElement {
@@ -46,6 +50,7 @@ export interface SpaceElement {
 }
 
 export interface SpaceData {
-  dimensions: string;
+  width: string;
+  height: string;
   elements: SpaceElement[];
 }

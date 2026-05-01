@@ -131,7 +131,6 @@ export class User {
         }, this.spaceId!, this)
 
         RoomManager.getInstance().removeUser(this.spaceId!, this)
-        // this.ws.close();
     }
 
     send(message: OutgoingMessage) {
