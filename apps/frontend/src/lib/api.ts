@@ -1,23 +1,18 @@
 import axios, { AxiosError } from 'axios';
+import { User } from './types';
 
 
-type Role = 'Admin' | 'User';
+type Gender = 'Female' | 'Male';
 
 type SignupRequest = {
   username: string;
   password: string;
-  role: Role;
+  gender: Gender
 };
 
 type SigninRequest = {
   username: string;
   password: string;
-};
-
-type CreateSpaceRequest = {
-  name: string;
-  dimensions: string; // "100x200"
-  mapId?: string;
 };
 
 type AddElementRequest = {
@@ -94,38 +89,36 @@ async function del<T>(url: string, config?: any): Promise<T> {
 
 export const api = {
   // Auth
-  signup: async (data: SignupRequest | (Record<string, any> & { type?: 'User' | 'admin' })) => {
-    // Backward-compat: some pages still send `type` (user/admin). Map to backend Role enum.
-    const role: Role =
-      (data as any).role ??
-      (((data as any).type === 'admin' ? 'Admin' : 'User') as Role);
+  signup: async (data: SignupRequest) => {
+    const { username, password, gender } = data;
 
     return post<{ userId: string }>('/signup', {
-      username: (data as any).username,
-      password: (data as any).password,
-      role,
-    } satisfies SignupRequest);
+      username,
+      password,
+      gender
+    });
   },
 
   signin: async (data: SigninRequest) => {
-    return post<{ token: string }>('/signin', data);
+    return post<{ token: string, user: User }>('/signin', data);
   },
 
-  // User / metadata
-  getAvatars: async () => {
-    return get<{ avatars: Array<{ id: string; name: string; imageUrl: string }> }>('/avatars');
-  },
+  //  ------------ TODO: Add avatar selection
 
-  updateMetadata: async (data: { avatarId: string }) => {
-    // Backend returns { message }, but callers only care that it succeeded.
-    await post<{ message: string }>('/user/metadata', data);
-    return { success: true };
-  },
+  // getAvatars: async () => {
+  //   return get<{ avatars: Array<{ id: string; name: string; imageUrl: string }> }>('/avatars');
+  // },
+
+  // updateMetadata: async (data: { avatarId: string }) => {
+  //   // Backend returns { message }, but callers only care that it succeeded.
+  //   await post<{ message: string }>('/user/metadata', data);
+  //   return { success: true };
+  // },
 
   getBulkMetadata: async (ids: string[]) => {
     // Backend reads ids from query string: /user/metadata/bulk?ids=a,b,c
     const idsParam = ids.join(',');
-    return post<{ avatars: Array<{ userId: string; imageUrl?: string | null }> }>(
+    return post<{ avatars: Array<{ userId: string; idleUrl: string }> }>(
       '/user/metadata/bulk',
       undefined,
       { params: { ids: idsParam } }
@@ -134,18 +127,9 @@ export const api = {
 
   // Spaces (Dashboard)
   getSpaces: async () => {
-    return get<{ spaces: Array<{ id: string; name: string; dimensions: string; thumbnail?: string | null }> }>(
-      '/space/all'
+    return get<{ spaces: Array<{ id: string; name: string; width: string; height: string;  tilemapUrl: string; thumbnail: string }> }>(
+      '/space'
     );
-  },
-
-  createSpace: async (data: CreateSpaceRequest) => {
-    return post<{ spaceId: string }>('/space', data);
-  },
-
-  deleteSpace: async (spaceId: string) => {
-    await del<{ message: string }>(`/space/${spaceId}`);
-    return { success: true };
   },
 
   // Space page
@@ -156,16 +140,17 @@ export const api = {
         id: string;
         x: number;
         y: number;
-        element: { id: string; imageUrl: string; width: number; height: number; static: boolean };
+        addedById: string;
+        element: { id: string; imageUrl: string; width: number; height: number; isCollidable: boolean };
       }>;
     }>(`/space/${spaceId}`);
   },
 
   // Elements palette
-  getElements: async () => {
+  getElements: async (spaceId: string) => {
     return get<{
-      elements: Array<{ id: string; imageUrl: string; width: number; height: number; static: boolean }>;
-    }>('/elements');
+      elements: Array<{ id: string; name: string; width: number; height: number; imageUrl: string; isCollidable: boolean }>;
+    }>(`/space/${spaceId}/elements`);
   },
 
   addElementToSpace: async (data: AddElementRequest) => {

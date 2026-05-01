@@ -17,8 +17,7 @@ export default function Signin() {
       const res = await api.signin({ username, password });
       localStorage.setItem('token', res.token);
       setToken(res.token);
-      // We don't have a /me endpoint in the prompt, so we mock the user object for now
-      setUser({ id: username, username }); 
+      setUser(res.user); 
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
@@ -38,6 +37,7 @@ export default function Signin() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+              placeholder='Enter your email'
               required
             />
           </div>
@@ -48,6 +48,7 @@ export default function Signin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+              placeholder='Enter your password'
               required
             />
           </div>
@@ -59,7 +60,7 @@ export default function Signin() {
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account? <Link to="/auth/signup" className="text-blue-600 hover:underline">Sign Up</Link>
+          Don't have an account? <Link to="/signup" className="text-blue-600 hover:underline">Sign Up</Link>
         </p>
       </div>
     </div>

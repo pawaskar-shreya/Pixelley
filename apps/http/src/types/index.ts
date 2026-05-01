@@ -2,13 +2,14 @@ import zod from "zod";
 
 export const SignupSchema = zod.object({
     username: zod.string().email(),
-    password: zod.string().min(10),
+    password: zod.string().min(8, "Password too short").regex(/^\S+$/, "No spaces allowed"),
+    name: zod.string().trim().min(1).max(20),
     gender: zod.string()
 })
 
 export const SigninSchema = zod.object({
     username: zod.email(), 
-    password: zod.string().min(10)
+    password: zod.string().min(8, "Password too short").regex(/^\S+$/, "No spaces allowed"),
 })
 
 // ------------ TODO: Add avatar selection

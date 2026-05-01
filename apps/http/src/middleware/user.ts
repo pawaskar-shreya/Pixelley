@@ -16,8 +16,6 @@ export const userMiddleware = (req: Request, res: Response, next: NextFunction) 
             userId: string, 
             username: string
         }
-        
-        // For userMiddleware, we don't check if the token is of admin or a user, as an admin can also be an user of our app
 
         req.userId = decoded.userId; 
 

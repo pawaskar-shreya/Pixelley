@@ -33,6 +33,7 @@ router.post("/signup", async (req, res) => {
             data: {
                 username: parsedData.data.username, 
                 password: hashedPassword, 
+                name: parsedData.data.name,
                 gender: parsedData.data.gender,
                 avatarId: avatar?.id!
             }
@@ -85,7 +86,13 @@ router.post("/signin", async (req, res) => {
         }, process.env.JWT_PASSWORD as string)
 
         return res.status(200).json({
-            token
+            token, 
+            user : {
+                id: user.id, 
+                name: user.name,
+                gender: user.gender, 
+                avatarId: user.avatarId
+            }
         })
     } catch(e) {
         return res.status(400).json({

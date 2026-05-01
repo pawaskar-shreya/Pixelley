@@ -3,8 +3,6 @@ import Signup from './pages/Signup';
 import Signin from './pages/Signin';
 import Dashboard from './pages/Dashboard';
 import Space from './pages/Space';
-import Admin from './pages/Admin';
-import AvatarSelection from './pages/AvatarSelection';
 
 export default function App() {
   return (
@@ -15,8 +13,6 @@ export default function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/space/:spaceId" element={<Space />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/avatar" element={<AvatarSelection />} />
       </Routes>
     </Router>
   );
