@@ -1,106 +1,70 @@
 import { Request, Router } from "express";
-import { AddElementSchema, CreateSpaceSchema, DeleteElementSchema, Params } from "../../types";
+import { AddElementSchema, DeleteElementSchema, Params } from "../../types";
 import { userMiddleware } from "../../middleware/user";
 import { prisma } from "@pixelley/db";
 
 export const spaceRouter = Router();
 
-spaceRouter.post("/", userMiddleware, async (req, res) => {
-    const parsedData = CreateSpaceSchema.safeParse(req.body);
+spaceRouter.get("/", async (req, res) => {
+    const Allspaces = await prisma.space.findMany({})
 
-    // console.log("FULL BODY:", req.body);
-    // console.log("SCHEMA REGEX CHECK:", /^[0-9]{1,4}x[0-9]{1,4}$/.test("400x400"));
-    // console.log("Runtime schema ioawenfaoi" + CreateSpaceSchema.shape.dimensions);
+    return res.status(200).json({
+        spaces: Allspaces.map(space => ({
+            id: space.id,
+            name: space.name, 
+            width: space.width,
+            height: space.height,
+            tilemapUrl: space.tilemapUrl,
+            thumbnail: space.thumbnail
+        }))
+    })
+})
 
-    // console.log("----------------------------------------------")
-    // console.log(parsedData.data)
-    // console.log(parsedData.success)
-    // console.log(parsedData.error)
-    // console.log("----------------------------------------------")
-
-    // console.log("RAW:", req.body.dimensions);
-    // console.log("TYPE:", typeof req.body.dimensions);
-    // console.log("CHARS:", [...req.body.dimensions]);
-
-    // console.log("----------------------------------------------")
+spaceRouter.post("/element", userMiddleware, async (req, res) => {
+    const parsedData = AddElementSchema.safeParse(req.body);
 
     if(!parsedData.success) {
-        // console.log("inside the ifffafa" + parsedData.error.format());
         return res.status(400).json({
             message: "Send valid Input"
         })
     }
 
-    try {
-        if(!parsedData.data.mapId) {
-            const space = await prisma.space.create({
-                data: {
-                    name: parsedData.data.name,
-                    width: parseInt(parsedData.data.dimensions.split("x")[0]!),
-                    height:  parseInt(parsedData.data.dimensions.split("x")[1]!),
-                    creatorId: req.userId!
-                }
-            })
-
-            return res.status(200).json({
-                spaceId: space.id
-            })
-        } else {
-            const map = await prisma.map.findUnique({
-                where: {
-                    id: parsedData.data.mapId
-                }, 
-                select: {
-                    width: true, 
-                    height: true, 
-                    mapElements: true
-                }
-            })
-
-            if(!map) {
-                return res.status(400).json({
-                    message: "Select a valid map"
-                })
-            }
-
-            const newSpace = await prisma.$transaction(async () => {
-                // first creating a space in the Space table
-                const createSpace = await prisma.space.create({
-                    data: {
-                        name: parsedData.data.name, 
-                        width: map.width,
-                        height: map.height,
-                        creatorId: req.userId!, 
-                    }
-                })
-
-                // Then creating its elemets in the spaceElements table
-                await prisma.spaceElements.createMany({
-                    data: map.mapElements.map(ele => ({
-                        spaceId: createSpace.id, 
-                        elementId: ele.id, 
-                        x: ele.x!, 
-                        y: ele.y!
-                    }))
-                })
-
-                return createSpace;
-            })
-
-            // Dont do the http response inside transactions, keep transactions purely for DB operations
-            return res.status(200).json({
-                spaceId: newSpace.id
-            })
+    const space = await prisma.space.findUnique({
+        where: {
+            id: parsedData.data.spaceId
+        }, 
+        select: {
+            width: true, 
+            height: true
         }
-    } catch(e) {
-        console.log(e);
+    })
 
+    if(!space) {
         return res.status(400).json({
-            message: "Space not created"
+            message: "Space not found"
         })
     }
-})
 
+    if(req.body.x < 0 || req.body.y < 0 || req.body.x > space?.width || req.body.y > space?.height!) {
+        return res.status(400).json({
+            message: "Cannot place the element outside the space"
+        })
+    }
+
+    await prisma.spaceElement.create({
+        data: {
+            elementId: parsedData.data.elementId, 
+            spaceId: parsedData.data.spaceId, 
+            addedById: req.userId!,
+            x: parsedData.data.x, 
+            y: parsedData.data.y, 
+        }
+    })
+
+    return res.status(200).json({
+        message: "New element created"
+    })
+})
 
 spaceRouter.delete("/element", userMiddleware, async (req, res) => {
     const parsedData = DeleteElementSchema.safeParse(req.body);
@@ -111,7 +75,7 @@ spaceRouter.delete("/element", userMiddleware, async (req, res) => {
         })
     }
 
-    const spaceElement = await prisma.spaceElements.findUnique({
+    const spaceElement = await prisma.spaceElement.findUnique({
         where: {
             id: parsedData.data.id
         }, 
@@ -120,13 +84,13 @@ spaceRouter.delete("/element", userMiddleware, async (req, res) => {
         }
     })
 
-    if(!spaceElement?.space.creatorId || spaceElement.space.creatorId !== req.userId) {
+    if(!spaceElement?.addedById || spaceElement.addedById !== req.userId) {
         return res.status(403).json({
             message: "Unauthorized"
         })
     }
 
-    await prisma.spaceElements.delete({
+    await prisma.spaceElement.delete({
         where: {
             id: parsedData.data.id
         }
@@ -137,70 +101,29 @@ spaceRouter.delete("/element", userMiddleware, async (req, res) => {
     })
 })
 
-spaceRouter.delete("/:spaceId", userMiddleware, async (req: Request<Params>, res) => {
-    const spaceId = req.params.spaceId;
+spaceRouter.get("/:spaceId/elements", async (req: Request<Params>, res) => {
+    const { spaceId } = req.params;
 
-    const space = await prisma.space.findUnique({
-        where: {
-            id: spaceId
-        }, 
-        select: {
-            creatorId: true
-        }
-    })
-
-    if(!space) {
+    if(!spaceId) {
         return res.status(404).json({
             message: "Space not found"
         })
     }
 
-    if(space.creatorId !== req.userId) {
-        return res.status(403).json({
-            message: "Unauthorized access"
-        })
-    }
-
-    try {
-        await prisma.$transaction(async () => {
-            // Delete the space elements first 
-            await prisma.spaceElements.deleteMany({
-                where: {
-                    spaceId : spaceId
-                }
-            })
-
-            // And then delete the space
-            await prisma.space.delete({
-                where: {
-                    id: spaceId
-                }
-            })
-
-            return res.status(200).json({
-                message: "Space deleted successfully"
-            })
-        })
-    } catch(e) {
-        return res.status(400).json({
-            message: "Select a valid Space"
-        })
-    }
-})
-
-spaceRouter.get("/all", userMiddleware, async (req, res) => {
-    const Allspaces = await prisma.space.findMany({
+    const allElements = await prisma.element.findMany({
         where: {
-            creatorId: req.userId
-        }
-    })
+            spaceId: spaceId
+        }   
+    });
 
     return res.status(200).json({
-        spaces: Allspaces.map(space => ({
-            id: space.id,
-            name: space.name, 
-            dimensions: `${space.width}x${space.height}`,
-            thumbnail: space.thumbnail
+        elements: allElements.map(ele => ({
+            id: ele.id, 
+            name: ele.name, 
+            width: ele.width, 
+            height: ele.height, 
+            isCollidable: ele.isCollidable,
+            imageUrl: ele.imageUrl
         }))
     })
 })
@@ -228,64 +151,20 @@ spaceRouter.get("/:spaceId", async (req, res) => {
     }
 
     return res.status(200).json({
-        dimensions: `${space.width}x${space.height}`,
+        name : space.name,
+        tilemapUrl: space.tilemapUrl,
         elements: space.spaceElements.map(spEle => ({
             id: spEle.id, 
             x: spEle.x, 
             y: spEle.y, 
+            addedById: spEle.addedById,
             element: {
                 id: spEle.element.id, 
                 imageUrl: spEle.element.imageUrl, 
                 width: spEle.element.width, 
                 height: spEle.element.height, 
-                static: spEle.element.static
+                isCollidable: spEle.element.isCollidable
             }
         }))
-    })
-})
-
-spaceRouter.post("/element", userMiddleware, async (req, res) => {
-    const parsedData = AddElementSchema.safeParse(req.body);
-
-    if(!parsedData.success) {
-        return res.status(400).json({
-            message: "Send valid Input"
-        })
-    }
-
-    const space = await prisma.space.findUnique({
-        where: {
-            id: parsedData.data.spaceId, 
-            creatorId: req.userId                           // to ensure that we delete only the elements in the space we own   
-        }, 
-        select: {
-            width: true, 
-            height: true
-        }
-    })
-
-    if(!space) {
-        return res.status(400).json({
-            message: "Space not found"
-        })
-    }
-
-    if(req.body.x < 0 || req.body.y < 0 || req.body.x > space?.width || req.body.y > space?.height!) {
-        return res.status(400).json({
-            message: "Cannot place the element outside of the boundary"
-        })
-    }
-
-    await prisma.spaceElements.create({
-        data: {
-            elementId: parsedData.data.elementId, 
-            spaceId: parsedData.data.spaceId, 
-            x: parsedData.data.x, 
-            y: parsedData.data.y, 
-        }
-    })
-
-    return res.status(200).json({
-        message: "New element created"
     })
 })

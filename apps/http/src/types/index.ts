@@ -10,12 +10,21 @@ export const SigninSchema = zod.object({
     username: zod.email(), 
     password: zod.string().min(10)
 })
+
+// ------------ TODO: Add avatar selection
+// export const UpdateMetadataSchema = zod.object({
+//     avatarId: zod.string()
+// })
   
 export const AddElementSchema = zod.object({
     elementId: zod.string(), 
     spaceId: zod.string(), 
     x: zod.number(),               // maybe check if it is within dimensions of the created space
     y: zod.number()
+})
+
+export const DeleteElementSchema = zod.object({
+    id: zod.string(), 
 })
 
 // Extending the req obj globally to include uesrID, role and username

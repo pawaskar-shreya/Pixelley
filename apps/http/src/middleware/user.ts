@@ -1,4 +1,3 @@
-import { Role } from "@pixelley/db";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken"
 
@@ -15,8 +14,7 @@ export const userMiddleware = (req: Request, res: Response, next: NextFunction) 
     try {
         const decoded = jwt.verify(token, process.env.JWT_PASSWORD as string) as {
             userId: string, 
-            username: string, 
-            role: Role
+            username: string
         }
         
         // For userMiddleware, we don't check if the token is of admin or a user, as an admin can also be an user of our app
