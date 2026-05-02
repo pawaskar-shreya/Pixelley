@@ -27,7 +27,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     logout();
-    localStorage.removeItem('token'); // optional but safe
+    localStorage.removeItem('token');
     navigate('/signin');
   };
 

@@ -20,7 +20,7 @@ spaceRouter.get("/", async (req, res) => {
     })
 })
 
-spaceRouter.post("/element", userMiddleware, async (req, res) => {
+spaceRouter.post("/element", async (req, res) => {
     const parsedData = AddElementSchema.safeParse(req.body);
 
     if(!parsedData.success) {
@@ -66,7 +66,7 @@ spaceRouter.post("/element", userMiddleware, async (req, res) => {
     })
 })
 
-spaceRouter.delete("/element", userMiddleware, async (req, res) => {
+spaceRouter.delete("/element", async (req, res) => {
     const parsedData = DeleteElementSchema.safeParse(req.body);
 
     if(!parsedData.success) {
@@ -129,7 +129,7 @@ spaceRouter.get("/:spaceId/elements", async (req: Request<Params>, res) => {
 })
 
 spaceRouter.get("/:spaceId", async (req, res) => {
-    const spaceId = req.params.spaceId
+    const spaceId = req.params.spaceId as string;
 
     const space = await prisma.space.findUnique({
         where: {

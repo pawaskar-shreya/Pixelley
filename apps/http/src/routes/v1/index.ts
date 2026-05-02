@@ -5,6 +5,7 @@ import { SigninSchema, SignupSchema } from "../../types";
 import { prisma } from "@pixelley/db";
 import { hash, compare } from "../../scrypt"
 import jwt from "jsonwebtoken";
+import { userMiddleware } from "../../middleware/user";
 
 export const router = Router();
 
@@ -101,6 +102,8 @@ router.post("/signin", async (req, res) => {
     }
 })
 
+router.use(userMiddleware);
+
 // ------------ TODO: Add avatar selection
 
 // router.get("/avatars", async (req, res) => {
@@ -117,3 +120,18 @@ router.post("/signin", async (req, res) => {
 
 router.use("/user", userRouter);
 router.use("/space", spaceRouter);
+
+// 404 Middleware
+router.use((req, res) => {
+  return res.status(404).json({
+    message: "Route not found",
+  });
+});
+
+// Global Error Handler
+router.use((err: any, req: any, res: any, next: any) => {
+  console.error(err);
+  return res.status(500).json({
+    message: "Internal server error",
+  });
+});

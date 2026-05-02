@@ -5,7 +5,7 @@ import { userMiddleware } from "../../middleware/user";
 
 export const userRouter = Router();
 
-userRouter.post("/metadata/bulk", userMiddleware, async (req, res) => {
+userRouter.post("/metadata/bulk", async (req, res) => {
     const parsedData = BulkMetadataSchema.safeParse(req.query.ids)
 
     if(!parsedData.success) {
