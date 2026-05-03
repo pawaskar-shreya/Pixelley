@@ -32,8 +32,7 @@ export default function Space() {
       .catch(console.error);
 
     // Connect to WebSocket
-    wsClient.connect('wss://mock-server.com');
-    wsClient.sendEvent('joinSpace', { spaceId });
+    wsClient.connect('ws://localhost:3001', spaceId);
 
     const handleConnect = () => setConnected(true);
     const handleDisconnect = () => setConnected(false);

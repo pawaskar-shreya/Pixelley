@@ -44,7 +44,7 @@ export class GameScene extends Phaser.Scene {
       this.loadElements(spaceData.elements);
     }
 
-    // Placeholder spawn — immediately overwritten by 'space-joined' from server
+    // Placeholder spawn: immediately overwritten by 'space-joined' from server
     this.localPlayer = new PlayerEntity(this, 120, 260, userId, username, true, avatarKey);
 
     // Store userId in registry so setupNetworking can filter self out of user lists
@@ -101,8 +101,7 @@ export class GameScene extends Phaser.Scene {
   setupNetworking() {
     const userId = this.registry.get('userId') as string;
 
-    // Server confirms join — move local player to authoritative spawn point
-    // and spawn everyone already in the space
+    // Server confirms join: move local player to authoritative spawn point and spawn everyone already in the space
     wsClient.on('space-joined', (data: { spawn: { x: number; y: number }; users: { id: string }[] }) => {
       const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
       body.reset(data.spawn.x, data.spawn.y);
@@ -136,7 +135,7 @@ export class GameScene extends Phaser.Scene {
       this.remotePlayers.set(data.userId, remotePlayer);
     });
 
-    // Another user moved — update their interpolation target
+    // Another user moved: update their interpolation target
     wsClient.on('movement', (data: { userId: string; x: number; y: number }) => {
       const player = this.remotePlayers.get(data.userId);
       if (player) {
@@ -145,7 +144,7 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
-    // Server rejected our move — snap local player back to authoritative position
+    // Server rejected our move: snap local player back to authoritative position
     wsClient.on('movement-rejected', (data: { x: number; y: number }) => {
       const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
       body.reset(data.x, data.y);
