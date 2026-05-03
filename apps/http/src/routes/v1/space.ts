@@ -14,7 +14,6 @@ spaceRouter.get("/", async (req, res) => {
             name: space.name, 
             width: space.width,
             height: space.height,
-            tilemapUrl: space.tilemapUrl,
             thumbnail: space.thumbnail
         }))
     })
@@ -152,7 +151,6 @@ spaceRouter.get("/:spaceId", async (req, res) => {
 
     return res.status(200).json({
         name : space.name,
-        tilemapUrl: space.tilemapUrl,
         elements: space.spaceElements.map(spEle => ({
             id: spEle.id, 
             x: spEle.x, 
@@ -160,6 +158,7 @@ spaceRouter.get("/:spaceId", async (req, res) => {
             addedById: spEle.addedById,
             element: {
                 id: spEle.element.id, 
+                name: spEle.element.name,
                 imageUrl: spEle.element.imageUrl, 
                 width: spEle.element.width, 
                 height: spEle.element.height, 
