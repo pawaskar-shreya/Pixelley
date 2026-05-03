@@ -16,8 +16,8 @@ export default function GameHUD({ onToggleElements }: GameHUDProps) {
       {/* Top Left: User Info */}
       <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-3 pointer-events-auto border border-white/10">
         <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold overflow-hidden">
-          {user?.avatarUrl ? (
-            <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+          {user?.avatar.idleUrl ? (
+            <img src={user?.avatar.idleUrl} alt="avatar" className="w-full h-full object-cover" />
           ) : (
             user?.username.charAt(0).toUpperCase()
           )}

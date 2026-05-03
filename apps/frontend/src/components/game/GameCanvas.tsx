@@ -9,8 +9,7 @@ export default function GameCanvas() {
 
   useEffect(() => {
     // Connect to WebSocket when canvas mounts
-    // wsClient.connect('wss://mock-server.com');                   // maybe update the protocol later to wss (secure) from ws
-    wsClient.connect('ws://localhost:3001');
+    wsClient.connect('ws://localhost:3001', );
 
     const handleConnect = () => setConnected(true);
     const handleDisconnect = () => setConnected(false);

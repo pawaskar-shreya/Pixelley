@@ -21,64 +21,58 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     const { user } = useAuthStore.getState();
-    const userId = user?.id || 'local-player';
+    const userId   = user?.id       || 'local-player';
     const username = user?.username || 'Player';
 
+    const avatarKey = (this.registry.get('avatarKey') as string | undefined) ?? 'blackwidow';
+
     // Create world
-    const spaceId = (this.registry.get('spaceId') as string | undefined) ?? '';
-    const spaceData = this.registry.get('spaceData') as SpaceData | undefined;
-    // Only the first space (mock seed: s1) gets the office map.
+    const spaceId   = (this.registry.get('spaceId')   as string    | undefined) ?? '';
+    const spaceData =  this.registry.get('spaceData')  as SpaceData | undefined;
+
     const isOfficeSpace = spaceId === 's1';
-    const defaultWidth = Number.isFinite(spaceData?.width) ? (spaceData?.width as unknown as number) : 1600;
-    const defaultHeight = Number.isFinite(spaceData?.width) ? (spaceData?.width as unknown as number) : 1200;
+    const defaultWidth  = Number.isFinite(spaceData?.width)  ? (spaceData?.width  as unknown as number) : 1600;
+    const defaultHeight = Number.isFinite(spaceData?.height) ? (spaceData?.height as unknown as number) : 1200;
 
-    // Office reference image is 1024x896; use that to prevent cropping/distortion.
-    const width = isOfficeSpace ? 1024 : defaultWidth;
-    const height = isOfficeSpace ? 896 : defaultHeight;
+    const width  = isOfficeSpace ? 1024 : defaultWidth;
+    const height = isOfficeSpace ? 896  : defaultHeight;
 
-    this.worldMap = new WorldMap(this, { theme: isOfficeSpace ? 'office' : 'default', width, height });
+    this.worldMap      = new WorldMap(this, { theme: isOfficeSpace ? 'office' : 'default', width, height });
     this.elementsGroup = this.physics.add.staticGroup();
 
-    // Load initial elements
     if (spaceData?.elements) {
       this.loadElements(spaceData.elements);
     }
 
-    // Create local player
-    this.localPlayer = new PlayerEntity(this, 120, 260, userId, username, true, isOfficeSpace);
-    
-    // Setup collision
+    // Placeholder spawn — immediately overwritten by 'space-joined' from server
+    this.localPlayer = new PlayerEntity(this, 120, 260, userId, username, true, avatarKey);
+
+    // Store userId in registry so setupNetworking can filter self out of user lists
+    this.registry.set('userId', userId);
+
     this.physics.add.collider(this.localPlayer, this.worldMap.getColliders());
     this.physics.add.collider(this.localPlayer, this.elementsGroup);
 
-    // Setup camera
     this.cameras.main.startFollow(this.localPlayer, true, 0.1, 0.1);
     this.cameras.main.setBounds(0, 0, this.worldMap.bounds.width, this.worldMap.bounds.height);
 
-    // Setup input
     this.inputSystem = new InputSystem(this);
 
-    // Setup networking
     this.setupNetworking();
 
-    // Listen for add-element events from React
     window.addEventListener('add-element', this.handleAddElementEvent as EventListener);
-
     this.events.once('shutdown', () => {
       window.removeEventListener('add-element', this.handleAddElementEvent as EventListener);
     });
   }
 
   private loadElements(elements: SpaceElement[]) {
-    elements.forEach(el => {
-      this.addElement(el);
-    });
+    elements.forEach(el => this.addElement(el));
   }
 
   private addElement(el: SpaceElement) {
     const textureKey = `element_${el.element.id}`;
-    
-    // If texture isn't loaded yet (e.g. added dynamically), load it
+
     if (!this.textures.exists(textureKey)) {
       this.load.image(textureKey, el.element.imageUrl);
       this.load.once(`filecomplete-image-${textureKey}`, () => {
@@ -94,60 +88,87 @@ export class GameScene extends Phaser.Scene {
     if (el.element.isCollidable) {
       const sprite = this.elementsGroup.create(el.x, el.y, textureKey);
       sprite.setDepth(GAME_CONFIG.DEPTHS.WALLS);
-      // Adjust body size if needed based on element width/height
     } else {
       const sprite = this.add.image(el.x, el.y, textureKey);
-      sprite.setDepth(GAME_CONFIG.DEPTHS.GROUND + 1); // Above ground, below walls
+      sprite.setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
     }
   }
 
   private handleAddElementEvent = (e: CustomEvent) => {
-    // In a real app, we'd fetch the full element details or pass them in the event
-    // For now, we'll just log it or use a placeholder if we don't have the full element data
     console.log('Add element event received', e.detail);
-    // If we passed the full element object in the event, we could call this.addElement(e.detail)
   };
 
   setupNetworking() {
-    wsClient.on('playerJoined', (data: any) => {
-      if (!this.remotePlayers.has(data.id)) {
-        const spaceId = (this.registry.get('spaceId') as string | undefined) ?? '';
-        const isOfficeSpace = spaceId === 's1';
+    const userId = this.registry.get('userId') as string;
+
+    // Server confirms join — move local player to authoritative spawn point
+    // and spawn everyone already in the space
+    wsClient.on('space-joined', (data: { spawn: { x: number; y: number }; users: { id: string }[] }) => {
+      const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
+      body.reset(data.spawn.x, data.spawn.y);
+      this.localPlayer.x       = data.spawn.x;
+      this.localPlayer.y       = data.spawn.y;
+      this.localPlayer.targetX = data.spawn.x;
+      this.localPlayer.targetY = data.spawn.y;
+
+      data.users.forEach((u) => {
+        if (u.id === userId) return; // skip self
+        if (this.remotePlayers.has(u.id)) return;
+
         const remotePlayer = new PlayerEntity(
-          this,
-          data.x,
-          data.y,
-          data.id,
-          `Player ${data.id.slice(-4)}`,
-          false,
-          isOfficeSpace
+          this, 0, 0,
+          u.id, `Player ${u.id.slice(-4)}`,
+          false
         );
-        this.remotePlayers.set(data.id, remotePlayer);
-      }
+        this.remotePlayers.set(u.id, remotePlayer);
+      });
     });
 
-    wsClient.on('playerMoved', (data: any) => {
-      const player = this.remotePlayers.get(data.id);
+    // Another user joined mid-session
+    wsClient.on('user-join', (data: { userId: string; x: number; y: number }) => {
+      if (this.remotePlayers.has(data.userId)) return;
+
+      const remotePlayer = new PlayerEntity(
+        this, data.x, data.y,
+        data.userId, `Player ${data.userId.slice(-4)}`,
+        false
+      );
+      this.remotePlayers.set(data.userId, remotePlayer);
+    });
+
+    // Another user moved — update their interpolation target
+    wsClient.on('movement', (data: { userId: string; x: number; y: number }) => {
+      const player = this.remotePlayers.get(data.userId);
       if (player) {
         player.targetX = data.x;
         player.targetY = data.y;
       }
     });
 
-    wsClient.on('playerLeft', (data: any) => {
-      const player = this.remotePlayers.get(data.id);
+    // Server rejected our move — snap local player back to authoritative position
+    wsClient.on('movement-rejected', (data: { x: number; y: number }) => {
+      const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
+      body.reset(data.x, data.y);
+      this.localPlayer.x       = data.x;
+      this.localPlayer.y       = data.y;
+      this.localPlayer.targetX = data.x;
+      this.localPlayer.targetY = data.y;
+    });
+
+    // User left
+    wsClient.on('user-left', (data: { userId: string }) => {
+      const player = this.remotePlayers.get(data.userId);
       if (player) {
         player.destroy();
-        this.remotePlayers.delete(data.id);
+        this.remotePlayers.delete(data.userId);
       }
     });
   }
 
   update(time: number, delta: number) {
-    // Handle local player movement
     const moveVector = this.inputSystem.getMovementVector();
     const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
-    
+
     body.setVelocity(
       moveVector.x * GAME_CONFIG.PLAYER_SPEED,
       moveVector.y * GAME_CONFIG.PLAYER_SPEED
@@ -155,18 +176,12 @@ export class GameScene extends Phaser.Scene {
 
     this.localPlayer.update(time, delta);
 
-    // Send movement to server (throttle to ~10fps)
+    // Throttle sends to ~10fps, only send when actually moving
     if (time - this.lastSendTime > 100 && (moveVector.x !== 0 || moveVector.y !== 0)) {
-      wsClient.sendMovement({
-        x: this.localPlayer.x,
-        y: this.localPlayer.y,
-        vx: body.velocity.x,
-        vy: body.velocity.y
-      });
+      wsClient.sendMovement(this.localPlayer.x, this.localPlayer.y);
       this.lastSendTime = time;
     }
 
-    // Update remote players
     this.remotePlayers.forEach(player => player.update(time, delta));
   }
 }

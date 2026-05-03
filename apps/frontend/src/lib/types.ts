@@ -4,6 +4,7 @@ export interface User {
   name: string;
   avatarId: string;
   gender: 'Female' | 'Male';
+  avatar: Avatar
 }
 
 export interface PlayerState {
