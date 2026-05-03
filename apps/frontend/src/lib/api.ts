@@ -4,6 +4,7 @@ import { User } from './types';
 type Gender = 'Female' | 'Male';
 
 type SignupRequest = {
+  name: string;
   username: string;
   password: string;
   gender: Gender
@@ -89,9 +90,10 @@ async function del<T>(url: string, config?: any): Promise<T> {
 export const api = {
   // Auth
   signup: async (data: SignupRequest) => {
-    const { username, password, gender } = data;
+    const { name, username, password, gender } = data;
 
     return post<{ userId: string }>('/signup', {
+      name,
       username,
       password,
       gender

@@ -13,7 +13,7 @@ export default function Signup() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.signup({ username, password, gender });
+      await api.signup({ name, username, password, gender });
       navigate('/signin');
     } catch (err: any) {
       setError(err.message);
@@ -23,7 +23,7 @@ export default function Signup() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign Up for ZEP</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">Sign Up for Pixelley</h2>
         {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4">{error}</div>}
         <form onSubmit={handleSignup} className="space-y-4">
           <div>

@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Space from './pages/Space';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './pages/ProtectedRoute';
+import SpaceLayout from './pages/SpaceLayout';
 
 export default function App() {
   return (
@@ -20,13 +21,14 @@ export default function App() {
           </ProtectedRoute>
         } />
 
-        <Route path="/space" element={
+        <Route path="/space/:spaceId" element={
           <ProtectedRoute>
-            <Space />
+            <SpaceLayout />
           </ProtectedRoute>
         }>
+          <Route index element={<Space />} />
         </Route>
-        
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
