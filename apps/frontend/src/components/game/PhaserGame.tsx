@@ -35,6 +35,10 @@ export default function PhaserGame({ spaceData, spaceId }: PhaserGameProps) {
           if (spaceId) {
             gameRef.current.registry.set('spaceId', spaceId);
           }
+
+          // Bridge: makes the game instance accessible to React (e.g. Dashboard)
+          (window as any).__phaserGame = gameRef.current;
+          gameRef.current = gameRef.current;
         });
       };
 
@@ -44,6 +48,7 @@ export default function PhaserGame({ spaceData, spaceId }: PhaserGameProps) {
     return () => {
       if (gameRef.current) {
         gameRef.current.destroy(true);
+        delete (window as any).__phaserGame;          // clean up bridge on unmount
         gameRef.current = null;
       }
     };

@@ -8,11 +8,11 @@ export default function SpaceLayout() {
 
   return (
     <div style={{ display: 'flex', width: '1920px', height: '1080px' }}>
-      <div id="game-container" style={{ width: '1420px', height: '1080px' }}>
+      {spaceId && <GlobalChat spaceId={spaceId} />}
+
+      <div id="space-container" style={{ width: '1420px', height: '1080px' }}>
         <Outlet />
       </div>
-
-      {spaceId && <GlobalChat spaceId={spaceId} />}
     </div>
   )
 }
