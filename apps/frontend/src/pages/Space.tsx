@@ -26,8 +26,8 @@ export default function Space() {
         navigate('/dashboard');
       });
 
-    // Fetch available elements
-    api.getElements()
+    // Fetch available elements to be added by user
+    api.getElements(spaceId)
       .then(res => setElements(res.elements || []))
       .catch(console.error);
 

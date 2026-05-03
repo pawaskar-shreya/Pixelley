@@ -29,13 +29,12 @@ export interface Space {
   name: string;
   width: string;
   height: string;
-  tilemapUrl: string;
   thumbnail: string;
 }
 
 export interface Element {
   id: string;
-  spaceId: string;
+  name: string;
   imageUrl: string;
   width: number;
   height: number;

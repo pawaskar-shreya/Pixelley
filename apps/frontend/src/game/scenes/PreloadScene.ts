@@ -35,11 +35,11 @@ export class PreloadScene extends Phaser.Scene {
 
     // Debug listeners
     this.load.on('filecomplete', (key: string) => {
-      console.log('✅ Loaded:', key);
+      console.log('Loaded:', key);
     });
 
     this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, (file: Phaser.Loader.File) => {
-      console.error('❌ Failed:', file.key, '→', file.src);
+      console.error('Failed:', file.key, '→', file.src);
     });
   }
 

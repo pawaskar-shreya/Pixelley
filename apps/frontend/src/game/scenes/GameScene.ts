@@ -19,7 +19,6 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-
   create() {
     const { user } = useAuthStore.getState();
     const userId = user?.id || 'local-player';
@@ -30,9 +29,8 @@ export class GameScene extends Phaser.Scene {
     const spaceData = this.registry.get('spaceData') as SpaceData | undefined;
     // Only the first space (mock seed: s1) gets the office map.
     const isOfficeSpace = spaceId === 's1';
-    const dims = spaceData?.dimensions?.split('x').map(n => Number(n.trim())) ?? [];
-    const defaultWidth = Number.isFinite(dims[0]) ? (dims[0] as number) : 1600;
-    const defaultHeight = Number.isFinite(dims[1]) ? (dims[1] as number) : 1200;
+    const defaultWidth = Number.isFinite(spaceData?.width) ? (spaceData?.width as unknown as number) : 1600;
+    const defaultHeight = Number.isFinite(spaceData?.width) ? (spaceData?.width as unknown as number) : 1200;
 
     // Office reference image is 1024x896; use that to prevent cropping/distortion.
     const width = isOfficeSpace ? 1024 : defaultWidth;
@@ -93,7 +91,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnElementSprite(el: SpaceElement, textureKey: string) {
-    if (el.element.static) {
+    if (el.element.isCollidable) {
       const sprite = this.elementsGroup.create(el.x, el.y, textureKey);
       sprite.setDepth(GAME_CONFIG.DEPTHS.WALLS);
       // Adjust body size if needed based on element width/height

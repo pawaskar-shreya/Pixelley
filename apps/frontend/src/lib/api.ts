@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { User } from './types';
 
-
 type Gender = 'Female' | 'Male';
 
 type SignupRequest = {
@@ -127,7 +126,7 @@ export const api = {
 
   // Spaces (Dashboard)
   getSpaces: async () => {
-    return get<{ spaces: Array<{ id: string; name: string; width: string; height: string;  tilemapUrl: string; thumbnail: string }> }>(
+    return get<{ spaces: Array<{ id: string; name: string; width: string; height: string; thumbnail: string }> }>(
       '/space'
     );
   },
@@ -135,13 +134,14 @@ export const api = {
   // Space page
   getSpace: async (spaceId: string) => {
     return get<{
-      dimensions: string;
+      width: string;
+      height: string;
       elements: Array<{
         id: string;
         x: number;
         y: number;
         addedById: string;
-        element: { id: string; imageUrl: string; width: number; height: number; isCollidable: boolean };
+        element: { id: string; name: string; imageUrl: string; width: number; height: number; isCollidable: boolean };
       }>;
     }>(`/space/${spaceId}`);
   },
@@ -149,7 +149,7 @@ export const api = {
   // Elements palette
   getElements: async (spaceId: string) => {
     return get<{
-      elements: Array<{ id: string; name: string; width: number; height: number; imageUrl: string; isCollidable: boolean }>;
+      elements: Array<{ id: string; name: string;  spaceId: string; width: number; height: number; imageUrl: string; isCollidable: boolean }>;
     }>(`/space/${spaceId}/elements`);
   },
 
