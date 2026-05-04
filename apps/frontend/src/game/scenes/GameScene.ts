@@ -147,9 +147,12 @@ export class GameScene extends Phaser.Scene {
     // Server rejected our move: snap local player back to authoritative position
     wsClient.on('movement-rejected', (data: { x: number; y: number }) => {
       const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
+
+      console.log('localPlayer:', this.localPlayer);
+      console.log('body:', this.localPlayer?.body);
+
       body.reset(data.x, data.y);
-      this.localPlayer.x       = data.x;
-      this.localPlayer.y       = data.y;
+      this.localPlayer.setPosition(data.x, data.y);
       this.localPlayer.targetX = data.x;
       this.localPlayer.targetY = data.y;
     });

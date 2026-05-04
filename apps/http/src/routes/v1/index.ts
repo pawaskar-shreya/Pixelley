@@ -64,6 +64,9 @@ router.post("/signin", async (req, res) => {
         const user = await prisma.user.findUnique({
             where: {
                 username: parsedData.data.username
+            }, 
+            include: {
+                avatar: true
             }
         })
 
@@ -92,7 +95,8 @@ router.post("/signin", async (req, res) => {
                 id: user.id, 
                 name: user.name,
                 gender: user.gender, 
-                avatarId: user.avatarId
+                avatarId: user.avatarId,
+                avatar: user.avatar
             }
         })
     } catch(e) {

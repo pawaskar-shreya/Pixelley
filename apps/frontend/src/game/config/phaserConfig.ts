@@ -11,8 +11,8 @@ import { OfficePreloadScene } from '../scenes/OfficePreloadScene';
 export const getPhaserConfig = (parent: HTMLElement): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
   parent: 'space-container',
-  width: parent.clientWidth || 800,
-  height: parent.clientHeight || 600,
+  width: parent.clientWidth || 1200,
+  height: parent.clientHeight || 800,
   backgroundColor: '#1a1a1a',
   physics: {
     default: 'arcade',

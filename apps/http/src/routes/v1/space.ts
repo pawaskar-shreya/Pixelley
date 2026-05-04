@@ -44,13 +44,15 @@ spaceRouter.post("/element", async (req, res) => {
         })
     }
 
-    if(req.body.x < 0 || req.body.y < 0 || req.body.x > space?.width || req.body.y > space?.height!) {
+    const { x, y } = parsedData.data;
+
+    if(x < 0 || y < 0 || x > space.width || y > space.height) {
         return res.status(400).json({
             message: "Cannot place the element outside the space"
         })
     }
 
-    await prisma.spaceElement.create({
+    const addedElement = await prisma.spaceElement.create({
         data: {
             elementId: parsedData.data.elementId, 
             spaceId: parsedData.data.spaceId, 
@@ -61,7 +63,8 @@ spaceRouter.post("/element", async (req, res) => {
     })
 
     return res.status(200).json({
-        message: "New element created"
+        message: "New element created", 
+        id: addedElement.id
     })
 })
 
@@ -150,7 +153,9 @@ spaceRouter.get("/:spaceId", async (req, res) => {
     }
 
     return res.status(200).json({
-        name : space.name,
+        name: space.name,
+        width: space.width,
+        height: space.height,
         elements: space.spaceElements.map(spEle => ({
             id: spEle.id, 
             x: spEle.x, 

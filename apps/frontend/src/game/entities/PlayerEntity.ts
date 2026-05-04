@@ -69,8 +69,15 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     scene.add.existing(this);
 
     if (isLocal) {
+      scene.add.existing(this);
       scene.physics.add.existing(this);
       const body = this.body as Phaser.Physics.Arcade.Body;
+
+      if (!body) {
+        console.error('Physics body failed to attach');
+        return;
+      }
+
       body.setSize(GAME_CONFIG.TILE_SIZE, GAME_CONFIG.TILE_SIZE);
       body.setOffset(-GAME_CONFIG.TILE_SIZE / 2, -GAME_CONFIG.TILE_SIZE / 2);
       body.setCollideWorldBounds(true);

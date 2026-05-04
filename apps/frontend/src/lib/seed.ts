@@ -151,10 +151,10 @@ async function seedOfficeSpace(urls: Record<string, string>) {
 
   // Upsert by name so re-runs are safe
   const space = await prisma.space.upsert({
-    where:  { name: 'Main Office' } as any, // add @@unique([name]) if not present, or use findFirst pattern below
+    where:  { name: 'Office' } as any, // add @@unique([name]) if not present, or use findFirst pattern below
     update: {},
     create: {
-      name:      'Main Office',
+      name:      'Office',
       width:     1024,
       height:    896,
       thumbnail: `${PUBLIC_URL}/office/desk-with-pc.png`, // use any office asset as placeholder thumbnail

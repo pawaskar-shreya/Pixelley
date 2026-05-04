@@ -46,7 +46,7 @@ export default function Dashboard() {
       const lobby = game?.scene.getScene('LobbyScene') as LobbyScene | undefined;
 
       if (lobby?.scene.isActive()) {
-        lobby.enterSpace(spaceName);
+        lobby.enterSpace(spaceName.toLowerCase());
       } else {
         setTimeout(() => tryEnter(attempts + 1), 300);
       }

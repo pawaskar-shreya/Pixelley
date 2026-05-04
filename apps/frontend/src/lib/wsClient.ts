@@ -58,8 +58,7 @@ class WSClient {
 
       // Send join as soon as the socket is open
       const { token } = useAuthStore.getState();
-      const authToken = token ?? '';
-      this.sendRaw({ type: 'join', payload: { spaceId, authToken } });
+      this.sendRaw({ type: 'join', payload: { spaceId, token } });
     };
 
     this.socket.onmessage = (event) => {
@@ -123,7 +122,7 @@ class WSClient {
 
       case 'movement-rejected': {
         const data = payload as MovementRejectedPayload;
-        console.warn('[WS] movement-rejected — snapping back to', data);
+        console.warn('[WS] movement-rejected: snapping back to', data);
         this.emit('movement-rejected', data);
         break;
       }

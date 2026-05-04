@@ -136,6 +136,7 @@ export const api = {
   // Space page
   getSpace: async (spaceId: string) => {
     return get<{
+      name: string;
       width: string;
       height: string;
       elements: Array<{
@@ -151,18 +152,13 @@ export const api = {
   // Elements palette
   getElements: async (spaceId: string) => {
     return get<{
-      elements: Array<{ id: string; name: string;  spaceId: string; width: number; height: number; imageUrl: string; isCollidable: boolean }>;
+      elements: Array<{ id: string; name: string; width: number; height: number; imageUrl: string; isCollidable: boolean }>;
     }>(`/space/${spaceId}/elements`);
   },
 
   addElementToSpace: async (data: AddElementRequest) => {
-    // Backend doesn't return the created spaceElement id, so we do a best-effort re-fetch to find it.
-    await post<{ message: string }>('/space/element', data);
-    const after = await api.getSpace(data.spaceId);
-    const match = [...(after.elements || [])]
-      .reverse()
-      .find((e) => e.element?.id === data.elementId && e.x === data.x && e.y === data.y);
-    return { id: match?.id };
+    const res = await post<{ id: string }>('/space/element', data);
+    return { id: res.id };
   },
 
   deleteElementFromSpace: async (id: string) => {

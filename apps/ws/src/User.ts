@@ -40,8 +40,11 @@ export class User {
                     this.spaceId = parsedData.payload.spaceId;
 
                     const token = parsedData.payload.token
+                    console.log("----------------- JWT TOKOEN: " + token);
                     
                     const userId = await (jwt.verify(token, process.env.JWT_PASSWORD as string) as JwtPayload).userId
+                    console.log("----------------- USER ID: " + userId);
+
                     if(!userId) {
                         this.ws.close();
                         return;
