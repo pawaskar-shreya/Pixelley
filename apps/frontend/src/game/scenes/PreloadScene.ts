@@ -3,29 +3,7 @@
 
 import Phaser from 'phaser';
 import { GAME_CONFIG } from '../config/constants';
-
-const AVATARS = [
-  {
-    key: 'blackwidow',
-    sheets: {
-      idle:  { path: '/mcu-avatars/blackwidow-idle.png',  frameWidth: 32, frameHeight: 32 },
-      down:  { path: '/mcu-avatars/blackwidow-down.png',  frameWidth: 32, frameHeight: 32 },
-      left:  { path: '/mcu-avatars/blackwidow-left.png',  frameWidth: 32, frameHeight: 32 },
-      right: { path: '/mcu-avatars/blackwidow-right.png', frameWidth: 32, frameHeight: 32 },
-      up:    { path: '/mcu-avatars/blackwidow-up.png',    frameWidth: 32, frameHeight: 32 },
-    }
-  },
-  {
-    key: 'ironmanmk7',
-    sheets: {
-      idle:  { path: '/mcu-avatars/ironmanmk7-idle.png',  frameWidth: 32, frameHeight: 32 },
-      down:  { path: '/mcu-avatars/ironmanmk7-down.png',  frameWidth: 32, frameHeight: 32 },
-      left:  { path: '/mcu-avatars/ironmanmk7-left.png',  frameWidth: 32, frameHeight: 32 },
-      right: { path: '/mcu-avatars/ironmanmk7-right.png', frameWidth: 32, frameHeight: 32 },
-      up:    { path: '/mcu-avatars/ironmanmk7-up.png',    frameWidth: 32, frameHeight: 32 },
-    }
-  },
-];
+import { Avatar, avatarToKey } from '../../lib/types';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -33,41 +11,46 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    const avatars = (this.registry.get('avatars') as Avatar[]) ?? [];
+
+    if (avatars.length === 0) {
+      console.warn('[PreloadScene] No avatars in registry. Did PhaserGame fetch them?');
+    }
+
     // Load ALL character sprites. (other players may use any avatar)
-    for (const avatar of AVATARS) {
+    for (const avatar of avatars) {
+      const key = avatarToKey(avatar.name);
+
       // idle: single frame, 32×32
-      this.load.spritesheet(`${avatar.key}_idle`, avatar.sheets.idle.path, {
-        frameWidth: 32,
-        frameHeight: 32,
+      this.load.spritesheet(`${key}_idle`, avatar.idleUrl, {
+        frameWidth: 32, frameHeight: 32,
       });
 
       // walk cycles: 3 frames across a 96×32 strip
-      for (const dir of ['down', 'left', 'right', 'up'] as const) {
-        this.load.spritesheet(`${avatar.key}_${dir}`, avatar.sheets[dir].path, {
-          frameWidth: 32,   // 96 / 3 frames = 32px each
-          frameHeight: 32,
-        });
-      }
+      this.load.spritesheet(`${key}_down`,  avatar.downUrl,  { frameWidth: 32, frameHeight: 32 });
+      this.load.spritesheet(`${key}_left`,  avatar.leftUrl,  { frameWidth: 32, frameHeight: 32 });
+      this.load.spritesheet(`${key}_right`, avatar.rightUrl, { frameWidth: 32, frameHeight: 32 });
+      this.load.spritesheet(`${key}_up`,    avatar.upUrl,    { frameWidth: 32, frameHeight: 32 });
     }
 
     // Debug listeners
     this.load.on('filecomplete', (key: string) => {
-      console.log('Loaded:', key);
+      console.log('[PreloadScene] Loaded:', key);
     });
 
     this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, (file: Phaser.Loader.File) => {
-      console.error('Failed:', file.key, '→', file.src);
+      console.error('[PreloadScene] Failed:', file.key, '->', file.src);
     });
   }
 
   create() {
-    this.createTexture('wall', GAME_CONFIG.COLORS.WALL);
-    this.createTexture('ground', GAME_CONFIG.COLORS.GROUND);
+    this.createFlat('wall', GAME_CONFIG.COLORS.WALL);
+    this.createFlat('ground', GAME_CONFIG.COLORS.GROUND);
 
     this.scene.start('LobbyScene');
   }
 
-  createTexture(key: string, color: number) {
+  createFlat(key: string, color: number) {
     const graphics = this.add.graphics();
     graphics.fillStyle(color, 1);
     graphics.fillRect(0, 0, GAME_CONFIG.TILE_SIZE, GAME_CONFIG.TILE_SIZE);

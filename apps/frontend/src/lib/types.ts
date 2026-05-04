@@ -22,7 +22,16 @@ export interface GameState {
 export interface Avatar {
   id: string;
   name: string;
+  gender: string;
   idleUrl: string;
+  leftUrl: string;
+  rightUrl: string;
+  upUrl: string;
+  downUrl: string;
+}
+
+export function avatarToKey(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, ''); // "Black Widow" -> "blackwidow"
 }
 
 export interface Space {

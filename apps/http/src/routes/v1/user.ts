@@ -32,3 +32,11 @@ userRouter.post("/metadata/bulk", async (req, res) => {
         }))
     })
 })
+
+userRouter.get("/allAvatars", async (req, res) => {
+    const allAvatars = await prisma.avatar.findMany();
+
+    return res.status(200).json({
+        avatars: allAvatars
+    })
+})

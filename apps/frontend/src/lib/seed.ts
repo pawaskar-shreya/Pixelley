@@ -2,7 +2,7 @@
  * seed.ts
  *
  * 1. Uploads all assets to Cloudflare R2 (S3-compatible)
- * 2. Seeds Avatar rows for blackwidow + ironmanmk7
+ * 2. Seeds Avatar rows for blackwidow + ironman
  * 3. Seeds the Office Space row
  * 4. Seeds placeable Element rows tied to the Office space
  *
@@ -51,27 +51,27 @@ const ASSETS: { localPath: string; r2Key: string }[] = [
   { localPath: 'public/mcu-avatars/blackwidow-right.png',   r2Key: 'mcu-avatars/blackwidow-right.png'   },
   { localPath: 'public/mcu-avatars/blackwidow-up.png',      r2Key: 'mcu-avatars/blackwidow-up.png'      },
   { localPath: 'public/mcu-avatars/blackwidow-down.png',    r2Key: 'mcu-avatars/blackwidow-down.png'    },
-  { localPath: 'public/mcu-avatars/ironmanmk7-idle.png',    r2Key: 'mcu-avatars/ironmanmk7-idle.png'    },
-  { localPath: 'public/mcu-avatars/ironmanmk7-left.png',    r2Key: 'mcu-avatars/ironmanmk7-left.png'    },
-  { localPath: 'public/mcu-avatars/ironmanmk7-right.png',   r2Key: 'mcu-avatars/ironmanmk7-right.png'   },
-  { localPath: 'public/mcu-avatars/ironmanmk7-up.png',      r2Key: 'mcu-avatars/ironmanmk7-up.png'      },
-  { localPath: 'public/mcu-avatars/ironmanmk7-down.png',    r2Key: 'mcu-avatars/ironmanmk7-down.png'    },
+  { localPath: 'public/mcu-avatars/ironman-idle.png',    r2Key: 'mcu-avatars/ironman-idle.png'    },
+  { localPath: 'public/mcu-avatars/ironman-left.png',    r2Key: 'mcu-avatars/ironman-left.png'    },
+  { localPath: 'public/mcu-avatars/ironman-right.png',   r2Key: 'mcu-avatars/ironman-right.png'   },
+  { localPath: 'public/mcu-avatars/ironman-up.png',      r2Key: 'mcu-avatars/ironman-up.png'      },
+  { localPath: 'public/mcu-avatars/ironman-down.png',    r2Key: 'mcu-avatars/ironman-down.png'    },
 
   // Office placeable elements
   { localPath: 'public/free-office-pixel-art/desk.png',             r2Key: 'office/desk.png'             },
   { localPath: 'public/free-office-pixel-art/desk-with-pc.png',     r2Key: 'office/desk-with-pc.png'     },
-  { localPath: 'public/free-office-pixel-art/Chair.png',            r2Key: 'office/chair.png'            },
+  { localPath: 'public/free-office-pixel-art/chair.png',            r2Key: 'office/chair.png'            },
   { localPath: 'public/free-office-pixel-art/plant.png',            r2Key: 'office/plant.png'            },
   { localPath: 'public/free-office-pixel-art/cabinet.png',          r2Key: 'office/cabinet.png'          },
   { localPath: 'public/free-office-pixel-art/printer.png',          r2Key: 'office/printer.png'          },
-  { localPath: 'public/free-office-pixel-art/PC1.png',              r2Key: 'office/pc1.png'              },
-  { localPath: 'public/free-office-pixel-art/PC2.png',              r2Key: 'office/pc2.png'              },
+  { localPath: 'public/free-office-pixel-art/pc1.png',              r2Key: 'office/pc1.png'              },
+  { localPath: 'public/free-office-pixel-art/pc2.png',              r2Key: 'office/pc2.png'              },
   { localPath: 'public/free-office-pixel-art/water-cooler.png',     r2Key: 'office/water-cooler.png'     },
   { localPath: 'public/free-office-pixel-art/coffee-maker.png',     r2Key: 'office/coffee-maker.png'     },
   { localPath: 'public/free-office-pixel-art/writing-table.png',    r2Key: 'office/writing-table.png'    },
   { localPath: 'public/free-office-pixel-art/stamping-table.png',   r2Key: 'office/stamping-table.png'   },
   { localPath: 'public/free-office-pixel-art/sink.png',             r2Key: 'office/sink.png'             },
-  { localPath: 'public/free-office-pixel-art/Trash.png',            r2Key: 'office/trash.png'            },
+  { localPath: 'public/free-office-pixel-art/trash.png',            r2Key: 'office/trash.png'            },
 ];
 
 // Upload helper 
@@ -90,7 +90,7 @@ async function uploadToR2(localPath: string, r2Key: string): Promise<string> {
     console.log(`  ✓  Already exists, skipping: ${r2Key}`);
     return `${PUBLIC_URL}/${r2Key}`;
   } catch {
-    // Not found — proceed to upload
+    // Not found: proceed to upload
   }
 
   const body        = fs.readFileSync(absPath);
@@ -126,13 +126,13 @@ async function seedAvatars(urls: Record<string, string>) {
       downUrl:  urls['mcu-avatars/blackwidow-down.png'],
     },
     {
-      name:     'Iron Man MK7',
+      name:     'Iron Man',
       gender:   'male',
-      idleUrl:  urls['mcu-avatars/ironmanmk7-idle.png'],
-      leftUrl:  urls['mcu-avatars/ironmanmk7-left.png'],
-      rightUrl: urls['mcu-avatars/ironmanmk7-right.png'],
-      upUrl:    urls['mcu-avatars/ironmanmk7-up.png'],
-      downUrl:  urls['mcu-avatars/ironmanmk7-down.png'],
+      idleUrl:  urls['mcu-avatars/ironman-idle.png'],
+      leftUrl:  urls['mcu-avatars/ironman-left.png'],
+      rightUrl: urls['mcu-avatars/ironman-right.png'],
+      upUrl:    urls['mcu-avatars/ironman-up.png'],
+      downUrl:  urls['mcu-avatars/ironman-down.png'],
     },
   ];
 

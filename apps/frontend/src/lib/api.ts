@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { User } from './types';
+import { Avatar, User } from './types';
 
 type Gender = 'Female' | 'Male';
 
@@ -106,9 +106,9 @@ export const api = {
 
   //  ------------ TODO: Add avatar selection
 
-  // getAvatars: async () => {
-  //   return get<{ avatars: Array<{ id: string; name: string; imageUrl: string }> }>('/avatars');
-  // },
+  getAvatars: async () => {
+    return get<{ avatars: Avatar[] }>('/user/allAvatars');
+  },
 
   // updateMetadata: async (data: { avatarId: string }) => {
   //   // Backend returns { message }, but callers only care that it succeeded.

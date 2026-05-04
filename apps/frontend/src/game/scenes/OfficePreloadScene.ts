@@ -7,13 +7,13 @@ export class OfficePreloadScene extends Phaser.Scene {
 
   preload() {
     this.load.image('office_desk',         '/free-office-pixel-art/desk.png');
-    this.load.image('office_chair',        '/free-office-pixel-art/Chair.png');
+    this.load.image('office_chair',        '/free-office-pixel-art/chair.png');
     this.load.image('office_plant',        '/free-office-pixel-art/plant.png');
     this.load.image('office_cabinet',      '/free-office-pixel-art/cabinet.png');
     this.load.image('office_printer',      '/free-office-pixel-art/printer.png');
-    this.load.image('office_pc1',          '/free-office-pixel-art/PC1.png');
-    this.load.image('office_pc2',          '/free-office-pixel-art/PC2.png');
-    this.load.image('office_trash',        '/free-office-pixel-art/Trash.png');
+    this.load.image('office_pc1',          '/free-office-pixel-art/pc1.png');
+    this.load.image('office_pc2',          '/free-office-pixel-art/pc2.png');
+    this.load.image('office_trash',        '/free-office-pixel-art/trash.png');
     this.load.image('office_sink',         '/free-office-pixel-art/sink.png');
     this.load.image('office_water_cooler', '/free-office-pixel-art/water-cooler.png');
     this.load.image('office_partition1',   '/free-office-pixel-art/office-partitions-1.png');

@@ -1,8 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_CONFIG } from '../config/constants';
-
-// Must match the keys registered in PreloadScene's AVATARS array
-const AVATAR_KEYS = ['blackwidow', 'ironmanmk7'];
+import { Avatar, avatarToKey } from '../../lib/types';
 
 // Walk anims: 3 frames across a 96×32 strip (frameWidth: 32)
 const ANIM_DEFS = [
@@ -19,8 +17,7 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
   public targetX: number;
   public targetY: number;
   private isLocal: boolean;
-  private avatarKey: string | null;  // e.g. 'blackwidow', 'ironmanmk7', or null if no avatar loaded
-
+  private avatarKey: string | null;
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -34,11 +31,6 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     this.isLocal = isLocal;
     this.targetX = x;
     this.targetY = y;
-    
-    // Resolve which avatar to use:
-    // 1. Use the requested avatarKey if its textures are loaded
-    // 2. Fall back to first available avatar in AVATAR_KEYS
-    // 3. Fall back to null (use procedural texture)
     this.avatarKey = this.resolveAvatarKey(scene, avatarKey);
 
     console.log(`PlayerEntity [${id}] avatarKey=${this.avatarKey} isLocal=${isLocal}`);
@@ -113,23 +105,26 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
   // ----------------- Private helpers ---------------------------------------------
 
   private resolveAvatarKey(scene: Phaser.Scene, requested?: string): string | null {
-    // Check requested avatar first
-    if (requested && scene.textures.exists(`${requested}_idle`)) {
-      return requested;
-    }
+  // Get all loaded avatar keys dynamically from registry
+  const avatars = (scene.registry.get('avatars') as Avatar[]) ?? [];
+  const availableKeys = avatars.map(a => avatarToKey(a.name));
 
-    // Fall back to first available avatar
-    for (const key of AVATAR_KEYS) {
-      if (scene.textures.exists(`${key}_idle`)) {
-        console.warn(`Avatar "${requested}" not found, falling back to "${key}"`);
-        return key;
-      }
-    }
-
-    // No avatars loaded at all — use procedural
-    console.warn('No avatar textures found, using procedural fallback');
-    return null;
+  // Try requested key first
+  if (requested && scene.textures.exists(`${requested}_idle`)) {
+    return requested;
   }
+
+  // Fall back to first available
+  for (const key of availableKeys) {
+    if (scene.textures.exists(`${key}_idle`)) {
+      console.warn(`Avatar "${requested}" not found, falling back to "${key}"`);
+      return key;
+    }
+  }
+
+  console.warn('No avatar textures loaded, using procedural fallback');
+  return null;
+}
 
   private ensureAvatarAnimations(scene: Phaser.Scene, avatarKey: string) {
     for (const { suffix, start, end, frameRate } of ANIM_DEFS) {
