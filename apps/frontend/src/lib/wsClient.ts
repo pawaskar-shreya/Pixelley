@@ -43,6 +43,7 @@ class WSClient {
   private socket: WebSocket | null = null;
   private handlers: Record<string, MessageHandler[]> = {};
   private connected = false;
+  private messageBuffer: { event: string; data: any }[] = [];       // This buffer will store all the messages that are received before the socket is connected
 
   // WS Connection
 
@@ -73,6 +74,7 @@ class WSClient {
     this.socket.onclose = () => {
       this.connected = false;
       console.log('[WS] Disconnected');
+      this.messageBuffer = [];
       this.emit('disconnect', {});
     };
 
@@ -96,34 +98,34 @@ class WSClient {
       case 'space-joined': {
         const data = payload as SpaceJoinedPayload;
         console.log('[WS] space-joined', data);
-        this.emit('space-joined', data);
+        this.emitOrBuffer('space-joined', data);
         break;
       }
 
       case 'user-join': {
         const data = payload as UserJoinPayload;
         console.log('[WS] user-join', data);
-        this.emit('user-join', data);
+        this.emitOrBuffer('user-join', data);
         break;
       }
 
       case 'user-left': {
         const data = payload as UserLeftPayload;
         console.log('[WS] user-left', data);
-        this.emit('user-left', data);
+        this.emitOrBuffer('user-left', data);
         break;
       }
 
       case 'movement': {
         const data = payload as MovementPayload;
-        this.emit('movement', data);
+        this.emitOrBuffer('movement', data);
         break;
       }
 
       case 'movement-rejected': {
         const data = payload as MovementRejectedPayload;
         console.warn('[WS] movement-rejected: snapping back to', data);
-        this.emit('movement-rejected', data);
+        this.emitOrBuffer('movement-rejected', data);
         break;
       }
 
@@ -132,6 +134,17 @@ class WSClient {
     }
   }
 
+  // If no handlers yet, buffer the message
+  private emitOrBuffer(event: string, data: any) {
+    if (this.handlers[event]?.length) {
+      this.emit(event, data);
+    } else {
+      console.log(`[WS] Buffering "${event}" : no listeners yet`);
+      this.messageBuffer.push({ event, data });
+    }
+  }
+
+  
   // Client -> server 
 
   // Called by Phaser's update loop after local player moves
@@ -144,6 +157,14 @@ class WSClient {
   on(event: WSEvent | string, handler: MessageHandler) {
     if (!this.handlers[event]) this.handlers[event] = [];
     this.handlers[event].push(handler);
+
+    // When a listener registers, flush any buffered messages for that event
+    const pending = this.messageBuffer.filter(m => m.event === event);
+    if (pending.length) {
+      console.log(`[WS] Flushing ${pending.length} buffered "${event}" message(s)`);
+      this.messageBuffer = this.messageBuffer.filter(m => m.event !== event);
+      pending.forEach(m => handler(m.data));
+    }
   }
 
   off(event: WSEvent | string, handler: MessageHandler) {

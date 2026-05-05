@@ -14,6 +14,7 @@ export class GameScene extends Phaser.Scene {
   private worldMap!: WorldMap;
   private lastSendTime: number = 0;
   private elementsGroup!: Phaser.Physics.Arcade.StaticGroup;
+  private spawnConfirmed: boolean = false;
 
   constructor() {
     super('GameScene');
@@ -58,6 +59,7 @@ export class GameScene extends Phaser.Scene {
 
     this.inputSystem = new InputSystem(this);
 
+    console.log('[GameScene] setupNetworking called');
     this.setupNetworking();
 
     window.addEventListener('add-element', this.handleAddElementEvent as EventListener);
@@ -101,18 +103,39 @@ export class GameScene extends Phaser.Scene {
   setupNetworking() {
     const userId = this.registry.get('userId') as string;
 
+    const isAlive = () => this.sys.isActive();
+
     // Server confirms join: move local player to authoritative spawn point and spawn everyone already in the space
-    wsClient.on('space-joined', (data: { spawn: { x: number; y: number }; users: { id: string }[] }) => {
-      const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
-      body.reset(data.spawn.x, data.spawn.y);
-      this.localPlayer.x       = data.spawn.x;
-      this.localPlayer.y       = data.spawn.y;
-      this.localPlayer.targetX = data.spawn.x;
-      this.localPlayer.targetY = data.spawn.y;
+    const onSpaceJoined = (data: { spawn: { x: number; y: number }; users: { id: string }[] }) => {
+      console.log('[GameScene] space-joined received', data);
+
+      if (!isAlive()) {
+        console.warn('[GameScene] space-joined ignored — scene no longer active');
+        return;
+      }
+
+      // Wait one frame to ensure physics body is fully ready
+      this.time.delayedCall(32, () => {
+
+        if (!isAlive() || !this.localPlayer?.body) {
+          console.warn('[GameScene] space-joined delayedCall — scene or body gone');
+          return;
+        }
+
+        const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
+        body.reset(data.spawn.x, data.spawn.y);
+        this.localPlayer.x       = data.spawn.x;
+        this.localPlayer.y       = data.spawn.y;
+        this.localPlayer.targetX = data.spawn.x;
+        this.localPlayer.targetY = data.spawn.y;
+        this.spawnConfirmed = true;
+        console.log('[GameScene] spawnConfirmed at', data.spawn.x, data.spawn.y);
+      });
 
       data.users.forEach((u) => {
         if (u.id === userId) return; // skip self
         if (this.remotePlayers.has(u.id)) return;
+        if (!isAlive()) return;
 
         const remotePlayer = new PlayerEntity(
           this, 0, 0,
@@ -121,55 +144,77 @@ export class GameScene extends Phaser.Scene {
         );
         this.remotePlayers.set(u.id, remotePlayer);
       });
-    });
+    };
 
     // Another user joined mid-session
-    wsClient.on('user-join', (data: { userId: string; x: number; y: number }) => {
+    const onUserJoin = (data: { userId: string; x: number; y: number }) => {
+      if (!isAlive()) return;
       if (this.remotePlayers.has(data.userId)) return;
-
       const remotePlayer = new PlayerEntity(
         this, data.x, data.y,
         data.userId, `Player ${data.userId.slice(-4)}`,
         false
       );
       this.remotePlayers.set(data.userId, remotePlayer);
-    });
-
-    // Another user moved: update their interpolation target
-    wsClient.on('movement', (data: { userId: string; x: number; y: number }) => {
+    };
+  
+    const onMovement = (data: { userId: string; x: number; y: number }) => {
+      if (!isAlive()) return;
       const player = this.remotePlayers.get(data.userId);
       if (player) {
         player.targetX = data.x;
         player.targetY = data.y;
       }
-    });
-
-    // Server rejected our move: snap local player back to authoritative position
-    wsClient.on('movement-rejected', (data: { x: number; y: number }) => {
+    };
+  
+    const onMovementRejected = (data: { x: number; y: number }) => {
+      // Guard — scene may have been destroyed before this fires
+      if (!isAlive() || !this.localPlayer?.body) {
+        console.warn('[GameScene] movement-rejected fired but localPlayer body is gone');
+        return;
+      }
       const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
-
-      console.log('localPlayer:', this.localPlayer);
-      console.log('body:', this.localPlayer?.body);
-
       body.reset(data.x, data.y);
-      this.localPlayer.setPosition(data.x, data.y);
+      this.localPlayer.x       = data.x;
+      this.localPlayer.y       = data.y;
       this.localPlayer.targetX = data.x;
       this.localPlayer.targetY = data.y;
-    });
-
-    // User left
-    wsClient.on('user-left', (data: { userId: string }) => {
+    };
+  
+    const onUserLeft = (data: { userId: string }) => {
+      if (!isAlive()) return;
       const player = this.remotePlayers.get(data.userId);
       if (player) {
         player.destroy();
         this.remotePlayers.delete(data.userId);
       }
+    };
+  
+    wsClient.on('space-joined',       onSpaceJoined);
+    wsClient.on('user-join',          onUserJoin);
+    wsClient.on('movement',           onMovement);
+    wsClient.on('movement-rejected',  onMovementRejected);
+    wsClient.on('user-left',          onUserLeft);
+  
+    // Clean up ALL listeners when this scene shuts down
+    this.events.once('shutdown', () => {
+      this.spawnConfirmed = false;
+      wsClient.off('space-joined',      onSpaceJoined);
+      wsClient.off('user-join',         onUserJoin);
+      wsClient.off('movement',          onMovement);
+      wsClient.off('movement-rejected', onMovementRejected);
+      wsClient.off('user-left',         onUserLeft);
     });
   }
 
   update(time: number, delta: number) {
     const moveVector = this.inputSystem.getMovementVector();
     const body = this.localPlayer.body as Phaser.Physics.Arcade.Body;
+
+    if (!this.spawnConfirmed) {
+      body.setVelocity(0, 0);
+      return;
+    }
 
     body.setVelocity(
       moveVector.x * GAME_CONFIG.PLAYER_SPEED,

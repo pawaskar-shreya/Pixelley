@@ -69,7 +69,6 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     scene.add.existing(this);
 
     if (isLocal) {
-      scene.add.existing(this);
       scene.physics.add.existing(this);
       const body = this.body as Phaser.Physics.Arcade.Body;
 
