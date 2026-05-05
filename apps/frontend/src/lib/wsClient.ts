@@ -3,7 +3,7 @@ import { useAuthStore } from './store';
 type MessageHandler = (data: any) => void;
 interface SpaceJoinedPayload {
   spawn: { x: number; y: number };
-  users: { id: string }[];
+  users: { id: string; x: number; y: number }[];
 }
 
 interface MovementPayload {                    // server broadcasting another user moved
@@ -48,7 +48,7 @@ class WSClient {
   // WS Connection
 
   connect(url: string, spaceId: string) {
-    console.log(`[WS] Connecting to ${url}...`);
+    console.log(`[WS] Connecting to ${url} (spaceId=${spaceId})...`);
 
     this.socket = new WebSocket(url);
 
@@ -63,6 +63,7 @@ class WSClient {
     };
 
     this.socket.onmessage = (event) => {
+      console.log('[WS] Raw message received:', event.data);
       try {
         const message = JSON.parse(event.data as string);
         this.handleMessage(message);
@@ -87,12 +88,15 @@ class WSClient {
     this.socket?.close();
     this.socket = null;
     this.connected = false;
+    this.handlers = {};
+    this.messageBuffer = [];
   }
 
   // Message router: translates schema types -> internal events 
 
   private handleMessage(message: { type: string; payload: any }) {
     const { type, payload } = message;
+    console.log('[WS] Parsed message received', { type, payload });
 
     switch (type) {
       case 'space-joined': {
@@ -150,6 +154,7 @@ class WSClient {
   // Called by Phaser's update loop after local player moves
   sendMovement(x: number, y: number) {
     if (!this.connected) return;
+    console.log('[WS] Sending movement', { x, y });
     this.sendRaw({ type: 'move', payload: { x, y } });
   }
 
@@ -181,6 +186,7 @@ class WSClient {
       console.warn('[WS] Attempted to send while socket not open');
       return;
     }
+    console.log('[WS] Sending raw message', message);
     this.socket.send(JSON.stringify(message));
   }
 }

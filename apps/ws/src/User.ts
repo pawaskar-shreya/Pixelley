@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { OutgoingMessage } from "./types";
 import { prisma } from "@pixelley/db";
 import { RoomManager } from "./RoomManager";
-import jwt, { JwtPayload } from "jsonwebtoken"; 
+import jwt, { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -22,16 +22,20 @@ export class User {
     private x: number;
     private y: number;
     private ws: WebSocket;
+    private spaceWidth: number;
+    private spaceHeight: number;
 
     constructor(ws: WebSocket) {
         this.id = generateId(10),
         this.ws = ws;
         this.x = 0;
         this.y = 0;
+        this.spaceWidth = 0;
+        this.spaceHeight = 0;
         this.initHandlers();
     }
 
-    initHandlers () {
+    initHandlers() {
         this.ws.on("message", async (data) => {
             const parsedData = JSON.parse(data.toString());
 
@@ -62,6 +66,8 @@ export class User {
                     }
 
                     RoomManager.getInstance().addUser(this.spaceId, this);
+                    this.spaceWidth = space.width;
+                    this.spaceHeight = space.height;
                     this.x = Math.floor(Math.random() * space.width);
                     this.y = Math.floor(Math.random() * space.height);
 
@@ -72,7 +78,11 @@ export class User {
                                 x: this.x,
                                 y: this.y
                             },
-                            users: RoomManager.getInstance().rooms.get(this.spaceId)?.filter(x => x.id !== this.id).map(u => ({id: u.id})) ?? []
+                            users: RoomManager.getInstance().rooms.get(this.spaceId)?.filter(x => x.id !== this.id).map(u => ({
+                                id: u.id,
+                                x: u.x,
+                                y: u.y
+                            })) ?? []
                         }
                     })
 
@@ -89,21 +99,25 @@ export class User {
 
                 case "move": 
                     const moveX = parsedData.payload.x;
-                    const moveY = parsedData.payload.moveY;
+                    const moveY = parsedData.payload.y;
                     
                     const xDisplacement = Math.abs(this.x - moveX);
                     const yDisplacement = Math.abs(this.y - moveY);
 
-                    // Todo: Don't let them get on top of static elements and outside the wall
+                    const MAX_MOVE_DISTANCE = 160;
+                    const withinDistance = xDisplacement <= MAX_MOVE_DISTANCE && yDisplacement <= MAX_MOVE_DISTANCE;
+                    const withinBounds = moveX >= 0 && moveY >= 0 && moveX <= this.spaceWidth && moveY <= this.spaceHeight;
+
+                    // Todo: Don't let them get on top of static elements 
                     // Maybe they can pass past each other
-                    if((xDisplacement == 1 && yDisplacement == 0) || (yDisplacement == 1 && xDisplacement == 0)) {
-                        this.x = moveX; 
+                    if(withinDistance && withinBounds) {
+                        this.x = moveX;
                         this.y = moveY;
 
                         RoomManager.getInstance().broadcast({
                             type: "movement", 
                             payload: {
-                                x: this.x, 
+                                x: this.x,
                                 y: this.y,
                                 userId: this.id
                             }
@@ -113,9 +127,9 @@ export class User {
                     }
 
                     this.send({
-                        type: "movement-rejected", 
+                        type: "movement-rejected",
                         payload: {
-                            x: this.x, 
+                            x: this.x,
                             y: this.y
                         }
                     })
@@ -127,7 +141,7 @@ export class User {
 
     destroy() {
         RoomManager.getInstance().broadcast({
-            type: "user-left", 
+            type: "user-left",
             payload: {
                 userId: this.id
             }

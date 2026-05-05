@@ -11,6 +11,7 @@ export default function Space() {
   const { spaceId } = useParams<{ spaceId: string }>();
   const navigate = useNavigate();
   const setConnected = useGameUIStore((state) => state.setConnected);
+  const connected = useGameUIStore((state) => state.connected);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
   const [elements, setElements] = useState<Element[]>([]);
   const [showElementsPanel, setShowElementsPanel] = useState(false);
@@ -31,8 +32,8 @@ export default function Space() {
       .then(res => setElements(res.elements || []))
       .catch(console.error);
 
-    // Connect to WebSocket
-    wsClient.connect('ws://localhost:3001', spaceId);
+      setConnected(false);
+      wsClient.connect('ws://localhost:3001', spaceId);             // Connect to WebSocket before mounting Phaser
 
     const handleConnect = () => setConnected(true);
     const handleDisconnect = () => setConnected(false);

@@ -31,6 +31,6 @@ export class InputSystem {
       vector.y = 1;
     }
 
-    return vector.normalize();
+    return vector;
   }
 }

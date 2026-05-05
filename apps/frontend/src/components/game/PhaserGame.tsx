@@ -31,6 +31,11 @@ export default function PhaserGame({ spaceData, spaceId }: PhaserGameProps) {
           const config = getPhaserConfig(gameContainerRef.current!);
           gameRef.current = new Phaser.default.Game(config);
 
+          // Make canvas focusable so keyboard events (arrow keys, WASD) are captured
+          gameRef.current.canvas.setAttribute('tabindex', '0');
+          gameRef.current.canvas.style.outline = 'none';
+          gameRef.current.canvas.focus();
+
           // Avatar R2 URLs: PreloadScene reads this
           gameRef.current.registry.set('avatars', avatars);
           
@@ -63,6 +68,12 @@ export default function PhaserGame({ spaceData, spaceId }: PhaserGameProps) {
       import('phaser').then((Phaser) => {
         const config = getPhaserConfig(gameContainerRef.current!);
         const game   = new Phaser.default.Game(config);
+
+        // Make canvas focusable so keyboard events are captured
+        game.canvas.setAttribute('tabindex', '0');
+        game.canvas.style.outline = 'none';
+        game.canvas.focus();
+
         game.registry.set('avatars', []);
         if (spaceData) game.registry.set('spaceData', spaceData);
         if (spaceId)   game.registry.set('spaceId',   spaceId);
