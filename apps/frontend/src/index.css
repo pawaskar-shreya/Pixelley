@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.messages::-webkit-scrollbar {
+  display: none;
+}
+
+#space-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}

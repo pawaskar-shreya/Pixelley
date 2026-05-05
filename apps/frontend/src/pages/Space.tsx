@@ -70,68 +70,73 @@ export default function Space() {
   if (!spaceData) return <div>Loading space...</div>;
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-black">
-      <div className="relative w-full h-full">
-        <PhaserGame spaceData={spaceData} spaceId={spaceId} />
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'black',
+      }} >
+      <PhaserGame spaceData={spaceData} spaceId={spaceId} />
 
-        <GameHUD onToggleElements={() => setShowElementsPanel(!showElementsPanel)} />
+      <GameHUD onToggleElements={() => setShowElementsPanel(!showElementsPanel)} />
 
-        {showElementsPanel && (
-          <div
-            className="
-              absolute
-              right-0
-              top-1/2
-              -translate-y-1/2
-              w-80
-              h-[70%]
-              bg-white/10
-              backdrop-blur-sm
-              border border-white/20
-              shadow-xl
-              flex flex-col
-              z-50
-            "
-          >
-            <div className="p-3 border-b border-white/20 flex justify-between items-center text-white">
-              <h2 className="font-bold text-lg">Elements</h2>
-              <button
-                onClick={() => setShowElementsPanel(false)}
-                className="hover:text-red-400"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-3 overflow-y-auto flex-1 grid grid-cols-2 gap-3">
-              {elements.map(el => (
-                <div
-                  key={el.id}
-                  className="
-                    border border-white/20
-                    rounded
-                    p-2
-                    cursor-pointer
-                    hover:border-blue-400
-                    flex flex-col items-center
-                    text-white
-                  "
-                  onClick={() => handleAddElement(el.id)}
-                >
-                  <img
-                    src={el.imageUrl}
-                    alt={el.id}
-                    className="w-16 h-16 object-contain mb-2"
-                  />
-                  <span className="text-xs text-center truncate w-full">
-                    {el.id}
-                  </span>
-                </div>
-              ))}
-            </div>
+      {showElementsPanel && (
+        <div
+          className="
+            absolute
+            right-0
+            top-1/2
+            -translate-y-1/2
+            w-80
+            h-[70%]
+            bg-white/10
+            backdrop-blur-sm
+            border border-white/20
+            shadow-xl
+            flex flex-col
+            z-50
+          "
+        >
+          <div className="p-3 border-b border-white/20 flex justify-between items-center text-white">
+            <h2 className="font-bold text-lg">Elements</h2>
+            <button
+              onClick={() => setShowElementsPanel(false)}
+              className="hover:text-red-400"
+            >
+              ✕
+            </button>
           </div>
-        )}
-      </div>
+
+          <div className="p-3 overflow-y-auto flex-1 grid grid-cols-2 gap-3">
+            {elements.map(el => (
+              <div
+                key={el.id}
+                className="
+                  border border-white/20
+                  rounded
+                  p-2
+                  cursor-pointer
+                  hover:border-blue-400
+                  flex flex-col items-center
+                  text-white
+                "
+                onClick={() => handleAddElement(el.id)}
+              >
+                <img
+                  src={el.imageUrl}
+                  alt={el.id}
+                  className="w-16 h-16 object-contain mb-2"
+                />
+                <span className="text-xs text-center truncate w-full">
+                  {el.id}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

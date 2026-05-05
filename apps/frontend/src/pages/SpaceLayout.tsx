@@ -6,12 +6,40 @@ export default function SpaceLayout() {
   const { spaceId } = useParams()
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'nowrap', width: '1920px', height: '1080px', alignItems:'center', justifyContent: 'space-evenly', }}>
+  <div
+    style={{
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'hidden',
+      background: '#0f0f0f',
+    }}
+  >
+    <div
+      style={{
+        display: 'flex',
+        gap: '40px',
+      }}
+    >
       {spaceId && <GlobalChat spaceId={spaceId} />}
 
-      <div id="space-container" style={{ height: '800px', width: '1200px', border: '5px solid red', flexShrink: 0 }}>
+      <div
+        id="space-container"
+        style={{
+          width: '1200px',
+          height: '800px',
+          boxSizing: 'border-box',
+          border: '5px solid red',
+          position: 'relative',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}
+      >
         <Outlet />
       </div>
     </div>
-  )
+  </div>
+);
 }
