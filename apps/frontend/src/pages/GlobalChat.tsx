@@ -7,9 +7,9 @@ export default function GlobalChat({ spaceId }: Props) {
   return (
   <div
     style={{
-      width: '500px',
+      width: '450px',
       height: '800px',
-      border: '5px solid red',
+      outline: '5px solid red',
       display: 'flex',
       flexDirection: 'column',
       flexShrink: 0,

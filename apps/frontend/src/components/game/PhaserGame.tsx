@@ -45,6 +45,17 @@ export default function PhaserGame({ spaceData, spaceId }: PhaserGameProps) {
           // Bridge: makes the game instance accessible to React (eg, Dashboard)
           (window as any).__phaserGame = gameRef.current;
           gameRef.current = gameRef.current;
+
+          // Keep Phaser sized exactly to the container (eg, when layout widths change)
+          const el = gameContainerRef.current!;
+          const ro = new ResizeObserver(() => {
+            const w = el.clientWidth;
+            const h = el.clientHeight;
+            if (!w || !h || !gameRef.current) return;
+            gameRef.current.scale.resize(w, h);
+          });
+          ro.observe(el);
+          (gameRef.current as any).__resizeObserver = ro;
         });
       }).catch(err => {
       console.error('[PhaserGame] Failed to fetch avatars:', err);
@@ -57,6 +68,16 @@ export default function PhaserGame({ spaceData, spaceId }: PhaserGameProps) {
         if (spaceId)   game.registry.set('spaceId',   spaceId);
         (window as any).__phaserGame = game;
         gameRef.current = game;
+
+        const el = gameContainerRef.current!;
+        const ro = new ResizeObserver(() => {
+          const w = el.clientWidth;
+          const h = el.clientHeight;
+          if (!w || !h || !gameRef.current) return;
+          gameRef.current.scale.resize(w, h);
+        });
+        ro.observe(el);
+        (gameRef.current as any).__resizeObserver = ro;
       });
     });
     };
@@ -66,6 +87,8 @@ export default function PhaserGame({ spaceData, spaceId }: PhaserGameProps) {
 
     return () => {
       if (gameRef.current) {
+        const ro = (gameRef.current as any).__resizeObserver as ResizeObserver | undefined;
+        ro?.disconnect();
         gameRef.current.destroy(true);
         delete (window as any).__phaserGame;          // clean up bridge on unmount
         gameRef.current = null;

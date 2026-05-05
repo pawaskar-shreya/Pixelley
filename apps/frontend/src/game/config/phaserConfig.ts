@@ -10,7 +10,9 @@ import { OfficePreloadScene } from '../scenes/OfficePreloadScene';
 
 export const getPhaserConfig = (parent: HTMLElement): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
-  parent: 'space-container',
+  parent,
+  width: parent.clientWidth || 1200,
+  height: parent.clientHeight || 800,
   backgroundColor: '#1a1a1a',
   physics: {
     default: 'arcade',
@@ -21,8 +23,7 @@ export const getPhaserConfig = (parent: HTMLElement): Phaser.Types.Core.GameConf
   },
   scene: [BootScene, PreloadScene, LobbyScene, OfficePreloadScene, GameScene],
   scale: {
-    mode: Phaser.Scale.RESIZE,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    mode: Phaser.Scale.NONE,
   },
   pixelArt: true,
 });

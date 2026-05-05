@@ -20,7 +20,9 @@ export default function SpaceLayout() {
     <div
       style={{
         display: 'flex',
-        gap: '40px',
+        width: '100%',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
       }}
     >
       {spaceId && <GlobalChat spaceId={spaceId} />}
@@ -30,8 +32,7 @@ export default function SpaceLayout() {
         style={{
           width: '1200px',
           height: '800px',
-          boxSizing: 'border-box',
-          border: '5px solid red',
+          outline: '5px solid red',
           position: 'relative',
           overflow: 'hidden',
           flexShrink: 0,
