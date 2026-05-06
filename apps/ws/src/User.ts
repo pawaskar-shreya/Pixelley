@@ -19,19 +19,22 @@ function generateId(length = 10) {
 export class User {
     public id: string;
     private spaceId?: string;
+    public dbUserId: string = '';
+    public name: string = '';
+    public avatarIdleUrl: string = '';
     private x: number;
     private y: number;
     private ws: WebSocket;
-    private spaceWidth: number;
-    private spaceHeight: number;
+    private worldMapWidth: number = 1500;
+    private worldMapHeight: number = 1000;
 
     constructor(ws: WebSocket) {
         this.id = generateId(10),
         this.ws = ws;
         this.x = 0;
         this.y = 0;
-        this.spaceWidth = 0;
-        this.spaceHeight = 0;
+        this.worldMapWidth = 1500;
+        this.worldMapHeight = 1000;
         this.initHandlers();
     }
 
@@ -44,15 +47,26 @@ export class User {
                     this.spaceId = parsedData.payload.spaceId;
 
                     const token = parsedData.payload.token
-                    console.log("----------------- JWT TOKOEN: " + token);
                     
                     const userId = await (jwt.verify(token, process.env.JWT_PASSWORD as string) as JwtPayload).userId
-                    console.log("----------------- USER ID: " + userId);
 
                     if(!userId) {
                         this.ws.close();
                         return;
                     }
+
+                    const dbUser = await prisma.user.findUnique({
+                        where: { id: userId },
+                        include: { avatar: true }
+                    });
+
+                    if(!dbUser) { 
+                        this.ws.close(); return;
+                    }
+
+                    this.dbUserId       = dbUser.id;
+                    this.name           = dbUser.name;
+                    this.avatarIdleUrl  = dbUser.avatar?.idleUrl ?? '';
 
                     const space = await prisma.space.findUnique({
                         where: {
@@ -66,8 +80,6 @@ export class User {
                     }
 
                     RoomManager.getInstance().addUser(this.spaceId, this);
-                    this.spaceWidth = space.width;
-                    this.spaceHeight = space.height;
                     this.x = Math.floor(Math.random() * space.width);
                     this.y = Math.floor(Math.random() * space.height);
 
@@ -81,7 +93,9 @@ export class User {
                             users: RoomManager.getInstance().rooms.get(this.spaceId)?.filter(x => x.id !== this.id).map(u => ({
                                 id: u.id,
                                 x: u.x,
-                                y: u.y
+                                y: u.y, 
+                                name: u.name, 
+                                avatarIdleUrl: u.avatarIdleUrl
                             })) ?? []
                         }
                     })
@@ -91,7 +105,9 @@ export class User {
                         payload: {
                             userId: this.id,
                             x: this.x,
-                            y: this.y
+                            y: this.y, 
+                            name: this.name, 
+                            avatarIdleUrl: this.avatarIdleUrl
                         }
                     }, this.spaceId, this)
 
@@ -106,10 +122,8 @@ export class User {
 
                     const MAX_MOVE_DISTANCE = 160;
                     const withinDistance = xDisplacement <= MAX_MOVE_DISTANCE && yDisplacement <= MAX_MOVE_DISTANCE;
-                    const withinBounds = moveX >= 0 && moveY >= 0 && moveX <= this.spaceWidth && moveY <= this.spaceHeight;
+                    const withinBounds = moveX >= 0 && moveY >= 0 && moveX <= this.worldMapWidth && moveY <= this.worldMapHeight;
 
-                    // Todo: Don't let them get on top of static elements 
-                    // Maybe they can pass past each other
                     if(withinDistance && withinBounds) {
                         this.x = moveX;
                         this.y = moveY;

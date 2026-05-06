@@ -177,7 +177,10 @@ export class GameScene extends Phaser.Scene {
     const isAlive = () => !!this.scene?.scene;
 
     // Server confirms join: move local player to authoritative spawn point and spawn everyone already in the space
-    const onSpaceJoined = (data: { spawn: { x: number; y: number }; users: { id: string; x: number; y: number }[] }) => {
+    const onSpaceJoined = (data: {
+      spawn: { x: number; y: number }; 
+      users: { id: string; x: number; y: number, name: string, avatarIdleUrl: string }[] 
+    }) => {
       console.log('[GameScene] space-joined received', data);
 
       // Wait one frame to ensure physics body is fully ready
@@ -198,21 +201,39 @@ export class GameScene extends Phaser.Scene {
       });
 
       data.users.forEach((u) => {
-        if (u.id === userId) return; // skip self
+        if (u.id === userId) return;            // skip self
         if (this.remotePlayers.has(u.id)) return;
         if (!isAlive()) return;
 
         const remotePlayer = new PlayerEntity(
           this, u.x, u.y,
-          u.id, `Player ${u.id.slice(-4)}`,
+          u.id, u.name,
           false
         );
         this.remotePlayers.set(u.id, remotePlayer);
       });
+
+      const { user } = useAuthStore.getState();
+      const allUsers = [
+        {
+          userId: user?.id,
+          name: user?.name || 'You',
+          avatarIdleUrl: user?.avatar?.idleUrl || '',
+        },
+        ...data.users
+          .filter(u => u.id !== userId)
+          .map(u => ({
+            userId:        u.id,
+            name:          u.name,
+            avatarIdleUrl: u.avatarIdleUrl,
+          }))
+      ];
+      wsClient.emit('usersUpdated', allUsers);
     };
 
     // Another user joined mid-session
-    const onUserJoin = (data: { userId: string; x: number; y: number }) => {
+    const onUserJoin = (data: { userId: string; x: number; y: number; name: string; avatarIdleUrl: string }) => {
+      wsClient.emit('userJoinedSpace', { userId: data.userId, name: data.name, avatarIdleUrl: data.avatarIdleUrl });
       if (!isAlive()) return;
       if (this.remotePlayers.has(data.userId)) return;
       const remotePlayer = new PlayerEntity(
@@ -247,6 +268,7 @@ export class GameScene extends Phaser.Scene {
     };
   
     const onUserLeft = (data: { userId: string }) => {
+      wsClient.emit('userLeftSpace', { userId: data.userId });
       if (!isAlive()) return;
       const player = this.remotePlayers.get(data.userId);
       if (player) {
@@ -263,6 +285,7 @@ export class GameScene extends Phaser.Scene {
   
     // Clean up ALL listeners when this scene shuts down
     this.events.once('shutdown', () => {
+      wsClient.emit('usersUpdated', []);
       this.spawnConfirmed = false;
       wsClient.off('space-joined', onSpaceJoined);
       wsClient.off('user-join', onUserJoin);

@@ -177,7 +177,7 @@ class WSClient {
     this.handlers[event] = this.handlers[event].filter(h => h !== handler);
   }
 
-  private emit(event: string, data: any) {
+  public emit(event: string, data: any) {
     this.handlers[event]?.forEach(h => h(data));
   }
 

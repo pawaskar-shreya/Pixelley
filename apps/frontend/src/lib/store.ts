@@ -24,7 +24,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
 
-      // only persisting token and user as the 
       partialize: (state) => ({
         user: state.user,
         token: state.token,
