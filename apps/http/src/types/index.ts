@@ -28,6 +28,11 @@ export const DeleteElementSchema = zod.object({
     id: zod.string(), 
 })
 
+export const UpdateElementPositionSchema = zod.object({
+    x: zod.number(),
+    y: zod.number(),
+})
+
 // Extending the req obj globally to include uesrID, role and username
 declare global {
   namespace Express {

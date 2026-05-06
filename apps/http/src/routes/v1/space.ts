@@ -1,5 +1,5 @@
 import { Request, Router } from "express";
-import { AddElementSchema, DeleteElementSchema, Params } from "../../types";
+import { AddElementSchema, UpdateElementPositionSchema, DeleteElementSchema, Params } from "../../types";
 import { userMiddleware } from "../../middleware/user";
 import { prisma } from "@pixelley/db";
 
@@ -11,7 +11,7 @@ spaceRouter.get("/", async (req, res) => {
     return res.status(200).json({
         spaces: Allspaces.map(space => ({
             id: space.id,
-            name: space.name, 
+            name: space.name,
             width: space.width,
             height: space.height,
             thumbnail: space.thumbnail
@@ -31,7 +31,7 @@ spaceRouter.post("/element", async (req, res) => {
     const space = await prisma.space.findUnique({
         where: {
             id: parsedData.data.spaceId
-        }, 
+        },
         select: {
             width: true, 
             height: true
@@ -46,7 +46,7 @@ spaceRouter.post("/element", async (req, res) => {
 
     const { x, y } = parsedData.data;
 
-    if(x < 0 || y < 0 || x > space.width || y > space.height) {
+    if (x < 0 || y < 0 || x > space.width || y > space.height) {
         return res.status(400).json({
             message: "Cannot place the element outside the space"
         })
@@ -54,16 +54,16 @@ spaceRouter.post("/element", async (req, res) => {
 
     const addedElement = await prisma.spaceElement.create({
         data: {
-            elementId: parsedData.data.elementId, 
-            spaceId: parsedData.data.spaceId, 
+            elementId: parsedData.data.elementId,
+            spaceId: parsedData.data.spaceId,
             addedById: req.userId!,
-            x: parsedData.data.x, 
-            y: parsedData.data.y, 
+            x: parsedData.data.x,
+            y: parsedData.data.y,
         }
     })
 
     return res.status(200).json({
-        message: "New element created", 
+        message: "New element created",
         id: addedElement.id
     })
 })
@@ -71,7 +71,7 @@ spaceRouter.post("/element", async (req, res) => {
 spaceRouter.delete("/element", async (req, res) => {
     const parsedData = DeleteElementSchema.safeParse(req.body);
 
-    if(!parsedData.success) {
+    if (!parsedData.success) {
         return res.status(400).json({
             message: "Send valid Input"
         })
@@ -101,6 +101,42 @@ spaceRouter.delete("/element", async (req, res) => {
     return res.status(200).json({
         message: "Element deleted successfully"
     })
+})
+
+spaceRouter.put("/element/:id", async (req, res) => {
+    const { id } = req.params;
+    const parsedData = UpdateElementPositionSchema.safeParse(req.body);
+
+    if (!parsedData.success) {
+        return res.status(400).json({ message: "Send valid x and y" });
+    }
+
+    const spaceElement = await prisma.spaceElement.findUnique({
+        where: { id },
+        include: { space: true }
+    });
+
+    if (!spaceElement) {
+        return res.status(404).json({ message: "Element not found" });
+    }
+
+    if (spaceElement.addedById !== req.userId) {
+        return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    const { x, y } = parsedData.data;
+    const { width, height } = spaceElement.space;
+
+    if (x < 0 || y < 0 || x > width || y > height) {
+        return res.status(400).json({ message: "Position outside space bounds" });
+    }
+
+    const updated = await prisma.spaceElement.update({
+        where: { id },
+        data: { x, y }
+    });
+
+    return res.status(200).json({ message: "Element position updated", id: updated.id });
 })
 
 spaceRouter.get("/:spaceId/elements", async (req: Request<Params>, res) => {

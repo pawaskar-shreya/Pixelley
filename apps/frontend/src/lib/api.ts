@@ -78,6 +78,15 @@ async function post<T>(url: string, body?: any, config?: any): Promise<T> {
   }
 }
 
+async function put<T>(url: string, body?: any, config?: any): Promise<T> {
+  try {
+    const res = await http.put<T>(url, body, config);
+    return res.data;
+  } catch (e) {
+    throw new Error(toMessage(e));
+  }
+}
+
 async function del<T>(url: string, config?: any): Promise<T> {
   try {
     const res = await http.delete<T>(url, config);
@@ -88,7 +97,6 @@ async function del<T>(url: string, config?: any): Promise<T> {
 }
 
 export const api = {
-  // Auth
   signup: async (data: SignupRequest) => {
     const { name, username, password, gender } = data;
 
@@ -159,6 +167,11 @@ export const api = {
   addElementToSpace: async (data: AddElementRequest) => {
     const res = await post<{ id: string }>('/space/element', data);
     return { id: res.id };
+  },
+
+  updateElementPosition: async (id: string, x: number, y: number) => {
+    await put<{ message: string; id: string }>(`/space/element/${id}`, { x, y });
+    return { success: true };
   },
 
   deleteElementFromSpace: async (id: string) => {

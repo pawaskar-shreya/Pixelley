@@ -6,6 +6,7 @@ import { GAME_CONFIG } from '../config/constants';
 import { useAuthStore } from '../../lib/store';
 import { SpaceData, SpaceElement } from '../../lib/types';
 import { wsClient } from '@/src/lib/wsClient';
+import { api } from '../../lib/api';
 
 export class GameScene extends Phaser.Scene {
   private localPlayer!: PlayerEntity;
@@ -89,17 +90,84 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnElementSprite(el: SpaceElement, textureKey: string) {
+    const { user } = useAuthStore.getState();
+    const currentUserId = user?.id;
+    const isOwner = !!currentUserId && el.addedById === currentUserId;
+
+    let gameObj: Phaser.Physics.Arcade.Sprite | Phaser.GameObjects.Image;
+
     if (el.element.isCollidable) {
-      const sprite = this.elementsGroup.create(el.x, el.y, textureKey);
+      const sprite = this.elementsGroup.create(el.x, el.y, textureKey) as Phaser.Physics.Arcade.Sprite;;
       sprite.setDepth(GAME_CONFIG.DEPTHS.WALLS);
+      gameObj = sprite;
     } else {
-      const sprite = this.add.image(el.x, el.y, textureKey);
-      sprite.setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
+       const img = this.add.image(el.x, el.y, textureKey);
+      img.setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
+      gameObj = img;
     }
+
+    (gameObj as any).__spaceElementId = el.id;
+
+    // Always make interactive so right-click can fire. cursor hint depends on ownership
+    gameObj.setInteractive({ cursor: isOwner ? 'grab' : 'default', draggable: isOwner });
+    if (isOwner) {
+      this.input.setDraggable(gameObj);
+    }
+
+    // Drag to move the position of the element (owner only)
+    if (isOwner) {
+      gameObj.on('drag', (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+        gameObj.x = dragX;
+        gameObj.y = dragY;
+      });
+
+      gameObj.on('dragend', () => {
+        const newX = Math.round(gameObj.x);
+        const newY = Math.round(gameObj.y);
+
+        if (el.element.isCollidable) {
+          const body = (gameObj as Phaser.Physics.Arcade.Sprite).body as Phaser.Physics.Arcade.StaticBody;
+          body.reset(newX, newY);
+        }
+
+        const spaceElementId = (gameObj as any).__spaceElementId as string;
+        if (spaceElementId) {
+          api.updateElementPosition(spaceElementId, newX, newY)
+            .catch(err => console.error('[GameScene] Failed to update element position:', err));
+        }
+      });
+    }
+
+    // Right click to delete (owner only)
+    gameObj.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.rightButtonDown() && isOwner) {
+        const spaceElementId = (gameObj as any).__spaceElementId as string;
+        if (spaceElementId) {
+          api.deleteElementFromSpace(spaceElementId)
+            .then(() => {
+              gameObj.destroy();
+              console.log('[GameScene] Element deleted:', spaceElementId);
+            })
+            .catch(err => console.error('[GameScene] Failed to delete element:', err));
+        }
+      }
+    });
   }
 
   private handleAddElementEvent = (e: CustomEvent) => {
     console.log('Add element event received', e.detail);
+
+    const { id, element, x, y, addedById } = e.detail as {
+      id: string;
+      element: SpaceElement['element'];
+      x: number;
+      y: number;
+      addedById?: string;
+    };
+    console.log('[GameScene] add-element received', { id, element, x, y, addedById });
+
+    const spaceEl: SpaceElement = { id, element, x, y, addedById };
+    this.addElement(spaceEl);
   };
 
   setupNetworking() {

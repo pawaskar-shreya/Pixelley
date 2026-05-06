@@ -56,6 +56,7 @@ export interface SpaceElement {
   element: Element;
   x: number;
   y: number;
+  addedById?: string;
 }
 
 export interface SpaceData {
