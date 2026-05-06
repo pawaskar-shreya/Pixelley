@@ -4,6 +4,7 @@ export interface User {
   name: string;
   avatarId: string;
   gender: 'Female' | 'Male';
+  avatar: Avatar
 }
 
 export interface PlayerState {
@@ -21,7 +22,16 @@ export interface GameState {
 export interface Avatar {
   id: string;
   name: string;
+  gender: string;
   idleUrl: string;
+  leftUrl: string;
+  rightUrl: string;
+  upUrl: string;
+  downUrl: string;
+}
+
+export function avatarToKey(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, ''); // "Black Widow" -> "blackwidow"
 }
 
 export interface Space {
@@ -29,13 +39,12 @@ export interface Space {
   name: string;
   width: string;
   height: string;
-  tilemapUrl: string;
   thumbnail: string;
 }
 
 export interface Element {
   id: string;
-  spaceId: string;
+  name: string;
   imageUrl: string;
   width: number;
   height: number;
@@ -47,6 +56,7 @@ export interface SpaceElement {
   element: Element;
   x: number;
   y: number;
+  addedById?: string;
 }
 
 export interface SpaceData {

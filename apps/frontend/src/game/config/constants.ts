@@ -1,6 +1,6 @@
 export const GAME_CONFIG = {
   TILE_SIZE: 32,
-  PLAYER_SPEED: 200,
+  PLAYER_SPEED: 128,
   COLORS: {
     BACKGROUND: '#2d2d2d',
     PLAYER: 0x3b82f6,

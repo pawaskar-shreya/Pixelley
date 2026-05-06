@@ -1,10 +1,10 @@
 import axios, { AxiosError } from 'axios';
-import { User } from './types';
-
+import { Avatar, User } from './types';
 
 type Gender = 'Female' | 'Male';
 
 type SignupRequest = {
+  name: string;
   username: string;
   password: string;
   gender: Gender
@@ -78,6 +78,15 @@ async function post<T>(url: string, body?: any, config?: any): Promise<T> {
   }
 }
 
+async function put<T>(url: string, body?: any, config?: any): Promise<T> {
+  try {
+    const res = await http.put<T>(url, body, config);
+    return res.data;
+  } catch (e) {
+    throw new Error(toMessage(e));
+  }
+}
+
 async function del<T>(url: string, config?: any): Promise<T> {
   try {
     const res = await http.delete<T>(url, config);
@@ -88,11 +97,11 @@ async function del<T>(url: string, config?: any): Promise<T> {
 }
 
 export const api = {
-  // Auth
   signup: async (data: SignupRequest) => {
-    const { username, password, gender } = data;
+    const { name, username, password, gender } = data;
 
     return post<{ userId: string }>('/signup', {
+      name,
       username,
       password,
       gender
@@ -105,9 +114,9 @@ export const api = {
 
   //  ------------ TODO: Add avatar selection
 
-  // getAvatars: async () => {
-  //   return get<{ avatars: Array<{ id: string; name: string; imageUrl: string }> }>('/avatars');
-  // },
+  getAvatars: async () => {
+    return get<{ avatars: Avatar[] }>('/user/allAvatars');
+  },
 
   // updateMetadata: async (data: { avatarId: string }) => {
   //   // Backend returns { message }, but callers only care that it succeeded.
@@ -127,7 +136,7 @@ export const api = {
 
   // Spaces (Dashboard)
   getSpaces: async () => {
-    return get<{ spaces: Array<{ id: string; name: string; width: string; height: string;  tilemapUrl: string; thumbnail: string }> }>(
+    return get<{ spaces: Array<{ id: string; name: string; width: string; height: string; thumbnail: string }> }>(
       '/space'
     );
   },
@@ -135,13 +144,15 @@ export const api = {
   // Space page
   getSpace: async (spaceId: string) => {
     return get<{
-      dimensions: string;
+      name: string;
+      width: string;
+      height: string;
       elements: Array<{
         id: string;
         x: number;
         y: number;
         addedById: string;
-        element: { id: string; imageUrl: string; width: number; height: number; isCollidable: boolean };
+        element: { id: string; name: string; imageUrl: string; width: number; height: number; isCollidable: boolean };
       }>;
     }>(`/space/${spaceId}`);
   },
@@ -154,13 +165,13 @@ export const api = {
   },
 
   addElementToSpace: async (data: AddElementRequest) => {
-    // Backend doesn't return the created spaceElement id, so we do a best-effort re-fetch to find it.
-    await post<{ message: string }>('/space/element', data);
-    const after = await api.getSpace(data.spaceId);
-    const match = [...(after.elements || [])]
-      .reverse()
-      .find((e) => e.element?.id === data.elementId && e.x === data.x && e.y === data.y);
-    return { id: match?.id };
+    const res = await post<{ id: string }>('/space/element', data);
+    return { id: res.id };
+  },
+
+  updateElementPosition: async (id: string, x: number, y: number) => {
+    await put<{ message: string; id: string }>(`/space/element/${id}`, { x, y });
+    return { success: true };
   },
 
   deleteElementFromSpace: async (id: string) => {

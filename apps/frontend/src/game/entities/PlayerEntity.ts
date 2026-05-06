@@ -1,5 +1,15 @@
 import Phaser from 'phaser';
 import { GAME_CONFIG } from '../config/constants';
+import { Avatar, avatarToKey } from '../../lib/types';
+
+// Walk anims: 3 frames across a 96×32 strip (frameWidth: 32)
+const ANIM_DEFS = [
+  { suffix: 'idle', start: 0, end: 0, frameRate: 6  },  // single frame
+  { suffix: 'down', start: 0, end: 2, frameRate: 8  },  // 3-frame walk cycle
+  { suffix: 'left', start: 0, end: 2, frameRate: 8  },
+  { suffix: 'right',start: 0, end: 2, frameRate: 8  },
+  { suffix: 'up',   start: 0, end: 2, frameRate: 8  },
+];
 
 export class PlayerEntity extends Phaser.GameObjects.Container {
   public sprite: Phaser.GameObjects.Sprite;
@@ -7,8 +17,7 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
   public targetX: number;
   public targetY: number;
   private isLocal: boolean;
-  private usingJulia: boolean;
-
+  private avatarKey: string | null;
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -16,15 +25,15 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     id: string,
     name: string,
     isLocal: boolean = false,
-    useOfficeCharacter: boolean = false
+    avatarKey?: string   // passed in from GameScene. Comes from player's chosen avatar based on gender
   ) {
     super(scene, x, y);
     this.isLocal = isLocal;
     this.targetX = x;
     this.targetY = y;
-    this.usingJulia = scene.textures.exists('julia_idle');
+    this.avatarKey = this.resolveAvatarKey(scene, avatarKey);
 
-    console.log(`PlayerEntity [${id}] usingJulia=${this.usingJulia} isLocal=${isLocal}`);
+    console.log(`PlayerEntity [${id}] avatarKey=${this.avatarKey} isLocal=${isLocal}`);
 
     // Shadow
     const shadow = scene.add.ellipse(
@@ -35,11 +44,12 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     this.add(shadow);
 
     // Sprite
-    if (this.usingJulia) {
-      this.sprite = scene.add.sprite(0, 0, 'julia_idle', 0).setScale(1.8);
-      this.ensureJuliaAnimations(scene);
-      this.sprite.play('julia_anim_idle', true);
+    if (this.avatarKey) {
+      this.sprite = scene.add.sprite(0, 0, `${this.avatarKey}_idle`, 0).setScale(1.8);
+      this.ensureAvatarAnimations(scene, this.avatarKey);
+      this.sprite.play(`${this.avatarKey}_anim_idle`, true);
     } else {
+      // Procedural fallback: keeps the game working even if textures fail to load
       const textureKey = isLocal ? 'player_human' : 'remote_player_human';
       this.sprite = scene.add.sprite(0, 0, textureKey);
     }
@@ -61,6 +71,12 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     if (isLocal) {
       scene.physics.add.existing(this);
       const body = this.body as Phaser.Physics.Arcade.Body;
+
+      if (!body) {
+        console.error('Physics body failed to attach');
+        return;
+      }
+
       body.setSize(GAME_CONFIG.TILE_SIZE, GAME_CONFIG.TILE_SIZE);
       body.setOffset(-GAME_CONFIG.TILE_SIZE / 2, -GAME_CONFIG.TILE_SIZE / 2);
       body.setCollideWorldBounds(true);
@@ -87,51 +103,86 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
       velocityY = this.targetY - this.y;
     }
 
-    if (this.usingJulia) {
-      this.updateJuliaAnimation(velocityX, velocityY);
+    if (this.avatarKey) {
+      this.updateAvatarAnimation(velocityX, velocityY);
     }
   }
 
-  private ensureJuliaAnimations(scene: Phaser.Scene) {
-    const defs = [
-      // Julia-Idle.png = 128x32 → 4 frames (0–3)
-      { key: 'julia_anim_idle',    texture: 'julia_idle',         start: 0, end: 3, frameRate: 6 },
-      // Walk PNGs = 256x64 → 8 frames, row 1 = 0–3, row 2 = 4–7
-      { key: 'julia_anim_forward', texture: 'julia_walk_forward', start: 0, end: 3, frameRate: 8 },
-      { key: 'julia_anim_left',    texture: 'julia_walk_left',    start: 0, end: 3, frameRate: 8 },
-      { key: 'julia_anim_right',   texture: 'julia_walk_right',   start: 0, end: 3, frameRate: 8 },
-      { key: 'julia_anim_up',      texture: 'julia_walk_up',      start: 0, end: 3, frameRate: 8 },
-    ];
+  // ----------------- Private helpers ---------------------------------------------
 
-    defs.forEach(({ key, texture, start, end, frameRate }) => {
-      if (!scene.anims.exists(key) && scene.textures.exists(texture)) {
-        scene.anims.create({
-          key,
-          frames: scene.anims.generateFrameNumbers(texture, { start, end }),
-          frameRate,
-          repeat: -1,
-        });
-        console.log('Anim created:', key);
-      } else if (!scene.textures.exists(texture)) {
-        console.warn(`Missing texture for anim "${key}": needs "${texture}"`);
-      }
-    });
+  private resolveAvatarKey(scene: Phaser.Scene, requested?: string): string | null {
+  // Get all loaded avatar keys dynamically from registry
+  const avatars = (scene.registry.get('avatars') as Avatar[]) ?? [];
+  const availableKeys = avatars.map(a => avatarToKey(a.name));
+
+  // Try requested key first
+  if (requested && scene.textures.exists(`${requested}_idle`)) {
+    return requested;
   }
 
-  private updateJuliaAnimation(velocityX: number, velocityY: number) {
+  // Fall back to first available
+  for (const key of availableKeys) {
+    if (scene.textures.exists(`${key}_idle`)) {
+      console.warn(`Avatar "${requested}" not found, falling back to "${key}"`);
+      return key;
+    }
+  }
+
+  console.warn('No avatar textures loaded, using procedural fallback');
+  return null;
+}
+
+  private ensureAvatarAnimations(scene: Phaser.Scene, avatarKey: string) {
+    for (const { suffix, start, end, frameRate } of ANIM_DEFS) {
+      const animKey    = `${avatarKey}_anim_${suffix}`;           // eg, 'blackwidow_anim_left'
+      const textureKey = `${avatarKey}_${suffix}`;                // eg, 'blackwidow_left'
+
+      if (scene.anims.exists(animKey)) continue;
+
+      if (!scene.textures.exists(textureKey)) {
+        console.warn(`Missing texture "${textureKey}" for anim "${animKey}"`);
+        continue;
+      }
+
+      scene.anims.create({
+        key: animKey,
+        frames: scene.anims.generateFrameNumbers(textureKey, { start, end }),
+        frameRate,
+        repeat: -1,
+      });
+
+      console.log('Anim created:', animKey);
+    }
+  }
+
+  private updateAvatarAnimation(velocityX: number, velocityY: number) {
+    if (!this.avatarKey) return;
+
     const moving = Math.hypot(velocityX, velocityY) > 8;
 
     if (!moving) {
-      if (this.sprite.anims.currentAnim?.key !== 'julia_anim_idle') {
-        this.sprite.play('julia_anim_idle', true);
+      const idleKey = `${this.avatarKey}_anim_idle`;
+      if (this.sprite.anims.currentAnim?.key !== idleKey) {
+        this.sprite.play(idleKey, true);
       }
       return;
     }
 
+    // Favour vertical direction when both axes are equal
     if (Math.abs(velocityY) >= Math.abs(velocityX)) {
-      this.sprite.play(velocityY > 0 ? 'julia_anim_forward' : 'julia_anim_up', true);
+      this.sprite.play(
+        velocityY > 0
+          ? `${this.avatarKey}_anim_down`
+          : `${this.avatarKey}_anim_up`,
+        true
+      );
     } else {
-      this.sprite.play(velocityX > 0 ? 'julia_anim_right' : 'julia_anim_left', true);
+      this.sprite.play(
+        velocityX > 0
+          ? `${this.avatarKey}_anim_right`
+          : `${this.avatarKey}_anim_left`,
+        true
+      );
     }
   }
 }

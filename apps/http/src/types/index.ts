@@ -4,7 +4,7 @@ export const SignupSchema = zod.object({
     username: zod.string().email(),
     password: zod.string().min(8, "Password too short").regex(/^\S+$/, "No spaces allowed"),
     name: zod.string().trim().min(1).max(20),
-    gender: zod.string()
+    gender: zod.string().transform((val) => val.toLowerCase())
 })
 
 export const SigninSchema = zod.object({
@@ -26,6 +26,11 @@ export const AddElementSchema = zod.object({
 
 export const DeleteElementSchema = zod.object({
     id: zod.string(), 
+})
+
+export const UpdateElementPositionSchema = zod.object({
+    x: zod.number(),
+    y: zod.number(),
 })
 
 // Extending the req obj globally to include uesrID, role and username

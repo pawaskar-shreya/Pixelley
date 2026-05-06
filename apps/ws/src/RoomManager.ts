@@ -19,28 +19,49 @@ export class RoomManager {
 
     public addUser(spaceId: string, user: User) {
         if (!this.rooms.has(spaceId)) {
-            this.rooms.set(spaceId, [user])
+            this.rooms.set(spaceId, [user]);
+            return;
         }
-        this.rooms.set(spaceId, [...(this.rooms.get(spaceId) ?? []), user]);
+        const users = this.rooms.get(spaceId) ?? [];
+        if (users.some((u) => u.id === user.id)) {
+            return;
+        }
+        this.rooms.set(spaceId, [...users, user]);
     }
 
     public removeUser(spaceId: string, user: User) {
         if(!this.rooms.has(spaceId)) {
             return
         }
-        this.rooms.get(spaceId)?.filter((u) => {
-            u.id !== user.id
-        })
+        const remaining = (this.rooms.get(spaceId) ?? []).filter((u) => u.id !== user.id);
+        if (remaining.length === 0) {
+            this.rooms.delete(spaceId);
+            return;
+        }
+        this.rooms.set(spaceId, remaining);
     }
 
     public broadcast(message: OutgoingMessage, spaceId: string, user: User) {
         if(!this.rooms.has(spaceId)) {
             return
         }
+
+        console.log("[WS Server] Broadcasting message in space", spaceId, "from user", user.id, "message:", message);
         this.rooms.get(spaceId)?.forEach((u) => {
             if(u.id !== user.id) {
                 u.send(message)
             }
+        })
+    }
+
+    public broadcastAll(message: OutgoingMessage, spaceId: string) {
+        if(!this.rooms.has(spaceId)) {
+            return
+        }
+
+        console.log("[WS Server] Broadcasting message to all in space", spaceId, "message:", message);
+        this.rooms.get(spaceId)?.forEach((u) => {
+            u.send(message)
         })
     }
 }

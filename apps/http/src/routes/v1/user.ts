@@ -5,7 +5,7 @@ import { userMiddleware } from "../../middleware/user";
 
 export const userRouter = Router();
 
-userRouter.post("/metadata/bulk", userMiddleware, async (req, res) => {
+userRouter.post("/metadata/bulk", async (req, res) => {
     const parsedData = BulkMetadataSchema.safeParse(req.query.ids)
 
     if(!parsedData.success) {
@@ -30,5 +30,13 @@ userRouter.post("/metadata/bulk", userMiddleware, async (req, res) => {
             userId: m.id, 
             idleUrl: m.avatar?.idleUrl
         }))
+    })
+})
+
+userRouter.get("/allAvatars", async (req, res) => {
+    const allAvatars = await prisma.avatar.findMany();
+
+    return res.status(200).json({
+        avatars: allAvatars
     })
 })

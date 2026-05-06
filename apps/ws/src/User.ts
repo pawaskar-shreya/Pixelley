@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { OutgoingMessage } from "./types";
 import { prisma } from "@pixelley/db";
 import { RoomManager } from "./RoomManager";
-import jwt, { JwtPayload } from "jsonwebtoken"; 
+import jwt, { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -19,19 +19,26 @@ function generateId(length = 10) {
 export class User {
     public id: string;
     private spaceId?: string;
+    public dbUserId: string = '';
+    public name: string = '';
+    public avatarIdleUrl: string = '';
     private x: number;
     private y: number;
     private ws: WebSocket;
+    private worldMapWidth: number = 1500;
+    private worldMapHeight: number = 1000;
 
     constructor(ws: WebSocket) {
         this.id = generateId(10),
         this.ws = ws;
         this.x = 0;
         this.y = 0;
+        this.worldMapWidth = 1500;
+        this.worldMapHeight = 1000;
         this.initHandlers();
     }
 
-    initHandlers () {
+    initHandlers() {
         this.ws.on("message", async (data) => {
             const parsedData = JSON.parse(data.toString());
 
@@ -42,10 +49,24 @@ export class User {
                     const token = parsedData.payload.token
                     
                     const userId = await (jwt.verify(token, process.env.JWT_PASSWORD as string) as JwtPayload).userId
+
                     if(!userId) {
                         this.ws.close();
                         return;
                     }
+
+                    const dbUser = await prisma.user.findUnique({
+                        where: { id: userId },
+                        include: { avatar: true }
+                    });
+
+                    if(!dbUser) { 
+                        this.ws.close(); return;
+                    }
+
+                    this.dbUserId = dbUser.id;
+                    this.name = dbUser.name;
+                    this.avatarIdleUrl = dbUser.avatar?.idleUrl ?? '';
 
                     const space = await prisma.space.findUnique({
                         where: {
@@ -69,7 +90,13 @@ export class User {
                                 x: this.x,
                                 y: this.y
                             },
-                            users: RoomManager.getInstance().rooms.get(this.spaceId)?.filter(x => x.id !== this.id).map(u => ({id: u.id})) ?? []
+                            users: RoomManager.getInstance().rooms.get(this.spaceId)?.filter(x => x.id !== this.id).map(u => ({
+                                id: u.id,
+                                x: u.x,
+                                y: u.y, 
+                                name: u.name, 
+                                avatarIdleUrl: u.avatarIdleUrl
+                            })) ?? []
                         }
                     })
 
@@ -78,7 +105,9 @@ export class User {
                         payload: {
                             userId: this.id,
                             x: this.x,
-                            y: this.y
+                            y: this.y, 
+                            name: this.name, 
+                            avatarIdleUrl: this.avatarIdleUrl
                         }
                     }, this.spaceId, this)
 
@@ -86,21 +115,23 @@ export class User {
 
                 case "move": 
                     const moveX = parsedData.payload.x;
-                    const moveY = parsedData.payload.moveY;
+                    const moveY = parsedData.payload.y;
                     
                     const xDisplacement = Math.abs(this.x - moveX);
                     const yDisplacement = Math.abs(this.y - moveY);
 
-                    // Todo: Don't let them get on top of static elements and outside the wall
-                    // Maybe they can pass past each other
-                    if((xDisplacement == 1 && yDisplacement == 0) || (yDisplacement == 1 && xDisplacement == 0)) {
-                        this.x = moveX; 
+                    const MAX_MOVE_DISTANCE = 160;
+                    const withinDistance = xDisplacement <= MAX_MOVE_DISTANCE && yDisplacement <= MAX_MOVE_DISTANCE;
+                    const withinBounds = moveX >= 0 && moveY >= 0 && moveX <= this.worldMapWidth && moveY <= this.worldMapHeight;
+
+                    if(withinDistance && withinBounds) {
+                        this.x = moveX;
                         this.y = moveY;
 
                         RoomManager.getInstance().broadcast({
                             type: "movement", 
                             payload: {
-                                x: this.x, 
+                                x: this.x,
                                 y: this.y,
                                 userId: this.id
                             }
@@ -110,21 +141,48 @@ export class User {
                     }
 
                     this.send({
-                        type: "movement-rejected", 
+                        type: "movement-rejected",
                         payload: {
-                            x: this.x, 
+                            x: this.x,
                             y: this.y
                         }
                     })
 
                     break;
+
+                    case "chat":
+                        const chatMessage = parsedData.payload.message as string;
+                        if (!chatMessage || !chatMessage.trim() || !this.spaceId) break;
+    
+                        // Broadcast to all users in the space (including sender so they see their own message)
+                        RoomManager.getInstance().broadcastAll({
+                            type: "chat",
+                            payload: {
+                                userId: this.dbUserId,
+                                username: this.name,
+                                message: chatMessage.trim().slice(0, 200),
+                                timestamp: Date.now()
+                            }
+                        }, this.spaceId!)
+    
+                        break;
+
+                        case "element-add":
+                        case "element-move":
+                        case "element-delete":
+                            if (!this.spaceId) break;
+                            RoomManager.getInstance().broadcast({
+                                type: parsedData.type,
+                                payload: parsedData.payload
+                            }, this.spaceId, this);
+                            break;
             }
         })
     }
 
     destroy() {
         RoomManager.getInstance().broadcast({
-            type: "user-left", 
+            type: "user-left",
             payload: {
                 userId: this.id
             }

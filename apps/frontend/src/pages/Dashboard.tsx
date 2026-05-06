@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Space } from '../lib/types';
 import { useAuthStore } from '../lib/store';
+import { LobbyScene } from '../game/scenes/LobbyScene';
 
 export default function Dashboard() {
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -27,9 +28,32 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     logout();
-    localStorage.removeItem('token'); // optional but safe
+    localStorage.removeItem('token');
     navigate('/signin');
   };
+
+  const handleEnterSpace = (spaceId: string, spaceName: string) => {
+    navigate(`/space/${spaceId}`);
+
+    // Poll until LobbyScene is active after Phaser boots
+    const tryEnter = (attempts = 0) => {
+      if (attempts > 20) {
+        console.error('LobbyScene never became available');
+        return;
+      }
+
+      const game = (window as any).__phaserGame as Phaser.Game | undefined;
+      const lobby = game?.scene.getScene('LobbyScene') as LobbyScene | undefined;
+
+      if (lobby?.scene.isActive()) {
+        lobby.enterSpace(spaceName.toLowerCase());
+      } else {
+        setTimeout(() => tryEnter(attempts + 1), 300);
+      }
+    };
+
+    setTimeout(() => tryEnter(), 300);
+};
 
   if (loading) {
     return <div className="p-8 text-center">Loading spaces...</div>;
@@ -61,7 +85,6 @@ export default function Dashboard() {
           {spaces.map((space) => (
             <div
               key={space.id}
-              onClick={() => navigate(`/space/${space.id}`)}
               className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
             >
               <div className="aspect-video bg-gray-100">
@@ -77,6 +100,12 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
+              <button
+                onClick={() => {handleEnterSpace(space.id, space.name)}}
+                className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
+              >
+                Enter {space.name}
+              </button>
             </div>
           ))}
         </div>

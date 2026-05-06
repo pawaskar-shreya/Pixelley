@@ -27,7 +27,7 @@ model User {
 
 model Avatar {
   id       String @id @default(cuid())
-  name     String
+  name     String @unique
   gender   String
   idleUrl  String
   leftUrl  String
@@ -40,10 +40,9 @@ model Avatar {
 
 model Space {
   id          String @id @default(cuid())
-  name        String
+  name        String @unique
   width       Int
   height      Int
-  tilemapUrl  String                    // R2 object key -> Phaser Tiled JSON
   thumbnail   String                    // R2 object key -> dashboard preview
 
   elements      Element[]
@@ -53,11 +52,12 @@ model Space {
 model Element {
   id           String  @id @default(cuid())
   spaceId      String
-  name         String
+  name         String  @unique
   width        Int
   height       Int
   isCollidable Boolean @default(false)
   imageUrl     String                     // R2 object key for sprite of the element
+  // isUserPlaceable Boolean @default(true)
 
   space         Space          @relation(fields: [spaceId], references: [id])
   spaceElements SpaceElement[]
@@ -67,11 +67,12 @@ model SpaceElement {
   id        String @id @default(cuid())
   elementId String
   spaceId   String
-  addedById String
+  addedById String?
   x         Int
   y         Int
+  // isDeletable Boolean @default(false)
 
   space     Space   @relation(fields: [spaceId], references: [id])
   element   Element @relation(fields: [elementId], references: [id])
-  addedBy   User    @relation(fields: [addedById], references: [id])
+  addedBy   User?   @relation(fields: [addedById], references: [id])
 }
