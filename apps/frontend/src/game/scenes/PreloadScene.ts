@@ -44,8 +44,8 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    this.createFlat('wall', GAME_CONFIG.COLORS.WALL);
-    this.createFlat('ground', GAME_CONFIG.COLORS.GROUND);
+    // this.createFlat('wall', GAME_CONFIG.COLORS.WALL);
+    // this.createFlat('ground', GAME_CONFIG.COLORS.GROUND);
 
     this.scene.start('LobbyScene');
   }

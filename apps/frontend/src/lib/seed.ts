@@ -155,8 +155,8 @@ async function seedOfficeSpace(urls: Record<string, string>) {
     update: {},
     create: {
       name:      'Office',
-      width:     1024,
-      height:    896,
+      width:     1200,
+      height:    800,
       thumbnail: `${PUBLIC_URL}/office/desk-with-pc.png`, // use any office asset as placeholder thumbnail
     },
   });

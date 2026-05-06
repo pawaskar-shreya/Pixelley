@@ -45,8 +45,8 @@ abstract class BaseMap {
 
 class OfficeMap extends BaseMap {
   constructor(scene: Phaser.Scene) {
-    // Office reference image is 1024×896
-    super(scene, 1024, 896);
+    // Office reference image is 1200x800
+    super(scene, 1500, 1000);
   }
 
   build() {

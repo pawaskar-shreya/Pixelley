@@ -31,15 +31,12 @@ export class GameScene extends Phaser.Scene {
     // Create world
     const spaceId = (this.registry.get('spaceId') as string | undefined) ?? '';
     const spaceData =  this.registry.get('spaceData') as SpaceData | undefined;
-
-    const isOfficeSpace = spaceId === 's1';
+    const isOfficeSpace = spaceId;
     const parsedWidth = Number(spaceData?.width);
     const parsedHeight = Number(spaceData?.height);
-    const defaultWidth = Number.isFinite(parsedWidth) && parsedWidth > 0 ? parsedWidth : 1600;
-    const defaultHeight = Number.isFinite(parsedHeight) && parsedHeight > 0 ? parsedHeight : 1200;
 
-    const width = isOfficeSpace ? 1024 : defaultWidth;
-    const height = isOfficeSpace ? 896 : defaultHeight;
+    const width  = Number.isFinite(parsedWidth)  && parsedWidth  > 0 ? parsedWidth  : 1600;
+    const height = Number.isFinite(parsedHeight) && parsedHeight > 0 ? parsedHeight : 1200;
 
     this.worldMap = new WorldMap(this, { theme: isOfficeSpace ? 'office' : 'default', width, height });
     this.elementsGroup = this.physics.add.staticGroup();
@@ -90,6 +87,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnElementSprite(el: SpaceElement, textureKey: string) {
+    const ELEMENT_SCALE = 2;
     const { user } = useAuthStore.getState();
     const currentUserId = user?.id;
     const isOwner = !!currentUserId && el.addedById === currentUserId;
@@ -97,13 +95,16 @@ export class GameScene extends Phaser.Scene {
     let gameObj: Phaser.Physics.Arcade.Sprite | Phaser.GameObjects.Image;
 
     if (el.element.isCollidable) {
-      const sprite = this.elementsGroup.create(el.x, el.y, textureKey) as Phaser.Physics.Arcade.Sprite;;
+      const sprite = this.elementsGroup.create(el.x, el.y, textureKey) as Phaser.Physics.Arcade.Sprite;
+      sprite.setScale(ELEMENT_SCALE);
       sprite.setDepth(GAME_CONFIG.DEPTHS.WALLS);
+      (sprite.body as Phaser.Physics.Arcade.StaticBody).updateFromGameObject();
       gameObj = sprite;
     } else {
-       const img = this.add.image(el.x, el.y, textureKey);
-      img.setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
-      gameObj = img;
+        const img = this.add.image(el.x, el.y, textureKey);
+        img.setScale(ELEMENT_SCALE);
+        img.setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
+        gameObj = img;
     }
 
     (gameObj as any).__spaceElementId = el.id;

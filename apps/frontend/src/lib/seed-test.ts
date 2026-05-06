@@ -61,8 +61,8 @@ async function seedOfficeSpace() {
     update: {},
     create: {
       name: "Office",
-      width: 1024,
-      height: 896,
+      width: 1200,
+      height: 800,
       thumbnail: `${OFFICE_BASE}/desk-with-pc.png`,
     },
   });
