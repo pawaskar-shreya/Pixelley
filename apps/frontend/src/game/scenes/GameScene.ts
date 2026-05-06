@@ -24,9 +24,9 @@ export class GameScene extends Phaser.Scene {
   create() {
     const { user } = useAuthStore.getState();
     const userId = user?.id || 'local-player';
-    const username = user?.username || 'Player';
+    const username = user?.name || user?.username || 'Player';
 
-    const avatarKey = (this.registry.get('avatarKey') as string | undefined) ?? 'blackwidow';
+    const avatarKey = user?.avatar?.name ? user.avatar.name.toLowerCase().replace(/\s+/g, '') : 'blackwidow';
 
     // Create world
     const spaceId = (this.registry.get('spaceId') as string | undefined) ?? '';
@@ -134,6 +134,9 @@ export class GameScene extends Phaser.Scene {
         const spaceElementId = (gameObj as any).__spaceElementId as string;
         if (spaceElementId) {
           api.updateElementPosition(spaceElementId, newX, newY)
+            .then(() => {
+              wsClient.sendElementMoved(spaceElementId, newX, newY);
+            })
             .catch(err => console.error('[GameScene] Failed to update element position:', err));
         }
       });
@@ -147,6 +150,7 @@ export class GameScene extends Phaser.Scene {
           api.deleteElementFromSpace(spaceElementId)
             .then(() => {
               gameObj.destroy();
+              wsClient.sendElementDeleted(spaceElementId);
               console.log('[GameScene] Element deleted:', spaceElementId);
             })
             .catch(err => console.error('[GameScene] Failed to delete element:', err));
@@ -205,10 +209,13 @@ export class GameScene extends Phaser.Scene {
         if (this.remotePlayers.has(u.id)) return;
         if (!isAlive()) return;
 
+        const avatarKey = u.avatarIdleUrl ? u.avatarIdleUrl.split('/').pop()?.replace('-idle.png', '') : undefined;
+
         const remotePlayer = new PlayerEntity(
           this, u.x, u.y,
           u.id, u.name,
-          false
+          false,
+          avatarKey
         );
         this.remotePlayers.set(u.id, remotePlayer);
       });
@@ -236,10 +243,13 @@ export class GameScene extends Phaser.Scene {
       wsClient.emit('userJoinedSpace', { userId: data.userId, name: data.name, avatarIdleUrl: data.avatarIdleUrl });
       if (!isAlive()) return;
       if (this.remotePlayers.has(data.userId)) return;
+      const avatarKey = data.avatarIdleUrl ? data.avatarIdleUrl.split('/').pop()?.replace('-idle.png', '') : undefined;
+
       const remotePlayer = new PlayerEntity(
         this, data.x, data.y,
-        data.userId, `Player ${data.userId.slice(-4)}`,
-        false
+        data.userId, data.name,
+        false,
+        avatarKey
       );
       this.remotePlayers.set(data.userId, remotePlayer);
     };
@@ -276,12 +286,44 @@ export class GameScene extends Phaser.Scene {
         this.remotePlayers.delete(data.userId);
       }
     };
+
+    const onElementAdd = (data: SpaceElement) => {
+      if (!isAlive()) return;
+      this.addElement(data);
+    };
+
+    const onElementMove = (data: { id: string; x: number; y: number }) => {
+      if (!isAlive()) return;
+      // Find the sprite matching the spaceElementId
+      const children = this.elementsGroup.getChildren().concat(this.children.list.filter(c => (c as any).__spaceElementId));
+      const gameObj = children.find(c => (c as any).__spaceElementId === data.id);
+      
+      if (gameObj) {
+        if (gameObj instanceof Phaser.Physics.Arcade.Sprite) {
+          gameObj.body?.reset(data.x, data.y);
+        }
+        (gameObj as any).x = data.x;
+        (gameObj as any).y = data.y;
+      }
+    };
+
+    const onElementDelete = (data: { id: string }) => {
+      if (!isAlive()) return;
+      const children = this.elementsGroup.getChildren().concat(this.children.list.filter(c => (c as any).__spaceElementId));
+      const gameObj = children.find(c => (c as any).__spaceElementId === data.id);
+      if (gameObj) {
+        gameObj.destroy();
+      }
+    };
   
     wsClient.on('space-joined', onSpaceJoined);
     wsClient.on('user-join', onUserJoin);
     wsClient.on('movement', onMovement);
     wsClient.on('movement-rejected', onMovementRejected);
     wsClient.on('user-left', onUserLeft);
+    wsClient.on('element-add', onElementAdd);
+    wsClient.on('element-move', onElementMove);
+    wsClient.on('element-delete', onElementDelete);
   
     // Clean up ALL listeners when this scene shuts down
     this.events.once('shutdown', () => {
@@ -292,6 +334,9 @@ export class GameScene extends Phaser.Scene {
       wsClient.off('movement', onMovement);
       wsClient.off('movement-rejected', onMovementRejected);
       wsClient.off('user-left', onUserLeft);
+      wsClient.off('element-add', onElementAdd);
+      wsClient.off('element-move', onElementMove);
+      wsClient.off('element-delete', onElementDelete);
     });
   }
 

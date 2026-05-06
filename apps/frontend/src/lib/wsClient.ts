@@ -45,7 +45,10 @@ export type WSEvent =
   | 'user-left'          // server: user-left
   | 'movement'           // server: movement (another player moved)
   | 'movement-rejected' // server: movement-rejected (snap local player back)
-  | 'chat';              // server: chat broadcast
+  | 'chat'              // server: chat broadcast
+  | 'element-add'
+  | 'element-move'
+  | 'element-delete';
 
 class WSClient {
   private socket: WebSocket | null = null;
@@ -148,6 +151,12 @@ class WSClient {
         break;
       }
 
+      case 'element-add':
+      case 'element-move':
+      case 'element-delete':
+        this.emitOrBuffer(type, payload);
+        break;
+
       default:
         console.warn('[WS] Unknown message type:', type);
     }
@@ -177,7 +186,22 @@ class WSClient {
     if (!this.connected) return;
     console.log('[WS] Sending chat', { message });
     this.sendRaw({ type: 'chat', payload: { message } });
-  } 
+  }
+
+  sendElementAdded(element: any) {
+    if (!this.connected) return;
+    this.sendRaw({ type: 'element-add', payload: element });
+  }
+
+  sendElementMoved(id: string, x: number, y: number) {
+    if (!this.connected) return;
+    this.sendRaw({ type: 'element-move', payload: { id, x, y } });
+  }
+
+  sendElementDeleted(id: string) {
+    if (!this.connected) return;
+    this.sendRaw({ type: 'element-delete', payload: { id } });
+  }
 
   // Pub/sub used by Phaser scenes and React components
   on(event: WSEvent | string, handler: MessageHandler) {

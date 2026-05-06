@@ -64,9 +64,9 @@ export class User {
                         this.ws.close(); return;
                     }
 
-                    this.dbUserId       = dbUser.id;
-                    this.name           = dbUser.name;
-                    this.avatarIdleUrl  = dbUser.avatar?.idleUrl ?? '';
+                    this.dbUserId = dbUser.id;
+                    this.name = dbUser.name;
+                    this.avatarIdleUrl = dbUser.avatar?.idleUrl ?? '';
 
                     const space = await prisma.space.findUnique({
                         where: {
@@ -166,6 +166,16 @@ export class User {
                         }, this.spaceId!)
     
                         break;
+
+                        case "element-add":
+                        case "element-move":
+                        case "element-delete":
+                            if (!this.spaceId) break;
+                            RoomManager.getInstance().broadcast({
+                                type: parsedData.type,
+                                payload: parsedData.payload
+                            }, this.spaceId, this);
+                            break;
             }
         })
     }

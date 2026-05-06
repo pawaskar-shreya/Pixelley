@@ -96,15 +96,20 @@ export default function Space() {
       // Dispatch to Phaser by carrying the full element definition so GameScene can build the SpaceElement object without an extra API call.
       const { user } = useAuthStore.getState();
 
+      const spaceElementPayload = {
+        id: res.id,
+        element: el,
+        x,
+        y,
+        addedById: user?.id,
+      };
+
       window.dispatchEvent(new CustomEvent('add-element', {
-        detail: {
-          id: res.id,
-          element: el,
-          x,
-          y,
-          addedById: user?.id,
-        },
+        detail: spaceElementPayload,
       }));
+
+      // Broadcast to other users via WS
+      wsClient.sendElementAdded(spaceElementPayload);
     } catch (err) {
       console.error('[Space] Failed to add element:', err);
     }
