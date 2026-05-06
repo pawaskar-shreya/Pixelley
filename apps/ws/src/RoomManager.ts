@@ -53,4 +53,15 @@ export class RoomManager {
             }
         })
     }
+
+    public broadcastAll(message: OutgoingMessage, spaceId: string) {
+        if(!this.rooms.has(spaceId)) {
+            return
+        }
+
+        console.log("[WS Server] Broadcasting message to all in space", spaceId, "message:", message);
+        this.rooms.get(spaceId)?.forEach((u) => {
+            u.send(message)
+        })
+    }
 }

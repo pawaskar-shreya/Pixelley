@@ -149,6 +149,23 @@ export class User {
                     })
 
                     break;
+
+                    case "chat":
+                        const chatMessage = parsedData.payload.message as string;
+                        if (!chatMessage || !chatMessage.trim() || !this.spaceId) break;
+    
+                        // Broadcast to all users in the space (including sender so they see their own message)
+                        RoomManager.getInstance().broadcastAll({
+                            type: "chat",
+                            payload: {
+                                userId: this.dbUserId,
+                                username: this.name,
+                                message: chatMessage.trim().slice(0, 200),
+                                timestamp: Date.now()
+                            }
+                        }, this.spaceId!)
+    
+                        break;
             }
         })
     }

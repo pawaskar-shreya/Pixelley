@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom'
-import GlobalChat from './GlobalChat'
+import SideChatPanel from '../components/game/SideChatPanel'
 import { useParams } from 'react-router-dom'
 
 export default function SpaceLayout() {
@@ -25,7 +25,7 @@ export default function SpaceLayout() {
         alignItems: 'center',
       }}
     >
-      {spaceId && <GlobalChat spaceId={spaceId} />}
+      {spaceId && <SideChatPanel spaceId={spaceId} />}
 
       <div
         id="space-container"

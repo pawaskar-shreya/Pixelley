@@ -27,6 +27,13 @@ interface UserLeftPayload {
   userId: string;
 }
 
+export interface ChatPayload {
+  userId: string;
+  username: string;
+  message: string;
+  timestamp: number;
+}
+
 // Internal event names used by Phaser/React consumers
 // We translate raw WS message types these internal events
 
@@ -37,7 +44,8 @@ export type WSEvent =
   | 'user-join'          // server: user-join
   | 'user-left'          // server: user-left
   | 'movement'           // server: movement (another player moved)
-  | 'movement-rejected'; // server: movement-rejected (snap local player back)
+  | 'movement-rejected' // server: movement-rejected (snap local player back)
+  | 'chat';              // server: chat broadcast
 
 class WSClient {
   private socket: WebSocket | null = null;
@@ -106,6 +114,13 @@ class WSClient {
         break;
       }
 
+      case 'chat': {
+        const data = payload as ChatPayload;
+        console.log('[WS] chat message received', data);
+        this.emitOrBuffer('chat', data);
+        break;
+      }
+
       case 'user-join': {
         const data = payload as UserJoinPayload;
         console.log('[WS] user-join', data);
@@ -157,6 +172,12 @@ class WSClient {
     console.log('[WS] Sending movement', { x, y });
     this.sendRaw({ type: 'move', payload: { x, y } });
   }
+
+  sendChat(message: string) {
+    if (!this.connected) return;
+    console.log('[WS] Sending chat', { message });
+    this.sendRaw({ type: 'chat', payload: { message } });
+  } 
 
   // Pub/sub used by Phaser scenes and React components
   on(event: WSEvent | string, handler: MessageHandler) {
