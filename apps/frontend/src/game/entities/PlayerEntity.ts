@@ -4,11 +4,11 @@ import { Avatar, avatarToKey } from '../../lib/types';
 
 // Walk anims: 3 frames across a 96×32 strip (frameWidth: 32)
 const ANIM_DEFS = [
-  { suffix: 'idle', start: 0, end: 0, frameRate: 6  },  // single frame
-  { suffix: 'down', start: 0, end: 2, frameRate: 8  },  // 3-frame walk cycle
-  { suffix: 'left', start: 0, end: 2, frameRate: 8  },
-  { suffix: 'right',start: 0, end: 2, frameRate: 8  },
-  { suffix: 'up',   start: 0, end: 2, frameRate: 8  },
+  { suffix: 'idle', start: 0, end: 0, frameRate: 6 },  // single frame
+  { suffix: 'down', start: 0, end: 2, frameRate: 8 },  // 3-frame walk cycle
+  { suffix: 'left', start: 0, end: 2, frameRate: 8 },
+  { suffix: 'right', start: 0, end: 2, frameRate: 8 },
+  { suffix: 'up', start: 0, end: 2, frameRate: 8 },
 ];
 
 export class PlayerEntity extends Phaser.GameObjects.Container {
@@ -55,13 +55,16 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
     }
     this.add(this.sprite);
 
-    // Nametag
+    // Nametag — kawaii sticker badge style
     this.nametag = scene.add
       .text(0, -GAME_CONFIG.TILE_SIZE, name, {
-        fontSize: '12px',
-        color: '#ffffff',
-        stroke: '#000000',
+        fontSize: '11px',
+        fontFamily: "'Nunito', sans-serif",
+        color: '#1f1f1f',
+        stroke: '#ffffff',
         strokeThickness: 3,
+        backgroundColor: '#fffdf7',
+        padding: { x: 5, y: 2 },
       })
       .setOrigin(0.5);
     this.add(this.nametag);
@@ -111,30 +114,30 @@ export class PlayerEntity extends Phaser.GameObjects.Container {
   // ----------------- Private helpers ---------------------------------------------
 
   private resolveAvatarKey(scene: Phaser.Scene, requested?: string): string | null {
-  // Get all loaded avatar keys dynamically from registry
-  const avatars = (scene.registry.get('avatars') as Avatar[]) ?? [];
-  const availableKeys = avatars.map(a => avatarToKey(a.name));
+    // Get all loaded avatar keys dynamically from registry
+    const avatars = (scene.registry.get('avatars') as Avatar[]) ?? [];
+    const availableKeys = avatars.map(a => avatarToKey(a.name));
 
-  // Try requested key first
-  if (requested && scene.textures.exists(`${requested}_idle`)) {
-    return requested;
-  }
-
-  // Fall back to first available
-  for (const key of availableKeys) {
-    if (scene.textures.exists(`${key}_idle`)) {
-      console.warn(`Avatar "${requested}" not found, falling back to "${key}"`);
-      return key;
+    // Try requested key first
+    if (requested && scene.textures.exists(`${requested}_idle`)) {
+      return requested;
     }
-  }
 
-  console.warn('No avatar textures loaded, using procedural fallback');
-  return null;
-}
+    // Fall back to first available
+    for (const key of availableKeys) {
+      if (scene.textures.exists(`${key}_idle`)) {
+        console.warn(`Avatar "${requested}" not found, falling back to "${key}"`);
+        return key;
+      }
+    }
+
+    console.warn('No avatar textures loaded, using procedural fallback');
+    return null;
+  }
 
   private ensureAvatarAnimations(scene: Phaser.Scene, avatarKey: string) {
     for (const { suffix, start, end, frameRate } of ANIM_DEFS) {
-      const animKey    = `${avatarKey}_anim_${suffix}`;           // eg, 'blackwidow_anim_left'
+      const animKey = `${avatarKey}_anim_${suffix}`;           // eg, 'blackwidow_anim_left'
       const textureKey = `${avatarKey}_${suffix}`;                // eg, 'blackwidow_left'
 
       if (scene.anims.exists(animKey)) continue;

@@ -13,12 +13,12 @@ export const getPhaserConfig = (parent: HTMLElement): Phaser.Types.Core.GameConf
   parent,
   width: parent.clientWidth || 1200,
   height: parent.clientHeight || 800,
-  backgroundColor: '#1a1a1a',
+  backgroundColor: '#c9e8f5',
   physics: {
     default: 'arcade',
     arcade: {
       gravity: { x: 0, y: 0 },
-      debug: true,
+      debug: false,
     },
   },
   scene: [BootScene, PreloadScene, LobbyScene, OfficePreloadScene, GameScene],

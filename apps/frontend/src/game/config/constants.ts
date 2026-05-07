@@ -2,11 +2,12 @@ export const GAME_CONFIG = {
   TILE_SIZE: 32,
   PLAYER_SPEED: 128,
   COLORS: {
-    BACKGROUND: '#2d2d2d',
-    PLAYER: 0x3b82f6,
-    REMOTE_PLAYER: 0xef4444,
-    WALL: 0x4b5563,
-    GROUND: 0x22c55e,
+    // Kawaii pastel palette — matches the UI theme
+    BACKGROUND: '#c9e8f5',   // soft pastel sky blue
+    PLAYER: 0xa87fff,        // pastel purple (local player)
+    REMOTE_PLAYER: 0xff88c2, // pastel pink (remote players)
+    WALL: 0x8ecae6,          // muted pastel blue
+    GROUND: 0xa8d8b9,        // soft mint green
   },
   DEPTHS: {
     GROUND: 0,

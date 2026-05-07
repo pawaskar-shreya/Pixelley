@@ -34,6 +34,10 @@ export default function SpaceLayout() {
             position: 'relative',
             overflow: 'hidden',
             flexShrink: 0,
+            // kawaii sticker-card frame
+            border: '3px solid #1f1f1f',
+            borderRadius: '16px',
+            boxShadow: '6px 6px 0px #1f1f1f',
           }}
         >
           <Outlet />
