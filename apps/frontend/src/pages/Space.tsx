@@ -121,7 +121,7 @@ export default function Space() {
           }}
         >
           <div style={{ fontSize: '48px', marginBottom: '12px' }}>{emoji}</div>
-          <p style={{ fontFamily: HUD_HEADING, fontWeight: 700, fontSize: '18px', color: '#555', margin: 0 }}>
+          <p style={{ fontFamily: HUD_HEADING, fontWeight: 700, fontSize: '18px', color: '#333', margin: 0 }}>
             {msg}
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function Space() {
               <h2 style={{ fontFamily: HUD_HEADING, fontWeight: 800, fontSize: '16px', color: '#1f1f1f', margin: 0 }}>
                 🧩 Elements
               </h2>
-              <span style={{ fontFamily: HUD_FONT, fontSize: '11px', color: '#888', fontWeight: 600 }}>
+              <span style={{ fontFamily: HUD_FONT, fontSize: '13px', color: '#444', fontWeight: 700 }}>
                 drag onto canvas
               </span>
             </div>
@@ -224,8 +224,9 @@ export default function Space() {
                   gridColumn: '1 / -1',
                   textAlign: 'center',
                   fontFamily: HUD_FONT,
-                  color: '#bbb',
-                  fontSize: '13px',
+                  color: '#555',
+                  fontSize: '14px',
+                  fontWeight: 600,
                   marginTop: '20px',
                 }}
               >
@@ -268,9 +269,9 @@ export default function Space() {
                 <span
                   style={{
                     fontFamily: HUD_FONT,
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    color: '#333',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#1f1f1f',
                     textAlign: 'center',
                     width: '100%',
                     overflow: 'hidden',
@@ -284,16 +285,16 @@ export default function Space() {
                   <span
                     style={{
                       fontFamily: HUD_FONT,
-                      fontSize: '10px',
+                      fontSize: '12px',
                       fontWeight: 700,
                       color: '#1f1f1f',
                       background: '#ffe066',
                       border: `1.5px solid ${HUD_BORDER}`,
                       borderRadius: '99px',
-                      padding: '1px 7px',
+                      padding: '2px 8px',
                     }}
                   >
-                    ⚠ solid
+                    ⚠ Collidable
                   </span>
                 )}
               </div>

@@ -47,8 +47,8 @@ export default function Signup() {
           >
             Join Pixelley!
           </h1>
-          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#888', fontSize: '14px', marginTop: '6px' }}>
-            Create your player profile 🌈
+          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#555', fontSize: '15px', fontWeight: 600, marginTop: '6px' }}>
+            Create your own profile 🌈
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export default function Signup() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="kawaii-input"
-              placeholder="your display name"
+              placeholder="pick a cool display name"
               required
             />
           </div>
@@ -96,7 +96,7 @@ export default function Signup() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="kawaii-input"
-              placeholder="pick a cool username"
+              placeholder="your email id"
               required
             />
           </div>
@@ -156,18 +156,19 @@ export default function Signup() {
             textAlign: 'center',
             marginTop: '22px',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '14px',
-            color: '#666',
+            fontSize: '15px',
+            fontWeight: 600,
+            color: '#444',
           }}
         >
-          Already a player?{' '}
+          Already a user? {' '}
           <Link
             to="/signin"
             style={{
-              color: '#a87fff',
-              fontWeight: 700,
+              color: '#8855ee',
+              fontWeight: 800,
               textDecoration: 'none',
-              borderBottom: '2px solid #a87fff',
+              borderBottom: '2.5px solid #8855ee',
             }}
           >
             Sign In 🕹️

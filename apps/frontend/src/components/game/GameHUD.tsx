@@ -140,7 +140,7 @@ export default function GameHUD({ onToggleElements }: GameHUDProps) {
                 border: `1.5px solid ${HUD_BORDER}`,
               }}
             />
-            <span style={{ fontFamily: HUD_FONT, fontSize: '11px', color: '#777', fontWeight: 600 }}>
+            <span style={{ fontFamily: HUD_FONT, fontSize: '12px', color: '#444', fontWeight: 700 }}>
               {connected ? 'Connected' : 'Connecting...'}
             </span>
           </div>
@@ -205,12 +205,12 @@ export default function GameHUD({ onToggleElements }: GameHUDProps) {
                   style={{
                     fontFamily: HUD_FONT,
                     fontWeight: 700,
-                    fontSize: '11px',
+                    fontSize: '13px',
                     background: HUD_BG,
                     border: `2px solid ${HUD_BORDER}`,
                     borderRadius: '99px',
                     padding: '1px 8px',
-                    color: '#555',
+                    color: '#333',
                   }}
                 >
                   {usersInSpace.length}
@@ -220,7 +220,7 @@ export default function GameHUD({ onToggleElements }: GameHUDProps) {
               {/* User list */}
               <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
                 {usersInSpace.length === 0 && (
-                  <p style={{ padding: '20px', textAlign: 'center', fontFamily: HUD_FONT, color: '#bbb', fontSize: '13px' }}>
+                  <p style={{ padding: '20px', textAlign: 'center', fontFamily: HUD_FONT, color: '#555', fontSize: '14px', fontWeight: 600 }}>
                     Just you here 🌸
                   </p>
                 )}
@@ -267,10 +267,10 @@ export default function GameHUD({ onToggleElements }: GameHUDProps) {
 
                       {/* Name */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontFamily: HUD_FONT, fontWeight: 700, fontSize: '13px', color: '#1f1f1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <p style={{ fontFamily: HUD_FONT, fontWeight: 700, fontSize: '14px', color: '#1f1f1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {u.name}
                           {isYou && (
-                            <span style={{ marginLeft: '6px', fontWeight: 600, fontSize: '11px', color: '#a87fff' }}>
+                            <span style={{ marginLeft: '6px', fontWeight: 700, fontSize: '12px', color: '#7744cc' }}>
                               (you)
                             </span>
                           )}

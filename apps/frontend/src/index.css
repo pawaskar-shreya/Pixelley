@@ -40,9 +40,10 @@ body {
   background: #fff;
   border: 2.5px solid #1f1f1f;
   border-radius: 14px;
-  padding: 10px 14px;
+  padding: 11px 14px;
   font-family: 'Nunito', sans-serif;
   font-size: 15px;
+  font-weight: 600;
   color: #1f1f1f;
   outline: none;
   transition: box-shadow 0.15s ease, border-color 0.15s ease;
@@ -52,10 +53,11 @@ body {
   box-shadow: 0 0 0 3px #e7d5ff;
 }
 .kawaii-input::placeholder {
-  color: #b0b0b0;
+  color: #888;          /* was #b0b0b0 — much more readable */
+  font-weight: 500;
 }
 
-/* ─── Kawaii Button (primary candy style) ────────────────────── */
+/* ─── Kawaii Button ──────────────────────────────────────────── */
 .kawaii-btn {
   display: inline-flex;
   align-items: center;
@@ -81,35 +83,27 @@ body {
   background: linear-gradient(145deg, #ffb3d6, #ff88c2);
   color: #1f1f1f;
 }
-.kawaii-btn-pink:hover {
-  background: linear-gradient(145deg, #ffc4df, #ff99cc);
-}
+.kawaii-btn-pink:hover { background: linear-gradient(145deg, #ffc4df, #ff99cc); }
 
 .kawaii-btn-purple {
   background: linear-gradient(145deg, #c8a8ff, #a87fff);
   color: #1f1f1f;
 }
-.kawaii-btn-purple:hover {
-  background: linear-gradient(145deg, #d4b8ff, #b99cff);
-}
+.kawaii-btn-purple:hover { background: linear-gradient(145deg, #d4b8ff, #b99cff); }
 
 .kawaii-btn-yellow {
   background: linear-gradient(145deg, #ffe066, #ffd11a);
   color: #1f1f1f;
 }
-.kawaii-btn-yellow:hover {
-  background: linear-gradient(145deg, #ffe880, #ffda33);
-}
+.kawaii-btn-yellow:hover { background: linear-gradient(145deg, #ffe880, #ffda33); }
 
 .kawaii-btn-danger {
   background: linear-gradient(145deg, #ffb3b3, #ff8080);
   color: #1f1f1f;
 }
-.kawaii-btn-danger:hover {
-  background: linear-gradient(145deg, #ffc4c4, #ff9999);
-}
+.kawaii-btn-danger:hover { background: linear-gradient(145deg, #ffc4c4, #ff9999); }
 
-/* ─── Chat messages ──────────────────────────────────────────── */
+/* ─── Chat bubbles ───────────────────────────────────────────── */
 .chat-bubble-sent {
   background: #FFD6EA;
   border: 2.5px solid #1f1f1f;
@@ -124,39 +118,37 @@ body {
   box-shadow: 3px 3px 0px #1f1f1f;
 }
 
-/* ─── Chat scroll area ───────────────────────────────────────── */
+/* ─── Chat scroll ────────────────────────────────────────────── */
 .chat-messages {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #ffb3d6 #fff0f7;
 }
-.chat-messages::-webkit-scrollbar {
-  width: 6px;
-}
+.chat-messages::-webkit-scrollbar { width: 6px; }
 .chat-messages::-webkit-scrollbar-thumb {
   background: #ffb3d6;
   border-radius: 99px;
 }
 
-/* ─── Label ──────────────────────────────────────────────────── */
+/* ─── Form label ─────────────────────────────────────────────── */
 .kawaii-label {
   font-family: 'Baloo 2', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 4px;
+  font-weight: 700;              /* was 600 */
+  font-size: 15px;               /* was 14px */
+  color: #333;                   /* was #555 */
+  margin-bottom: 5px;
   display: block;
 }
 
-/* ─── Heading ─────────────────────────────────────────────────── */
+/* ─── Headings ───────────────────────────────────────────────── */
 .kawaii-heading {
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
   color: #1f1f1f;
 }
 
-/* ─── Space card (Dashboard) ─────────────────────────────────── */
+/* ─── Space card ─────────────────────────────────────────────── */
 .space-card {
   background: #fffdf7;
   border: 3px solid #1f1f1f;
@@ -170,10 +162,10 @@ body {
   box-shadow: 7px 7px 0px #1f1f1f;
 }
 
-/* ─── Badge/tag ──────────────────────────────────────────────── */
+/* ─── Badge ──────────────────────────────────────────────────── */
 .kawaii-badge {
   font-family: 'Baloo 2', sans-serif;
-  font-size: 12px;
+  font-size: 13px;               /* was 12px */
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 99px;
@@ -189,9 +181,10 @@ body {
   background: #fff;
   border: 2.5px solid #1f1f1f;
   border-radius: 14px;
-  padding: 10px 14px;
+  padding: 11px 14px;
   font-family: 'Nunito', sans-serif;
   font-size: 15px;
+  font-weight: 600;
   color: #1f1f1f;
   outline: none;
   appearance: none;
@@ -200,4 +193,12 @@ body {
 .kawaii-select:focus {
   border-color: #b07fff;
   box-shadow: 0 0 0 3px #e7d5ff;
+}
+
+/* ─── Muted helper text (secondary, still readable) ─────────── */
+.kawaii-muted {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
 }

@@ -5,16 +5,16 @@ import { Space } from '../lib/types';
 import { useAuthStore } from '../lib/store';
 import { LobbyScene } from '../game/scenes/LobbyScene';
 
-// ── design tokens ─────────────────────────────────────────────────────
-const CARD_BG     = '#fffdf7';
-const BORDER      = '#1f1f1f';
-const SHADOW      = '5px 5px 0px #1f1f1f';
-const FONT        = "'Nunito', sans-serif";
-const HEADING     = "'Baloo 2', sans-serif";
-const PINK        = '#FFD6EA';
-const PURPLE      = '#c8a8ff';
-const MINT        = '#DDF5BE';
-const YELLOW      = '#ffe066';
+// design tokens 
+const CARD_BG = '#fffdf7';
+const BORDER = '#1f1f1f';
+const SHADOW = '5px 5px 0px #1f1f1f';
+const FONT = "'Nunito', sans-serif";
+const HEADING = "'Baloo 2', sans-serif";
+const PINK = '#FFD6EA';
+const PURPLE = '#c8a8ff';
+const MINT = '#DDF5BE';
+const YELLOW = '#ffe066';
 
 // Feature bullets for the left panel
 const FEATURES = [
@@ -49,8 +49,8 @@ export default function Dashboard() {
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const logout   = useAuthStore((state) => state.logout);
-  const user     = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
 
   const fetchSpaces = async () => {
     try {
@@ -75,7 +75,7 @@ export default function Dashboard() {
     navigate(`/space/${spaceId}`);
     const tryEnter = (attempts = 0) => {
       if (attempts > 20) { console.error('LobbyScene never became available'); return; }
-      const game  = (window as any).__phaserGame as Phaser.Game | undefined;
+      const game = (window as any).__phaserGame as Phaser.Game | undefined;
       const lobby = game?.scene.getScene('LobbyScene') as LobbyScene | undefined;
       if (lobby?.scene.isActive()) {
         lobby.enterSpace(spaceName.toLowerCase());
@@ -86,13 +86,13 @@ export default function Dashboard() {
     setTimeout(() => tryEnter(), 300);
   };
 
-  // ── Loading state ─────────────────────────────────────────────────────
+  // Loading state 
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="kawaii-card" style={{ padding: '36px 56px', textAlign: 'center' }}>
           <div style={{ fontSize: '44px', marginBottom: '14px' }}>🎮</div>
-          <p style={{ fontFamily: HEADING, fontWeight: 700, fontSize: '18px', color: '#666', margin: 0 }}>
+          <p style={{ fontFamily: HEADING, fontWeight: 700, fontSize: '18px', color: '#333', margin: 0 }}>
             Loading your spaces...
           </p>
         </div>
@@ -104,9 +104,7 @@ export default function Dashboard() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '24px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-        {/* ══════════════════════════════════════════════════════════
-            TOP BAR
-        ══════════════════════════════════════════════════════════ */}
+        {/* TOP BAR */}
         <div
           style={{
             background: CARD_BG,
@@ -121,7 +119,7 @@ export default function Dashboard() {
             gap: '16px',
           }}
         >
-          {/* Left — brand */}
+          {/* Left : Pixelley */}
           <div>
             <h1
               style={{
@@ -138,10 +136,10 @@ export default function Dashboard() {
             <p
               style={{
                 fontFamily: FONT,
-                fontSize: '13px',
-                color: '#888',
+                fontSize: '15px',
+                color: '#555',
                 margin: '4px 0 0 0',
-                fontWeight: 600,
+                fontWeight: 700,
               }}
             >
               Your pixel alley on the internet ✨
@@ -158,15 +156,13 @@ export default function Dashboard() {
             >
               👋 Logout
             </button>
-            <p style={{ fontFamily: FONT, fontSize: '12px', color: '#aaa', margin: 0, fontWeight: 600 }}>
+            <p style={{ fontFamily: FONT, fontSize: '13px', color: '#555', margin: 0, fontWeight: 700 }}>
               Come back soon, okay? 🌸
             </p>
           </div>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════
-            TWO-PANEL BODY
-        ══════════════════════════════════════════════════════════ */}
+        {/*  TWO-PANEL BODY */}
         <div
           style={{
             display: 'grid',
@@ -175,7 +171,7 @@ export default function Dashboard() {
             alignItems: 'start',
           }}
         >
-          {/* ── LEFT PANEL: What you can do ── */}
+          {/* LEFT PANEL: What you can do */}
           <div
             style={{
               background: CARD_BG,
@@ -204,7 +200,7 @@ export default function Dashboard() {
               >
                 What's waiting for you 🌈
               </h2>
-              <p style={{ fontFamily: FONT, fontSize: '12px', color: '#555', margin: '3px 0 0 0', fontWeight: 600 }}>
+              <p style={{ fontFamily: FONT, fontSize: '14px', color: '#444', margin: '4px 0 0 0', fontWeight: 700 }}>
                 Everything Pixelley has to offer
               </p>
             </div>
@@ -248,9 +244,9 @@ export default function Dashboard() {
                       style={{
                         fontFamily: HEADING,
                         fontWeight: 700,
-                        fontSize: '14px',
+                        fontSize: '15px',
                         color: '#1f1f1f',
-                        margin: '0 0 2px 0',
+                        margin: '0 0 4px 0',
                       }}
                     >
                       {f.title}
@@ -258,10 +254,11 @@ export default function Dashboard() {
                     <p
                       style={{
                         fontFamily: FONT,
-                        fontSize: '12px',
-                        color: '#666',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        color: '#444',
                         margin: 0,
-                        lineHeight: 1.5,
+                        lineHeight: 1.55,
                       }}
                     >
                       {f.desc}
@@ -272,7 +269,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ── RIGHT PANEL: Enter a space ── */}
+          {/* RIGHT PANEL: Enter a space */}
           <div
             style={{
               background: CARD_BG,
@@ -301,8 +298,8 @@ export default function Dashboard() {
               >
                 Enter a space & have fun! 🚀
               </h2>
-              <p style={{ fontFamily: FONT, fontSize: '13px', color: '#555', margin: '4px 0 0 0', fontWeight: 600 }}>
-                Hey{user?.name ? <> <strong style={{ color: '#a87fff' }}>{user.name}</strong></> : ''} 👋 where are you hanging today?
+              <p style={{ fontFamily: FONT, fontSize: '14px', color: '#444', margin: '4px 0 0 0', fontWeight: 700 }}>
+                Hey{user?.name ? <> <strong style={{ color: '#7744cc' }}>{user.name}</strong></> : ''} 👋 where are you hanging today?
               </p>
             </div>
 
@@ -311,10 +308,10 @@ export default function Dashboard() {
               {spaces.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '48px 24px' }}>
                   <div style={{ fontSize: '52px', marginBottom: '14px' }}>🌟</div>
-                  <p style={{ fontFamily: HEADING, fontWeight: 700, fontSize: '18px', color: '#999', margin: 0 }}>
+                  <p style={{ fontFamily: HEADING, fontWeight: 700, fontSize: '18px', color: '#555', margin: 0 }}>
                     No spaces yet!
                   </p>
-                  <p style={{ fontFamily: FONT, fontSize: '13px', color: '#bbb', marginTop: '6px' }}>
+                  <p style={{ fontFamily: FONT, fontSize: '14px', fontWeight: 600, color: '#777', marginTop: '6px' }}>
                     Spaces will appear here once they're created.
                   </p>
                 </div>
@@ -354,7 +351,7 @@ export default function Dashboard() {
                         )}
                       </div>
 
-                      {/* Space name + CTA */}
+                      {/* Space name */}
                       <div style={{ padding: '14px 16px' }}>
                         <p
                           style={{
@@ -367,7 +364,7 @@ export default function Dashboard() {
                         >
                           {space.name}
                         </p>
-                        <p style={{ fontFamily: FONT, fontSize: '12px', color: '#999', margin: '0 0 12px 0', fontWeight: 600 }}>
+                        <p style={{ fontFamily: FONT, fontSize: '13px', color: '#555', margin: '0 0 12px 0', fontWeight: 700 }}>
                           Tap in and start exploring →
                         </p>
 

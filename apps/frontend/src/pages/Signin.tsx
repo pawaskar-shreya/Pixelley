@@ -51,8 +51,8 @@ export default function Signin() {
           >
             Welcome back!
           </h1>
-          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#888', fontSize: '14px', marginTop: '6px' }}>
-            Sign in to continue playing ✨
+          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#555', fontSize: '15px', fontWeight: 600, marginTop: '6px' }}>
+            Sign in to continue hanging out ✨
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export default function Signin() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="kawaii-input"
-              placeholder="your username"
+              placeholder="your email id"
               required
             />
           </div>
@@ -100,7 +100,7 @@ export default function Signin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="kawaii-input"
-              placeholder="your password"
+              placeholder="your secret password"
               required
             />
           </div>
@@ -120,18 +120,19 @@ export default function Signin() {
             textAlign: 'center',
             marginTop: '22px',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '14px',
-            color: '#666',
+            fontSize: '15px',
+            fontWeight: 600,
+            color: '#444',
           }}
         >
           New here?{' '}
           <Link
             to="/signup"
             style={{
-              color: '#a87fff',
-              fontWeight: 700,
+              color: '#8855ee',
+              fontWeight: 800,
               textDecoration: 'none',
-              borderBottom: '2px solid #a87fff',
+              borderBottom: '2.5px solid #8855ee',
             }}
           >
             Create an account 🌟

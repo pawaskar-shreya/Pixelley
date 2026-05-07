@@ -90,13 +90,13 @@ export default function SideChatPanel({ spaceId }: Props) {
         <span
           style={{
             marginLeft: 'auto',
-            fontSize: '11px',
+            fontSize: '12px',
             fontWeight: 700,
             background: '#fffdf7',
             border: '2px solid #1f1f1f',
             borderRadius: '99px',
             padding: '2px 10px',
-            color: '#555',
+            color: '#333',
           }}
         >
           OFFICE
@@ -119,16 +119,16 @@ export default function SideChatPanel({ spaceId }: Props) {
             style={{
               textAlign: 'center',
               marginTop: '40px',
-              color: '#bbb',
+              color: '#666',
               fontFamily: "'Baloo 2', sans-serif",
-              fontWeight: 600,
-              fontSize: '14px',
+              fontWeight: 700,
+              fontSize: '16px',
             }}
           >
             <div style={{ fontSize: '36px', marginBottom: '8px' }}>🌸</div>
             No messages yet!
             <br />
-            <span style={{ fontSize: '12px', color: '#ccc' }}>Say hello to everyone 👋</span>
+            <span style={{ fontSize: '14px', color: '#555', fontWeight: 600 }}>Say hello to everyone 👋</span>
           </div>
         )}
 
@@ -144,13 +144,12 @@ export default function SideChatPanel({ spaceId }: Props) {
                 gap: '3px',
               }}
             >
-              {/* Sender name (only for others) */}
               {!isMe && (
                 <span
                   style={{
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    color: '#a87fff',
+                    fontSize: '13px',
+                    fontWeight: 800,
+                    color: '#7744cc',
                     marginLeft: '6px',
                     fontFamily: "'Baloo 2', sans-serif",
                   }}
@@ -163,11 +162,12 @@ export default function SideChatPanel({ spaceId }: Props) {
               <div className={isMe ? 'chat-bubble-sent' : 'chat-bubble-received'}
                 style={{
                   maxWidth: '82%',
-                  padding: '9px 14px',
-                  fontSize: '14px',
-                  lineHeight: '1.5',
+                  padding: '10px 14px',
+                  fontSize: '15px',
+                  lineHeight: '1.55',
                   color: '#1f1f1f',
                   wordBreak: 'break-word',
+                  fontWeight: 600,
                 }}
               >
                 {msg.message}
@@ -176,9 +176,10 @@ export default function SideChatPanel({ spaceId }: Props) {
               {/* Timestamp */}
               <span
                 style={{
-                  fontSize: '10px',
-                  color: '#bbb',
-                  marginTop: '1px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: '#777',
+                  marginTop: '2px',
                   marginLeft: isMe ? 0 : '6px',
                   marginRight: isMe ? '6px' : 0,
                 }}
@@ -204,7 +205,7 @@ export default function SideChatPanel({ spaceId }: Props) {
           flexShrink: 0,
         }}
       >
-        <span style={{ color: '#4ade80', fontWeight: 'bold' }}>&gt;</span>
+        <span style={{ color: '#a87fff', fontWeight: 800, fontSize: '16px', flexShrink: 0 }}>&gt;</span>
         <input
           id="chat-input"
           ref={inputRef}
@@ -213,7 +214,7 @@ export default function SideChatPanel({ spaceId }: Props) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           maxLength={200}
-          placeholder="Say something cute... 🌸"
+          placeholder="Say something kind... 🌸"
           className="kawaii-input"
           style={{ flex: 1, fontSize: '14px', padding: '9px 14px' }}
         />
