@@ -4,7 +4,7 @@
 
 @import "tailwindcss";
 
-/* ─── Global Reset & Background ─────────────────────────────── */
+/* Global Reset & Background */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -17,7 +17,7 @@ body {
   font-family: 'Nunito', sans-serif;
 }
 
-/* ─── Canvas (Phaser stays untouched) ────────────────────────── */
+/*  Canvas (Phaser stays untouched) */
 #space-container canvas {
   display: block;
   width: 100% !important;
@@ -26,7 +26,7 @@ body {
   padding: 0 !important;
 }
 
-/* ─── Kawaii Card ────────────────────────────────────────────── */
+/*  Kawaii Card */
 .kawaii-card {
   background: #fffdf7;
   border: 3px solid #1f1f1f;
@@ -34,7 +34,7 @@ body {
   box-shadow: 5px 5px 0px #1f1f1f;
 }
 
-/* ─── Kawaii Input ───────────────────────────────────────────── */
+/*  Kawaii Input */
 .kawaii-input {
   width: 100%;
   background: #fff;
@@ -57,7 +57,7 @@ body {
   font-weight: 500;
 }
 
-/* ─── Kawaii Button ──────────────────────────────────────────── */
+/*  Kawaii Button */
 .kawaii-btn {
   display: inline-flex;
   align-items: center;
@@ -103,7 +103,7 @@ body {
 }
 .kawaii-btn-danger:hover { background: linear-gradient(145deg, #ffc4c4, #ff9999); }
 
-/* ─── Chat bubbles ───────────────────────────────────────────── */
+/*  Chat bubbles */
 .chat-bubble-sent {
   background: #FFD6EA;
   border: 2.5px solid #1f1f1f;
@@ -118,7 +118,7 @@ body {
   box-shadow: 3px 3px 0px #1f1f1f;
 }
 
-/* ─── Chat scroll ────────────────────────────────────────────── */
+/*  Chat scroll */
 .chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -131,7 +131,7 @@ body {
   border-radius: 99px;
 }
 
-/* ─── Form label ─────────────────────────────────────────────── */
+/*  Form label */
 .kawaii-label {
   font-family: 'Baloo 2', sans-serif;
   font-weight: 700;              /* was 600 */
@@ -141,14 +141,14 @@ body {
   display: block;
 }
 
-/* ─── Headings ───────────────────────────────────────────────── */
+/*  Headings */
 .kawaii-heading {
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
   color: #1f1f1f;
 }
 
-/* ─── Space card ─────────────────────────────────────────────── */
+/*  Space card */
 .space-card {
   background: #fffdf7;
   border: 3px solid #1f1f1f;
@@ -162,7 +162,7 @@ body {
   box-shadow: 7px 7px 0px #1f1f1f;
 }
 
-/* ─── Badge ──────────────────────────────────────────────────── */
+/*  Badge */
 .kawaii-badge {
   font-family: 'Baloo 2', sans-serif;
   font-size: 13px;               /* was 12px */
@@ -175,7 +175,7 @@ body {
   display: inline-block;
 }
 
-/* ─── Select ─────────────────────────────────────────────────── */
+/*  Select  */
 .kawaii-select {
   width: 100%;
   background: #fff;
@@ -195,7 +195,7 @@ body {
   box-shadow: 0 0 0 3px #e7d5ff;
 }
 
-/* ─── Muted helper text (secondary, still readable) ─────────── */
+/*  Muted helper text (secondary, still readable) */
 .kawaii-muted {
   font-family: 'Nunito', sans-serif;
   font-size: 14px;

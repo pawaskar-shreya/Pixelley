@@ -146,7 +146,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Right — logout */}
+          {/* Right : logout */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
             <button
               id="dashboard-logout"

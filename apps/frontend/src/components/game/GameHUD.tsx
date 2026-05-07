@@ -15,12 +15,12 @@ interface SpaceUser {
 }
 
 // Kawaii HUD colour tokens 
-const HUD_BG = '#fffdf7';        // off-white card
-const HUD_BORDER = '#1f1f1f';        // thick black outline
+const HUD_BG = '#fffdf7';
+const HUD_BORDER = '#1f1f1f';
 const HUD_SHADOW = '3px 3px 0px #1f1f1f';
 const HUD_FONT = "'Nunito', sans-serif";
 const HUD_HEADING = "'Baloo 2', sans-serif";
-const PINK_BG = '#FFD6EA';        // sent-message pink (reused for accents)
+const PINK_BG = '#FFD6EA';
 const PURPLE_BTN = 'linear-gradient(145deg, #c8a8ff, #a87fff)';
 const RED_BTN = 'linear-gradient(145deg, #ffb3b3, #ff8080)';
 const YELLOW_BTN = 'linear-gradient(145deg, #ffe066, #ffd11a)';

@@ -7,7 +7,6 @@ import { GameScene } from '../scenes/GameScene';
 // Space specific preload scenes, add more scenes to add mroe spaces
 import { OfficePreloadScene } from '../scenes/OfficePreloadScene';
 
-
 export const getPhaserConfig = (parent: HTMLElement): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
   parent,
