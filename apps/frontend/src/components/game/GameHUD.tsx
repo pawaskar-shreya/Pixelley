@@ -14,116 +14,280 @@ interface SpaceUser {
   avatarIdleUrl: string;
 }
 
+// Kawaii HUD colour tokens 
+const HUD_BG = '#fffdf7';
+const HUD_BORDER = '#1f1f1f';
+const HUD_SHADOW = '3px 3px 0px #1f1f1f';
+const HUD_FONT = "'Nunito', sans-serif";
+const HUD_HEADING = "'Baloo 2', sans-serif";
+const PINK_BG = '#FFD6EA';
+const PURPLE_BTN = 'linear-gradient(145deg, #c8a8ff, #a87fff)';
+const RED_BTN = 'linear-gradient(145deg, #ffb3b3, #ff8080)';
+const YELLOW_BTN = 'linear-gradient(145deg, #ffe066, #ffd11a)';
+
+// Small pill-shaped HUD card
+const hudPill: React.CSSProperties = {
+  background: HUD_BG,
+  border: `2.5px solid ${HUD_BORDER}`,
+  borderRadius: '99px',
+  boxShadow: HUD_SHADOW,
+  display: 'flex',
+  alignItems: 'center',
+  pointerEvents: 'auto',
+};
+
+// Square icon button
+const iconBtn = (active: boolean, gradient: string): React.CSSProperties => ({
+  width: '42px',
+  height: '42px',
+  borderRadius: '14px',
+  border: `2.5px solid ${HUD_BORDER}`,
+  background: gradient,
+  boxShadow: active ? '1px 1px 0px #1f1f1f' : HUD_SHADOW,
+  transform: active ? 'translate(2px,2px)' : 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'all 0.1s ease',
+  pointerEvents: 'auto',
+  flexShrink: 0,
+});
+
 export default function GameHUD({ onToggleElements }: GameHUDProps) {
   const user = useAuthStore((state) => state.user);
   const connected = useGameUIStore((state) => state.connected);
   const navigate = useNavigate();
-  const [showUsers,    setShowUsers]    = useState(false);
+  const [showUsers, setShowUsers] = useState(false);
   const [usersInSpace, setUsersInSpace] = useState<SpaceUser[]>([]);
 
   useEffect(() => {
     const onUsersUpdated = (users: SpaceUser[]) => setUsersInSpace(users);
-
-    const onUserJoined = (user: SpaceUser) =>
-      setUsersInSpace(prev => [...prev.filter(u => u.userId !== user.userId), user]);
-
+    const onUserJoined = (u: SpaceUser) =>
+      setUsersInSpace(prev => [...prev.filter(p => p.userId !== u.userId), u]);
     const onUserLeft = ({ userId }: { userId: string }) =>
-      setUsersInSpace(prev => prev.filter(u => u.userId !== userId));
+      setUsersInSpace(prev => prev.filter(p => p.userId !== userId));
 
-    wsClient.on('usersUpdated',    onUsersUpdated);
+    wsClient.on('usersUpdated', onUsersUpdated);
     wsClient.on('userJoinedSpace', onUserJoined);
-    wsClient.on('userLeftSpace',   onUserLeft);
+    wsClient.on('userLeftSpace', onUserLeft);
 
     return () => {
-      wsClient.off('usersUpdated',    onUsersUpdated);
+      wsClient.off('usersUpdated', onUsersUpdated);
       wsClient.off('userJoinedSpace', onUserJoined);
-      wsClient.off('userLeftSpace',   onUserLeft);
+      wsClient.off('userLeftSpace', onUserLeft);
     };
   }, []);
 
   return (
-    <div className="absolute top-0 left-0 w-full p-4 pointer-events-none flex justify-between items-start z-50">
-      {/* Top Left: User Info */}
-      <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-3 pointer-events-auto border border-white/10">
-        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold overflow-hidden">
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        padding: '14px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        zIndex: 50,
+        pointerEvents: 'none',
+        boxSizing: 'border-box',
+      }}
+    >
+      {/* Top Left: User Info pill */}
+      <div style={{ ...hudPill, gap: '10px', padding: '8px 16px 8px 8px' }}>
+        {/* Avatar thumbnail */}
+        <div
+          style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            border: `2px solid ${HUD_BORDER}`,
+            background: PINK_BG,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
           {user?.avatar?.idleUrl ? (
-            <img src={user?.avatar.idleUrl} alt="avatar" className="w-full h-full object-cover" />
+            <img
+              src={user.avatar.idleUrl}
+              alt="avatar"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }}
+            />
           ) : (
-            user?.username?.charAt(0).toUpperCase()
+            <span style={{ fontFamily: HUD_HEADING, fontWeight: 800, fontSize: '14px', color: '#1f1f1f' }}>
+              {user?.username?.charAt(0).toUpperCase()}
+            </span>
           )}
         </div>
+
+        {/* Name and status */}
         <div>
-          <div className="text-white font-medium">{user?.username}</div>
-          <div className="flex items-center gap-1.5">
-            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-xs text-gray-300">{connected ? 'Connected' : 'Connecting...'}</span>
+          <div style={{ fontFamily: HUD_HEADING, fontWeight: 700, fontSize: '14px', color: '#1f1f1f', lineHeight: 1.2 }}>
+            {user?.username}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
+            <div
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                background: connected ? '#4ade80' : '#f87171',
+                border: `1.5px solid ${HUD_BORDER}`,
+              }}
+            />
+            <span style={{ fontFamily: HUD_FONT, fontSize: '12px', color: '#444', fontWeight: 700 }}>
+              {connected ? 'Connected' : 'Connecting...'}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Top Right: Actions */}
-      <div className="flex gap-2 pointer-events-auto">
+      {/* Top Right: Action buttons */}
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+
+        {/* Elements toggle */}
         {onToggleElements && (
-          <button 
+          <button
+            id="hud-toggle-elements"
             onClick={onToggleElements}
-            className="bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full p-3 text-white transition-colors border border-white/10"
             title="Elements"
+            style={iconBtn(false, YELLOW_BTN)}
           >
-            <Box size={20} />
+            <Box size={18} color="#1f1f1f" />
           </button>
         )}
 
-        {/* Users button and panel */}
-        <div className="relative">
+        {/* Users button and dropdown */}
+        <div style={{ position: 'relative' }}>
           <button
+            id="hud-toggle-users"
             onClick={() => setShowUsers(prev => !prev)}
-            className="bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full p-3 text-white transition-colors border border-white/10"
-            title="Users in space" >
-            <Users size={20} />
+            title="Users in space"
+            style={iconBtn(showUsers, PURPLE_BTN)}
+          >
+            <Users size={18} color="#1f1f1f" />
           </button>
 
           {showUsers && (
-            <div className="absolute right-0 top-14 w-72 bg-black/80 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl overflow-hidden">
-              {/* Header */}
-              <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                <span className="text-white font-semibold text-sm">In this space</span>
-                <span className="text-white/50 text-xs bg-white/10 rounded-full px-2 py-0.5">
+            <div
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: '50px',
+                width: '260px',
+                background: HUD_BG,
+                border: `2.5px solid ${HUD_BORDER}`,
+                borderRadius: '18px',
+                boxShadow: '5px 5px 0px #1f1f1f',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Panel header */}
+              <div
+                style={{
+                  padding: '10px 16px',
+                  borderBottom: `2.5px solid ${HUD_BORDER}`,
+                  background: PINK_BG,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <span style={{ fontFamily: HUD_HEADING, fontWeight: 800, fontSize: '14px', color: '#1f1f1f' }}>
+                  👾 In this space
+                </span>
+                <span
+                  style={{
+                    fontFamily: HUD_FONT,
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    background: HUD_BG,
+                    border: `2px solid ${HUD_BORDER}`,
+                    borderRadius: '99px',
+                    padding: '1px 8px',
+                    color: '#333',
+                  }}
+                >
                   {usersInSpace.length}
                 </span>
               </div>
 
-              {/* List */}
-              <div className="max-h-80 overflow-y-auto">
+              {/* User list */}
+              <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                {usersInSpace.length === 0 && (
+                  <p style={{ padding: '20px', textAlign: 'center', fontFamily: HUD_FONT, color: '#555', fontSize: '14px', fontWeight: 600 }}>
+                    Just you here 🌸
+                  </p>
+                )}
                 {usersInSpace.map(u => {
                   const isYou = u.userId === user?.id;
                   return (
-                    <div key={u.userId} className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
+                    <div
+                      key={u.userId}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '10px 14px',
+                        borderBottom: '1.5px solid #f0e8e8',
+                      }}
+                    >
                       {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10 flex-shrink-0 flex items-center justify-center">
+                      <div
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          border: `2px solid ${HUD_BORDER}`,
+                          background: '#f0e8ff',
+                          overflow: 'hidden',
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
                         {u.avatarIdleUrl ? (
                           <img
                             src={u.avatarIdleUrl}
                             alt={u.name}
-                            className="w-full h-full object-cover"
-                            style={{ imageRendering: 'pixelated' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }}
                           />
                         ) : (
-                          <span className="text-white font-bold text-sm">
+                          <span style={{ fontFamily: HUD_HEADING, fontWeight: 800, fontSize: '14px', color: '#1f1f1f' }}>
                             {u.name.charAt(0).toUpperCase()}
                           </span>
                         )}
                       </div>
 
                       {/* Name */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white text-sm font-medium truncate">
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontFamily: HUD_FONT, fontWeight: 700, fontSize: '14px', color: '#1f1f1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {u.name}
-                          {isYou && <span className="ml-2 text-white/40 text-xs font-normal">you</span>}
+                          {isYou && (
+                            <span style={{ marginLeft: '6px', fontWeight: 700, fontSize: '12px', color: '#7744cc' }}>
+                              (you)
+                            </span>
+                          )}
                         </p>
                       </div>
 
                       {/* Online dot */}
-                      <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+                      <div
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: '#4ade80',
+                          border: `1.5px solid ${HUD_BORDER}`,
+                          flexShrink: 0,
+                        }}
+                      />
                     </div>
                   );
                 })}
@@ -132,11 +296,14 @@ export default function GameHUD({ onToggleElements }: GameHUDProps) {
           )}
         </div>
 
-        <button 
+        {/* Leave button */}
+        <button
+          id="hud-leave-space"
           onClick={() => navigate('/dashboard')}
-          className="bg-red-500/80 hover:bg-red-500 backdrop-blur-md rounded-full p-3 text-white transition-colors border border-red-400/30"
-          title="Leave Space" >
-          <LogOut size={20} />
+          title="Leave Space"
+          style={iconBtn(false, RED_BTN)}
+        >
+          <LogOut size={18} color="#1f1f1f" />
         </button>
       </div>
     </div>

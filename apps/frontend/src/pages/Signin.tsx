@@ -17,7 +17,7 @@ export default function Signin() {
       const res = await api.signin({ username, password });
       localStorage.setItem('token', res.token);
       setToken(res.token);
-      setUser(res.user); 
+      setUser(res.user);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
@@ -25,42 +25,118 @@ export default function Signin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign In to Pixelley</h2>
-        {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4">Please Sign up first! </div>}
-        <form onSubmit={handleSignin} className="space-y-4">
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+      }}
+    >
+      <div
+        className="kawaii-card"
+        style={{
+          width: '100%',
+          maxWidth: '420px',
+          padding: '40px 36px',
+        }}
+      >
+        {/* Logo / title area */}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{ fontSize: '48px', lineHeight: 1, marginBottom: '8px' }}>🎮</div>
+          <h1
+            className="kawaii-heading"
+            style={{ fontSize: '30px', margin: 0 }}
+          >
+            Welcome back!
+          </h1>
+          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#555', fontSize: '15px', fontWeight: 600, marginTop: '6px' }}>
+            Sign in to continue hanging out ✨
+          </p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div
+            style={{
+              background: '#fff0f3',
+              border: '2.5px solid #1f1f1f',
+              borderRadius: '12px',
+              padding: '10px 14px',
+              marginBottom: '18px',
+              color: '#d63b6f',
+              fontFamily: "'Nunito', sans-serif",
+              fontWeight: 600,
+              fontSize: '14px',
+              boxShadow: '3px 3px 0px #1f1f1f',
+            }}
+          >
+            😣 Oops! Please sign up first.
+          </div>
+        )}
+
+        <form onSubmit={handleSignin} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Username</label>
+            <label className="kawaii-label">🌸 Username</label>
             <input
+              id="signin-username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-              placeholder='Enter your email'
+              className="kawaii-input"
+              placeholder="your email id"
               required
             />
           </div>
+
+          {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="kawaii-label">🔒 Password</label>
             <input
+              id="signin-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-              placeholder='Enter your password'
+              className="kawaii-input"
+              placeholder="your secret password"
               required
             />
           </div>
+
           <button
+            id="signin-submit"
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            className="kawaii-btn kawaii-btn-purple"
+            style={{ width: '100%', marginTop: '4px' }}
           >
-            Sign In
+            🕹️ Lesssgo!
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account? <Link to="/signup" className="text-blue-600 hover:underline">Sign Up</Link>
+
+        <p
+          style={{
+            textAlign: 'center',
+            marginTop: '22px',
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: '15px',
+            fontWeight: 600,
+            color: '#444',
+          }}
+        >
+          New here?{' '}
+          <Link
+            to="/signup"
+            style={{
+              color: '#8855ee',
+              fontWeight: 800,
+              textDecoration: 'none',
+              borderBottom: '2.5px solid #8855ee',
+            }}
+          >
+            Create an account 🌟
+          </Link>
         </p>
       </div>
     </div>

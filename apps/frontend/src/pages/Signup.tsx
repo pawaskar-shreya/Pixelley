@@ -21,64 +21,158 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign Up for Pixelley</h2>
-        {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4">{error}</div>}
-        <form onSubmit={handleSignup} className="space-y-4">
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+      }}
+    >
+      <div
+        className="kawaii-card"
+        style={{
+          width: '100%',
+          maxWidth: '420px',
+          padding: '40px 36px',
+        }}
+      >
+        {/* Logo / title */}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{ fontSize: '48px', lineHeight: 1, marginBottom: '8px' }}>⭐</div>
+          <h1
+            className="kawaii-heading"
+            style={{ fontSize: '30px', margin: 0 }}
+          >
+            Join Pixelley!
+          </h1>
+          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#555', fontSize: '15px', fontWeight: 600, marginTop: '6px' }}>
+            Create your own profile 🌈
+          </p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div
+            style={{
+              background: '#fff0f3',
+              border: '2.5px solid #1f1f1f',
+              borderRadius: '12px',
+              padding: '10px 14px',
+              marginBottom: '18px',
+              color: '#d63b6f',
+              fontFamily: "'Nunito', sans-serif",
+              fontWeight: 600,
+              fontSize: '14px',
+              boxShadow: '3px 3px 0px #1f1f1f',
+            }}
+          >
+            😬 {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <label className="kawaii-label">💛 Name</label>
             <input
+              id="signup-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-              placeholder='Enter your name'
+              className="kawaii-input"
+              placeholder="pick a cool display name"
               required
             />
           </div>
+
+          {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Username</label>
+            <label className="kawaii-label">🌸 Username</label>
             <input
+              id="signup-username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-              placeholder='Enter your email'
+              className="kawaii-input"
+              placeholder="your email id"
               required
             />
           </div>
+
+          {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="kawaii-label">🔒 Password</label>
             <input
+              id="signup-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-              placeholder='Enter your password'
+              className="kawaii-input"
+              placeholder="secret password"
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Type</label>
+
+          {/* Gender */}
+          <div style={{ position: 'relative' }}>
+            <label className="kawaii-label">🎀 Avatar Type</label>
             <select
+              id="signup-gender"
               value={gender}
               onChange={(e) => setGender(e.target.value as any)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+              className="kawaii-select"
             >
-              <option value="female">Female</option>
-              <option value="male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
             </select>
+            {/* Custom arrow */}
+            <span
+              style={{
+                position: 'absolute',
+                right: '14px',
+                bottom: '12px',
+                pointerEvents: 'none',
+                fontSize: '14px',
+              }}
+            >
+              ▾
+            </span>
           </div>
+
           <button
+            id="signup-submit"
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            className="kawaii-btn kawaii-btn-pink"
+            style={{ width: '100%', marginTop: '4px' }}
           >
-            Sign Up
+            🎉 Create Account
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account? <Link to="/signin" className="text-blue-600 hover:underline">Sign In</Link>
+
+        <p
+          style={{
+            textAlign: 'center',
+            marginTop: '22px',
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: '15px',
+            fontWeight: 600,
+            color: '#444',
+          }}
+        >
+          Already a user? {' '}
+          <Link
+            to="/signin"
+            style={{
+              color: '#8855ee',
+              fontWeight: 800,
+              textDecoration: 'none',
+              borderBottom: '2.5px solid #8855ee',
+            }}
+          >
+            Sign In 🕹️
+          </Link>
         </p>
       </div>
     </div>

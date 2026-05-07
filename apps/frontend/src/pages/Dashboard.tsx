@@ -5,11 +5,52 @@ import { Space } from '../lib/types';
 import { useAuthStore } from '../lib/store';
 import { LobbyScene } from '../game/scenes/LobbyScene';
 
+// design tokens 
+const CARD_BG = '#fffdf7';
+const BORDER = '#1f1f1f';
+const SHADOW = '5px 5px 0px #1f1f1f';
+const FONT = "'Nunito', sans-serif";
+const HEADING = "'Baloo 2', sans-serif";
+const PINK = '#FFD6EA';
+const PURPLE = '#c8a8ff';
+const MINT = '#DDF5BE';
+const YELLOW = '#ffe066';
+
+// Feature bullets for the left panel
+const FEATURES = [
+  {
+    emoji: '🏠',
+    title: 'Your own hangout spot',
+    desc: 'Be in the same virtual room as your friends — no matter where on the planet you actually are.',
+  },
+  {
+    emoji: '🎨',
+    title: 'Decorate your space',
+    desc: "Drop desks, plants, whiteboards, and more. Make the room actually feel like yours.",
+  },
+  {
+    emoji: '💬',
+    title: 'Chat in real-time',
+    desc: 'Every space has a live chat panel. Say hi, share ideas, or just vibe together.',
+  },
+  {
+    emoji: '👾',
+    title: 'See who\'s around',
+    desc: 'Spot your friends roaming the space — their little avatars give them away every time.',
+  },
+  {
+    emoji: '🕹️',
+    title: 'Move around freely',
+    desc: 'Walk through the space using arrow keys or WASD. It genuinely feels like being there.',
+  },
+];
+
 export default function Dashboard() {
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
 
   const fetchSpaces = async () => {
     try {
@@ -22,9 +63,7 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchSpaces();
-  }, []);
+  useEffect(() => { fetchSpaces(); }, []);
 
   const handleLogout = () => {
     logout();
@@ -34,82 +73,319 @@ export default function Dashboard() {
 
   const handleEnterSpace = (spaceId: string, spaceName: string) => {
     navigate(`/space/${spaceId}`);
-
-    // Poll until LobbyScene is active after Phaser boots
     const tryEnter = (attempts = 0) => {
-      if (attempts > 20) {
-        console.error('LobbyScene never became available');
-        return;
-      }
-
+      if (attempts > 20) { console.error('LobbyScene never became available'); return; }
       const game = (window as any).__phaserGame as Phaser.Game | undefined;
       const lobby = game?.scene.getScene('LobbyScene') as LobbyScene | undefined;
-
       if (lobby?.scene.isActive()) {
         lobby.enterSpace(spaceName.toLowerCase());
       } else {
         setTimeout(() => tryEnter(attempts + 1), 300);
       }
     };
-
     setTimeout(() => tryEnter(), 300);
-};
+  };
 
+  // Loading state 
   if (loading) {
-    return <div className="p-8 text-center">Loading spaces...</div>;
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="kawaii-card" style={{ padding: '36px 56px', textAlign: 'center' }}>
+          <div style={{ fontSize: '44px', marginBottom: '14px' }}>🎮</div>
+          <p style={{ fontFamily: HEADING, fontWeight: 700, fontSize: '18px', color: '#333', margin: 0 }}>
+            Loading your spaces...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-8">
-      
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">
-          Join a Space and have fun!
-        </h1>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '24px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
+        {/* TOP BAR */}
+        <div
+          style={{
+            background: CARD_BG,
+            border: `3px solid ${BORDER}`,
+            borderRadius: '20px',
+            boxShadow: SHADOW,
+            padding: '18px 28px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
         >
-          Logout
-        </button>
-      </div>
-
-      {spaces.length === 0 ? (
-        <div className="text-center text-gray-500">
-          No spaces found.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {spaces.map((space) => (
-            <div
-              key={space.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+          {/* Left : Pixelley */}
+          <div>
+            <h1
+              style={{
+                fontFamily: HEADING,
+                fontWeight: 800,
+                fontSize: '28px',
+                color: '#1f1f1f',
+                margin: 0,
+                lineHeight: 1.1,
+              }}
             >
-              <div className="aspect-video bg-gray-100">
-                {space.thumbnail ? (
-                  <img
-                    src={space.thumbnail}
-                    alt={space.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No Thumbnail
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => {handleEnterSpace(space.id, space.name)}}
-                className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
-              >
-                Enter {space.name}
-              </button>
-            </div>
-          ))}
+              🕹️ Pixelley
+            </h1>
+            <p
+              style={{
+                fontFamily: FONT,
+                fontSize: '15px',
+                color: '#555',
+                margin: '4px 0 0 0',
+                fontWeight: 700,
+              }}
+            >
+              Your pixel alley on the internet ✨
+            </p>
+          </div>
+
+          {/* Right : logout */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+            <button
+              id="dashboard-logout"
+              onClick={handleLogout}
+              className="kawaii-btn kawaii-btn-danger"
+              style={{ fontSize: '14px', padding: '10px 22px' }}
+            >
+              👋 Logout
+            </button>
+            <p style={{ fontFamily: FONT, fontSize: '13px', color: '#555', margin: 0, fontWeight: 700 }}>
+              Come back soon, okay? 🌸
+            </p>
+          </div>
         </div>
-      )}
+
+        {/*  TWO-PANEL BODY */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1.5fr',
+            gap: '24px',
+            alignItems: 'start',
+          }}
+        >
+          {/* LEFT PANEL: What you can do */}
+          <div
+            style={{
+              background: CARD_BG,
+              border: `3px solid ${BORDER}`,
+              borderRadius: '20px',
+              boxShadow: SHADOW,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Panel header */}
+            <div
+              style={{
+                background: PURPLE,
+                borderBottom: `3px solid ${BORDER}`,
+                padding: '16px 22px',
+              }}
+            >
+              <h2
+                style={{
+                  fontFamily: HEADING,
+                  fontWeight: 800,
+                  fontSize: '18px',
+                  color: '#1f1f1f',
+                  margin: 0,
+                }}
+              >
+                What's waiting for you 🌈
+              </h2>
+              <p style={{ fontFamily: FONT, fontSize: '14px', color: '#444', margin: '4px 0 0 0', fontWeight: 700 }}>
+                Everything Pixelley has to offer
+              </p>
+            </div>
+
+            {/* Feature list */}
+            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {FEATURES.map((f, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    gap: '14px',
+                    alignItems: 'flex-start',
+                    background: i % 2 === 0 ? '#fdf6ff' : '#f6fff8',
+                    border: `2px solid ${BORDER}`,
+                    borderRadius: '14px',
+                    padding: '12px 14px',
+                    boxShadow: '3px 3px 0px #1f1f1f',
+                  }}
+                >
+                  {/* Emoji badge */}
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '12px',
+                      border: `2px solid ${BORDER}`,
+                      background: i % 2 === 0 ? PURPLE : MINT,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {f.emoji}
+                  </div>
+
+                  <div>
+                    <p
+                      style={{
+                        fontFamily: HEADING,
+                        fontWeight: 700,
+                        fontSize: '15px',
+                        color: '#1f1f1f',
+                        margin: '0 0 4px 0',
+                      }}
+                    >
+                      {f.title}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: FONT,
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        color: '#444',
+                        margin: 0,
+                        lineHeight: 1.55,
+                      }}
+                    >
+                      {f.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT PANEL: Enter a space */}
+          <div
+            style={{
+              background: CARD_BG,
+              border: `3px solid ${BORDER}`,
+              borderRadius: '20px',
+              boxShadow: SHADOW,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Panel header */}
+            <div
+              style={{
+                background: PINK,
+                borderBottom: `3px solid ${BORDER}`,
+                padding: '16px 22px',
+              }}
+            >
+              <h2
+                style={{
+                  fontFamily: HEADING,
+                  fontWeight: 800,
+                  fontSize: '18px',
+                  color: '#1f1f1f',
+                  margin: 0,
+                }}
+              >
+                Enter a space & have fun! 🚀
+              </h2>
+              <p style={{ fontFamily: FONT, fontSize: '14px', color: '#444', margin: '4px 0 0 0', fontWeight: 700 }}>
+                Hey{user?.name ? <> <strong style={{ color: '#7744cc' }}>{user.name}</strong></> : ''} 👋 where are you hanging today?
+              </p>
+            </div>
+
+            {/* Spaces */}
+            <div style={{ padding: '20px' }}>
+              {spaces.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+                  <div style={{ fontSize: '52px', marginBottom: '14px' }}>🌟</div>
+                  <p style={{ fontFamily: HEADING, fontWeight: 700, fontSize: '18px', color: '#555', margin: 0 }}>
+                    No spaces yet!
+                  </p>
+                  <p style={{ fontFamily: FONT, fontSize: '14px', fontWeight: 600, color: '#777', marginTop: '6px' }}>
+                    Spaces will appear here once they're created.
+                  </p>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                    gap: '18px',
+                  }}
+                >
+                  {spaces.map((space) => (
+                    <div
+                      key={space.id}
+                      className="space-card"
+                    >
+                      {/* Thumbnail */}
+                      <div
+                        style={{
+                          aspectRatio: '16/9',
+                          background: '#f0e8ff',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderBottom: `3px solid ${BORDER}`,
+                        }}
+                      >
+                        {space.thumbnail ? (
+                          <img
+                            src={space.thumbnail}
+                            alt={space.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: '40px' }}>🎮</span>
+                        )}
+                      </div>
+
+                      {/* Space name */}
+                      <div style={{ padding: '14px 16px' }}>
+                        <p
+                          style={{
+                            fontFamily: HEADING,
+                            fontWeight: 700,
+                            fontSize: '16px',
+                            color: '#1f1f1f',
+                            margin: '0 0 4px 0',
+                          }}
+                        >
+                          {space.name}
+                        </p>
+                        <p style={{ fontFamily: FONT, fontSize: '13px', color: '#555', margin: '0 0 12px 0', fontWeight: 700 }}>
+                          Tap in and start exploring →
+                        </p>
+
+                        <button
+                          id={`enter-space-${space.id}`}
+                          onClick={() => handleEnterSpace(space.id, space.name)}
+                          className="kawaii-btn kawaii-btn-yellow"
+                          style={{ width: '100%', fontSize: '14px', padding: '10px 20px' }}
+                        >
+                          🚀 Enter Space
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }

@@ -40,12 +40,12 @@ export interface ChatPayload {
 export type WSEvent =
   | 'connect'
   | 'disconnect'
-  | 'space-joined'       // server: space-joined
-  | 'user-join'          // server: user-join
-  | 'user-left'          // server: user-left
-  | 'movement'           // server: movement (another player moved)
-  | 'movement-rejected' // server: movement-rejected (snap local player back)
-  | 'chat'              // server: chat broadcast
+  | 'space-joined'
+  | 'user-join'
+  | 'user-left'
+  | 'movement'
+  | 'movement-rejected'
+  | 'chat'
   | 'element-add'
   | 'element-move'
   | 'element-delete';
@@ -172,7 +172,7 @@ class WSClient {
     }
   }
 
-  
+
   // Client -> server 
 
   // Called by Phaser's update loop after local player moves
