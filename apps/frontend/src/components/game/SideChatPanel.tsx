@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { wsClient, ChatPayload } from '../../lib/wsClient';
 import { useAuthStore } from '../../lib/store';
-import { Send, MessageSquare } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface Props {
   spaceId: string;
@@ -55,74 +55,81 @@ export default function SideChatPanel({ spaceId }: Props) {
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
-        background: '#111118',
-        borderLeft: '4px solid #2a2a35',
-        fontFamily: "'Pixelify Sans', sans-serif", // Gamified Font
-        imageRendering: 'pixelated',
+        background: '#fffdf7',
+        border: '3px solid #1f1f1f',
+        borderRadius: '24px',
+        boxShadow: '6px 6px 0px #1f1f1f',
+        overflow: 'hidden',
+        fontFamily: "'Nunito', sans-serif",
       }}
     >
       {/* Header - Retro RPG style */}
       <div
         style={{
-          padding: '16px',
-          borderBottom: '4px solid #2a2a35',
+          padding: '16px 20px',
+          borderBottom: '3px solid #1f1f1f',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
+          gap: '10px',
           flexShrink: 0,
-          background: '#1a1a24',
-          boxShadow: 'inset 0 -4px 0 rgba(0,0,0,0.2)',
+          background: '#FFD6EA',
         }}
       >
-        <MessageSquare size={20} color="#4ade80" style={{ filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))' }} />
-        <span style={{ 
-          color: '#4ade80', 
-          fontWeight: 700, 
-          fontSize: '18px',
-          textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
-          letterSpacing: '1px'
-        }}>
-          CHAT LOG
+        <span style={{ fontSize: '22px' }}>💬</span>
+        <span
+          style={{
+            fontFamily: "'Baloo 2', sans-serif",
+            fontWeight: 800,
+            fontSize: '18px',
+            color: '#1f1f1f',
+            letterSpacing: '0.3px',
+          }}
+        >
+          Space Chat
         </span>
         <span
           style={{
             marginLeft: 'auto',
-            fontSize: '12px',
-            color: '#a1a1aa',
-            background: '#09090b',
-            border: '2px solid #3f3f46',
-            padding: '4px 8px',
+            fontSize: '11px',
+            fontWeight: 700,
+            background: '#fffdf7',
+            border: '2px solid #1f1f1f',
+            borderRadius: '99px',
+            padding: '2px 10px',
+            color: '#555',
           }}
         >
-          ROOM:{spaceId.slice(0, 4).toUpperCase()}
+          OFFICE
         </span>
       </div>
 
       {/* Messages */}
-      <div
+      <div className="chat-messages"
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '16px',
+          padding: '16px 14px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#4ade80 #111118',
+          gap: '14px',
         }}
       >
         {messages.length === 0 && (
-          <p
+          <div
             style={{
-              color: '#52525b',
-              fontSize: '14px',
               textAlign: 'center',
-              marginTop: '32px',
-              textTransform: 'uppercase',
+              marginTop: '40px',
+              color: '#bbb',
+              fontFamily: "'Baloo 2', sans-serif",
+              fontWeight: 600,
+              fontSize: '14px',
             }}
           >
-            [ System: No logs found ]
-          </p>
+            <div style={{ fontSize: '36px', marginBottom: '8px' }}>🌸</div>
+            No messages yet!
+            <br />
+            <span style={{ fontSize: '12px', color: '#ccc' }}>Say hello to everyone 👋</span>
+          </div>
         )}
 
         {messages.map((msg, i) => {
@@ -134,53 +141,50 @@ export default function SideChatPanel({ spaceId }: Props) {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: isMe ? 'flex-end' : 'flex-start',
-                gap: '4px',
+                gap: '3px',
               }}
             >
-              {/* Meta line */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: '8px',
-                  flexDirection: isMe ? 'row-reverse' : 'row',
-                }}
-              >
-                {!isMe && (
-                  <span
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 700,
-                      color: '#f472b6',
-                      textShadow: '1px 1px 0px rgba(0,0,0,0.8)'
-                    }}
-                  >
-                    &lt;{msg.username}&gt;
-                  </span>
-                )}
-                <span style={{ fontSize: '12px', color: '#52525b', fontFamily: "'VT323', monospace" }}>
-                  {formatTime(msg.timestamp)}
+              {/* Sender name (only for others) */}
+              {!isMe && (
+                <span
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    color: '#a87fff',
+                    marginLeft: '6px',
+                    fontFamily: "'Baloo 2', sans-serif",
+                  }}
+                >
+                  {msg.username}
                 </span>
-              </div>
+              )}
 
-              {/* Bubble - Retro Box */}
-              <div
+              {/* Bubble*/}
+              <div className={isMe ? 'chat-bubble-sent' : 'chat-bubble-received'}
                 style={{
-                  maxWidth: '85%',
-                  padding: '10px 14px',
-                  background: isMe ? '#2563eb' : '#27272a',
-                  border: isMe ? '2px solid #60a5fa' : '2px solid #52525b',
-                  borderTopColor: isMe ? '#93c5fd' : '#71717a',
-                  borderLeftColor: isMe ? '#93c5fd' : '#71717a',
-                  color: 'white',
-                  fontSize: '15px',
-                  lineHeight: '1.4',
+                  maxWidth: '82%',
+                  padding: '9px 14px',
+                  fontSize: '14px',
+                  lineHeight: '1.5',
+                  color: '#1f1f1f',
                   wordBreak: 'break-word',
-                  boxShadow: '4px 4px 0px rgba(0,0,0,0.4)',
                 }}
               >
                 {msg.message}
               </div>
+
+              {/* Timestamp */}
+              <span
+                style={{
+                  fontSize: '10px',
+                  color: '#bbb',
+                  marginTop: '1px',
+                  marginLeft: isMe ? 0 : '6px',
+                  marginRight: isMe ? '6px' : 0,
+                }}
+              >
+                {formatTime(msg.timestamp)}
+              </span>
             </div>
           );
         })}
@@ -188,81 +192,68 @@ export default function SideChatPanel({ spaceId }: Props) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input - Console Style */}
+      {/* Input Area*/}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          padding: '16px',
-          borderTop: '4px solid #2a2a35',
-          background: '#1a1a24',
+          gap: '10px',
+          padding: '14px 16px',
+          borderTop: '3px solid #1f1f1f',
+          background: '#f9f4ff',
           flexShrink: 0,
         }}
       >
         <span style={{ color: '#4ade80', fontWeight: 'bold' }}>&gt;</span>
         <input
+          id="chat-input"
           ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           maxLength={200}
-          placeholder="ENTER TEXT..."
-          style={{
-            flex: 1,
-            background: '#09090b',
-            border: '2px solid #3f3f46',
-            borderBottomColor: '#71717a',
-            borderRightColor: '#71717a',
-            padding: '10px',
-            color: '#4ade80',
-            fontSize: '14px',
-            outline: 'none',
-            fontFamily: "'VT323', monospace",
-            textTransform: 'uppercase',
-          }}
-          onFocus={(e) => (e.target.style.borderColor = '#4ade80')}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#3f3f46';
-            e.target.style.borderBottomColor = '#71717a';
-            e.target.style.borderRightColor = '#71717a';
-          }}
+          placeholder="Say something cute... 🌸"
+          className="kawaii-input"
+          style={{ flex: 1, fontSize: '14px', padding: '9px 14px' }}
         />
         <button
+          id="chat-send"
           onClick={sendMessage}
           disabled={!input.trim()}
           style={{
             width: '42px',
             height: '42px',
-            background: input.trim() ? '#2563eb' : '#27272a',
-            border: input.trim() ? '2px solid #60a5fa' : '2px solid #52525b',
-            borderTopColor: input.trim() ? '#93c5fd' : '#71717a',
-            borderLeftColor: input.trim() ? '#93c5fd' : '#71717a',
+            flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            background: input.trim()
+              ? 'linear-gradient(145deg, #c8a8ff, #a87fff)'
+              : '#e8e8e8',
+            border: '2.5px solid #1f1f1f',
+            borderRadius: '12px',
             cursor: input.trim() ? 'pointer' : 'not-allowed',
-            flexShrink: 0,
-            boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
+            boxShadow: input.trim() ? '3px 3px 0px #1f1f1f' : 'none',
+            transition: 'all 0.1s ease',
           }}
           onMouseDown={(e) => {
             if (!input.trim()) return;
-            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.boxShadow = '1px 1px 0px #1f1f1f';
             e.currentTarget.style.transform = 'translate(2px, 2px)';
           }}
           onMouseUp={(e) => {
             if (!input.trim()) return;
-            e.currentTarget.style.boxShadow = '2px 2px 0px rgba(0,0,0,0.5)';
+            e.currentTarget.style.boxShadow = '3px 3px 0px #1f1f1f';
             e.currentTarget.style.transform = 'none';
           }}
           onMouseLeave={(e) => {
             if (!input.trim()) return;
-            e.currentTarget.style.boxShadow = '2px 2px 0px rgba(0,0,0,0.5)';
+            e.currentTarget.style.boxShadow = '3px 3px 0px #1f1f1f';
             e.currentTarget.style.transform = 'none';
           }}
         >
-          <Send size={18} color={input.trim() ? "white" : "#a1a1aa"} />
+          <Send size={18} color={input.trim() ? '#fff' : '#aaa'} />
         </button>
       </div>
     </div>

@@ -1,18 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  scrollbar-width: none;
+/* ─── Global Reset & Background ─────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-.messages::-webkit-scrollbar {
-  display: none;
+body {
+  margin: 0;
+  padding: 0;
+  background-image: url('/assets/14.jpg');
+  background-repeat: repeat;
+  font-family: 'Nunito', sans-serif;
 }
 
+/* ─── Canvas (Phaser stays untouched) ────────────────────────── */
 #space-container canvas {
   display: block;
   width: 100% !important;
@@ -21,9 +26,178 @@
   padding: 0 !important;
 }
 
-body {
-  background-image: url('/assets/14.jpg');
-  background-repeat: repeat;
-  margin: 0;
-  padding: 0;
+/* ─── Kawaii Card ────────────────────────────────────────────── */
+.kawaii-card {
+  background: #fffdf7;
+  border: 3px solid #1f1f1f;
+  border-radius: 24px;
+  box-shadow: 5px 5px 0px #1f1f1f;
+}
+
+/* ─── Kawaii Input ───────────────────────────────────────────── */
+.kawaii-input {
+  width: 100%;
+  background: #fff;
+  border: 2.5px solid #1f1f1f;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  color: #1f1f1f;
+  outline: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.kawaii-input:focus {
+  border-color: #b07fff;
+  box-shadow: 0 0 0 3px #e7d5ff;
+}
+.kawaii-input::placeholder {
+  color: #b0b0b0;
+}
+
+/* ─── Kawaii Button (primary candy style) ────────────────────── */
+.kawaii-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 12px 28px;
+  border-radius: 16px;
+  border: 2.5px solid #1f1f1f;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 4px 4px 0px #1f1f1f;
+  user-select: none;
+}
+.kawaii-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #1f1f1f;
+}
+
+.kawaii-btn-pink {
+  background: linear-gradient(145deg, #ffb3d6, #ff88c2);
+  color: #1f1f1f;
+}
+.kawaii-btn-pink:hover {
+  background: linear-gradient(145deg, #ffc4df, #ff99cc);
+}
+
+.kawaii-btn-purple {
+  background: linear-gradient(145deg, #c8a8ff, #a87fff);
+  color: #1f1f1f;
+}
+.kawaii-btn-purple:hover {
+  background: linear-gradient(145deg, #d4b8ff, #b99cff);
+}
+
+.kawaii-btn-yellow {
+  background: linear-gradient(145deg, #ffe066, #ffd11a);
+  color: #1f1f1f;
+}
+.kawaii-btn-yellow:hover {
+  background: linear-gradient(145deg, #ffe880, #ffda33);
+}
+
+.kawaii-btn-danger {
+  background: linear-gradient(145deg, #ffb3b3, #ff8080);
+  color: #1f1f1f;
+}
+.kawaii-btn-danger:hover {
+  background: linear-gradient(145deg, #ffc4c4, #ff9999);
+}
+
+/* ─── Chat messages ──────────────────────────────────────────── */
+.chat-bubble-sent {
+  background: #FFD6EA;
+  border: 2.5px solid #1f1f1f;
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 3px 3px 0px #1f1f1f;
+}
+
+.chat-bubble-received {
+  background: #DDF5BE;
+  border: 2.5px solid #1f1f1f;
+  border-radius: 18px 18px 18px 4px;
+  box-shadow: 3px 3px 0px #1f1f1f;
+}
+
+/* ─── Chat scroll area ───────────────────────────────────────── */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ffb3d6 #fff0f7;
+}
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #ffb3d6;
+  border-radius: 99px;
+}
+
+/* ─── Label ──────────────────────────────────────────────────── */
+.kawaii-label {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* ─── Heading ─────────────────────────────────────────────────── */
+.kawaii-heading {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  color: #1f1f1f;
+}
+
+/* ─── Space card (Dashboard) ─────────────────────────────────── */
+.space-card {
+  background: #fffdf7;
+  border: 3px solid #1f1f1f;
+  border-radius: 20px;
+  box-shadow: 5px 5px 0px #1f1f1f;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.space-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px #1f1f1f;
+}
+
+/* ─── Badge/tag ──────────────────────────────────────────────── */
+.kawaii-badge {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 2px solid #1f1f1f;
+  background: #ffe4f3;
+  color: #1f1f1f;
+  display: inline-block;
+}
+
+/* ─── Select ─────────────────────────────────────────────────── */
+.kawaii-select {
+  width: 100%;
+  background: #fff;
+  border: 2.5px solid #1f1f1f;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  color: #1f1f1f;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+.kawaii-select:focus {
+  border-color: #b07fff;
+  box-shadow: 0 0 0 3px #e7d5ff;
 }

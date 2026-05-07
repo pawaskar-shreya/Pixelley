@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
 
   const fetchSpaces = async () => {
     try {
@@ -53,63 +54,174 @@ export default function Dashboard() {
     };
 
     setTimeout(() => tryEnter(), 300);
-};
+  };
 
   if (loading) {
-    return <div className="p-8 text-center">Loading spaces...</div>;
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          className="kawaii-card"
+          style={{ padding: '32px 48px', textAlign: 'center' }}
+        >
+          <div style={{ fontSize: '40px', marginBottom: '12px' }}>🎮</div>
+          <p
+            style={{
+              fontFamily: "'Baloo 2', sans-serif",
+              fontWeight: 700,
+              fontSize: '18px',
+              color: '#555',
+            }}
+          >
+            Loading your spaces...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-8">
-      
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">
-          Join a Space and have fun!
-        </h1>
+    <div
+      style={{
+        minHeight: '100vh',
+        padding: '32px 24px',
+      }}
+    >
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
+        {/* ── Header ── */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '36px',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
         >
-          Logout
-        </button>
-      </div>
-
-      {spaces.length === 0 ? (
-        <div className="text-center text-gray-500">
-          No spaces found.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {spaces.map((space) => (
-            <div
-              key={space.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+          <div>
+            <h1
+              className="kawaii-heading"
+              style={{ fontSize: '34px', margin: 0 }}
             >
-              <div className="aspect-video bg-gray-100">
-                {space.thumbnail ? (
-                  <img
-                    src={space.thumbnail}
-                    alt={space.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No Thumbnail
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => {handleEnterSpace(space.id, space.name)}}
-                className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
+              🕹️ Pick a Space!
+            </h1>
+            {user?.name && (
+              <p
+                style={{
+                  fontFamily: "'Nunito', sans-serif",
+                  color: '#777',
+                  fontSize: '15px',
+                  marginTop: '4px',
+                }}
               >
-                Enter {space.name}
-              </button>
-            </div>
-          ))}
+                Hey <strong style={{ color: '#a87fff' }}>{user.name}</strong> 👋 where are you hanging today?
+              </p>
+            )}
+          </div>
+
+          <button
+            id="dashboard-logout"
+            onClick={handleLogout}
+            className="kawaii-btn kawaii-btn-danger"
+            style={{ fontSize: '14px', padding: '10px 22px' }}
+          >
+            👋 Logout
+          </button>
         </div>
-      )}
+
+        {/* ── Spaces grid ── */}
+        {spaces.length === 0 ? (
+          <div
+            className="kawaii-card"
+            style={{
+              padding: '60px 40px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '56px', marginBottom: '16px' }}>🌟</div>
+            <p
+              style={{
+                fontFamily: "'Baloo 2', sans-serif",
+                fontWeight: 700,
+                fontSize: '20px',
+                color: '#888',
+              }}
+            >
+              No spaces found yet!
+            </p>
+            <p style={{ fontFamily: "'Nunito', sans-serif", color: '#aaa', fontSize: '14px', marginTop: '6px' }}>
+              Spaces will appear here once they're created.
+            </p>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '24px',
+            }}
+          >
+            {spaces.map((space) => (
+              <div key={space.id} className="space-card">
+                {/* Thumbnail */}
+                <div
+                  style={{
+                    aspectRatio: '16/9',
+                    background: '#f0e8ff',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderBottom: '3px solid #1f1f1f',
+                  }}
+                >
+                  {space.thumbnail ? (
+                    <img
+                      src={space.thumbnail}
+                      alt={space.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <span style={{ fontSize: '48px' }}>🎮</span>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div style={{ padding: '16px 18px' }}>
+                  <p
+                    style={{
+                      fontFamily: "'Baloo 2', sans-serif",
+                      fontWeight: 700,
+                      fontSize: '18px',
+                      margin: '0 0 12px 0',
+                      color: '#1f1f1f',
+                    }}
+                  >
+                    {space.name}
+                  </p>
+
+                  <button
+                    id={`enter-space-${space.id}`}
+                    onClick={() => handleEnterSpace(space.id, space.name)}
+                    className="kawaii-btn kawaii-btn-yellow"
+                    style={{ width: '100%', fontSize: '14px', padding: '10px 20px' }}
+                  >
+                    🚀 Enter Space
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
