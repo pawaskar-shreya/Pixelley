@@ -87,63 +87,51 @@ class OfficeMap extends BaseMap {
   }
 
   private drawElements() {
+    const workerKeys = ['office_worker1', 'office_worker2', 'office_worker4'].filter(
+      key => this.scene.textures.exists(key)
+    );
+
     const hasDesk = this.scene.textures.exists('office_desk');
     const hasChair = this.scene.textures.exists('office_chair');
-    const hasPlant = this.scene.textures.exists('office_plant');
 
-    if (!hasDesk || !hasChair || !hasPlant) {
-      console.warn('[OfficeMap] Missing office textures: skipping element draw');
+    if (!hasDesk || !hasChair) {
+      console.warn('[OfficeMap] Missing desk/chair textures: skipping element draw');
       return;
     }
 
-    const deskScale = 2.2;
-    const chairScale = 2;
-    const plantScale = 2.2;
+    const DESK_ROWS = [420, 580, 740];
+    const DESK_COLS = [180, 360, 540, 720, 900];
     const workerScale = 2;
 
-    // Desk rows
-    [420, 580, 740].forEach(y => {
-      [180, 360, 540, 720, 900].forEach(x => {
-        this.scene.add.image(x, y, 'office_desk')
-          .setScale(deskScale)
-          .setDepth(GAME_CONFIG.DEPTHS.WALLS);
-        this.scene.add.image(x - 16, y + 24, 'office_chair')
-          .setScale(chairScale)
-          .setDepth(GAME_CONFIG.DEPTHS.WALLS + 1);
+    DESK_ROWS.forEach(y => {
+      DESK_COLS.forEach(x => {
+
+        // Random worker seated at the desk
+        if (workerKeys.length > 0) {
+          const key = workerKeys[Math.floor(Math.random() * workerKeys.length)];
+          this.scene.add.image(x - 14, y + 8, key)
+            .setScale(workerScale)
+            .setDepth(GAME_CONFIG.DEPTHS.PLAYERS - 1);
+        }
       });
     });
-
-    // Plants
-    this.scene.add.image(390, 320, 'office_plant').setScale(plantScale).setDepth(GAME_CONFIG.DEPTHS.WALLS + 1);
-    this.scene.add.image(620, 320, 'office_plant').setScale(plantScale).setDepth(GAME_CONFIG.DEPTHS.WALLS + 1);
-    this.scene.add.image(860, 830, 'office_plant').setScale(plantScale).setDepth(GAME_CONFIG.DEPTHS.WALLS + 1);
-
-    // Static NPC workers
-    if (this.scene.textures.exists('office_worker1')) {
-      this.scene.add.image(270, 460, 'office_worker1').setScale(workerScale).setDepth(GAME_CONFIG.DEPTHS.PLAYERS - 1);
-    }
-    if (this.scene.textures.exists('office_worker2')) {
-      this.scene.add.image(870, 640, 'office_worker2').setScale(workerScale).setDepth(GAME_CONFIG.DEPTHS.PLAYERS - 1);
-    }
-    if (this.scene.textures.exists('office_worker4')) {
-      this.scene.add.image(510, 800, 'office_worker4').setScale(workerScale).setDepth(GAME_CONFIG.DEPTHS.PLAYERS - 1);
-    }
   }
 
   private addColliders() {
     this.addWorldBounds();
 
-    // Desk / cubicle rows
-    this.addRectCollider(40, 360, 940, 80);
-    this.addRectCollider(40, 520, 940, 80);
-    this.addRectCollider(40, 680, 940, 80);
+    // One invisible collider per workstation (5 cols × 3 rows)
+    // Sized to cover the desk sprite footprint so players can't walk through desks
+    const DESK_ROWS = [420, 580, 740];
+    const DESK_COLS = [180, 360, 540, 720, 900];
+    const CW = 52; // collider half-width from centre
+    const CH = 36; // collider half-height from centre
 
-    // Top corridor prop clusters
-    this.addRectCollider(0, 210, 430, 80);
-    this.addRectCollider(670, 210, 354, 80);
-
-    // Bottom-right cluster (trash/plant/table)
-    this.addRectCollider(600, 790, 420, 80);
+    DESK_ROWS.forEach(cy => {
+      DESK_COLS.forEach(cx => {
+        this.addRectCollider(cx - CW, cy - CH, CW * 2, CH * 2);
+      });
+    });
   }
 }
 
@@ -185,13 +173,6 @@ class DefaultMap extends BaseMap {
           .setOrigin(0, 0)
           .setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
       }
-    }
-
-    // Random obstacle colliders
-    for (let i = 0; i < 20; i++) {
-      const x = Phaser.Math.Between(1, cols - 2) * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE / 2;
-      const y = Phaser.Math.Between(1, rows - 2) * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE / 2;
-      this.addRectCollider(x - 16, y - 16, 32, 32);
     }
 
     this.addWorldBounds();

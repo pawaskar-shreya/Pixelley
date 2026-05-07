@@ -111,7 +111,7 @@ export default function Signin() {
             className="kawaii-btn kawaii-btn-purple"
             style={{ width: '100%', marginTop: '4px' }}
           >
-            🕹️ Let's Play!
+            🕹️ Lesssgo!
           </button>
         </form>
 
