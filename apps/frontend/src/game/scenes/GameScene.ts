@@ -30,13 +30,17 @@ export class GameScene extends Phaser.Scene {
 
     // Create world
     const spaceId = (this.registry.get('spaceId') as string | undefined) ?? '';
-    const spaceData =  this.registry.get('spaceData') as SpaceData | undefined;
+    const spaceData = this.registry.get('spaceData') as SpaceData | undefined;
     const isOfficeSpace = spaceId;
     const parsedWidth = Number(spaceData?.width);
     const parsedHeight = Number(spaceData?.height);
 
-    const width  = Number.isFinite(parsedWidth)  && parsedWidth  > 0 ? parsedWidth  : 1600;
+    const width = Number.isFinite(parsedWidth) && parsedWidth > 0 ? parsedWidth : 1600;
     const height = Number.isFinite(parsedHeight) && parsedHeight > 0 ? parsedHeight : 1200;
+
+    // Store world bounds so element drag clamping can reference them
+    this.registry.set('worldWidth', width);
+    this.registry.set('worldHeight', height);
 
     this.worldMap = new WorldMap(this, { theme: isOfficeSpace ? 'office' : 'default', width, height });
     this.elementsGroup = this.physics.add.staticGroup();
@@ -101,10 +105,10 @@ export class GameScene extends Phaser.Scene {
       (sprite.body as Phaser.Physics.Arcade.StaticBody).updateFromGameObject();
       gameObj = sprite;
     } else {
-        const img = this.add.image(el.x, el.y, textureKey);
-        img.setScale(ELEMENT_SCALE);
-        img.setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
-        gameObj = img;
+      const img = this.add.image(el.x, el.y, textureKey);
+      img.setScale(ELEMENT_SCALE);
+      img.setDepth(GAME_CONFIG.DEPTHS.GROUND + 1);
+      gameObj = img;
     }
 
     (gameObj as any).__spaceElementId = el.id;
@@ -118,13 +122,22 @@ export class GameScene extends Phaser.Scene {
     // Drag to move the position of the element (owner only)
     if (isOwner) {
       gameObj.on('drag', (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-        gameObj.x = dragX;
-        gameObj.y = dragY;
+        const worldW = (this.registry.get('worldWidth') as number) ?? 1500;
+        const worldH = (this.registry.get('worldHeight') as number) ?? 1000;
+        // Clamp to world bounds so the sprite never leaves the space
+        gameObj.x = Phaser.Math.Clamp(dragX, 0, worldW);
+        gameObj.y = Phaser.Math.Clamp(dragY, 0, worldH);
       });
 
       gameObj.on('dragend', () => {
-        const newX = Math.round(gameObj.x);
-        const newY = Math.round(gameObj.y);
+        const worldW = (this.registry.get('worldWidth') as number) ?? 1500;
+        const worldH = (this.registry.get('worldHeight') as number) ?? 1000;
+        const newX = Phaser.Math.Clamp(Math.round(gameObj.x), 0, worldW);
+        const newY = Phaser.Math.Clamp(Math.round(gameObj.y), 0, worldH);
+
+        // Snap the visual to the clamped position
+        gameObj.x = newX;
+        gameObj.y = newY;
 
         if (el.element.isCollidable) {
           const body = (gameObj as Phaser.Physics.Arcade.Sprite).body as Phaser.Physics.Arcade.StaticBody;
@@ -182,8 +195,8 @@ export class GameScene extends Phaser.Scene {
 
     // Server confirms join: move local player to authoritative spawn point and spawn everyone already in the space
     const onSpaceJoined = (data: {
-      spawn: { x: number; y: number }; 
-      users: { id: string; x: number; y: number, name: string, avatarIdleUrl: string }[] 
+      spawn: { x: number; y: number };
+      users: { id: string; x: number; y: number, name: string, avatarIdleUrl: string }[]
     }) => {
       console.log('[GameScene] space-joined received', data);
 
@@ -230,8 +243,8 @@ export class GameScene extends Phaser.Scene {
         ...data.users
           .filter(u => u.id !== userId)
           .map(u => ({
-            userId:        u.id,
-            name:          u.name,
+            userId: u.id,
+            name: u.name,
             avatarIdleUrl: u.avatarIdleUrl,
           }))
       ];
@@ -253,7 +266,7 @@ export class GameScene extends Phaser.Scene {
       );
       this.remotePlayers.set(data.userId, remotePlayer);
     };
-  
+
     const onMovement = (data: { userId: string; x: number; y: number }) => {
       if (!isAlive()) return;
       const player = this.remotePlayers.get(data.userId);
@@ -262,7 +275,7 @@ export class GameScene extends Phaser.Scene {
         player.targetY = data.y;
       }
     };
-  
+
     const onMovementRejected = (data: { x: number; y: number }) => {
       // Guard: scene may have been destroyed before this fires
       if (!isAlive() || !this.localPlayer?.body) {
@@ -276,7 +289,7 @@ export class GameScene extends Phaser.Scene {
       this.localPlayer.targetX = data.x;
       this.localPlayer.targetY = data.y;
     };
-  
+
     const onUserLeft = (data: { userId: string }) => {
       wsClient.emit('userLeftSpace', { userId: data.userId });
       if (!isAlive()) return;
@@ -297,7 +310,7 @@ export class GameScene extends Phaser.Scene {
       // Find the sprite matching the spaceElementId
       const children = this.elementsGroup.getChildren().concat(this.children.list.filter(c => (c as any).__spaceElementId));
       const gameObj = children.find(c => (c as any).__spaceElementId === data.id);
-      
+
       if (gameObj) {
         if (gameObj instanceof Phaser.Physics.Arcade.Sprite) {
           gameObj.body?.reset(data.x, data.y);
@@ -315,7 +328,7 @@ export class GameScene extends Phaser.Scene {
         gameObj.destroy();
       }
     };
-  
+
     wsClient.on('space-joined', onSpaceJoined);
     wsClient.on('user-join', onUserJoin);
     wsClient.on('movement', onMovement);
@@ -324,7 +337,7 @@ export class GameScene extends Phaser.Scene {
     wsClient.on('element-add', onElementAdd);
     wsClient.on('element-move', onElementMove);
     wsClient.on('element-delete', onElementDelete);
-  
+
     // Clean up ALL listeners when this scene shuts down
     this.events.once('shutdown', () => {
       wsClient.emit('usersUpdated', []);

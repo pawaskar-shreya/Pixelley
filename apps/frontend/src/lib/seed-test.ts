@@ -61,8 +61,8 @@ async function seedOfficeSpace() {
     update: {},
     create: {
       name: "Office",
-      width: 1200,
-      height: 800,
+      width: 1500,
+      height: 1000,
       thumbnail: `${OFFICE_BASE}/desk-with-pc.png`,
     },
   });
@@ -76,21 +76,21 @@ async function seedOfficeSpace() {
     height: number;
     isCollidable: boolean;
   }[] = [
-    { name: "Desk",           imageUrl: `${OFFICE_BASE}/desk.png`,           width: 64, height: 32, isCollidable: true  },
-    { name: "Desk with PC",   imageUrl: `${OFFICE_BASE}/desk-with-pc.png`,   width: 64, height: 64, isCollidable: true  },
-    { name: "Chair",          imageUrl: `${OFFICE_BASE}/chair.png`,          width: 16, height: 16, isCollidable: false },
-    { name: "Plant",          imageUrl: `${OFFICE_BASE}/plant.png`,          width: 32, height: 32, isCollidable: true  },
-    { name: "Cabinet",        imageUrl: `${OFFICE_BASE}/cabinet.png`,        width: 64, height: 64, isCollidable: true  },
-    { name: "Printer",        imageUrl: `${OFFICE_BASE}/printer.png`,        width: 64, height: 32, isCollidable: true  },
-    { name: "PC 1",           imageUrl: `${OFFICE_BASE}/pc1.png`,            width: 32, height: 32, isCollidable: false },
-    { name: "PC 2",           imageUrl: `${OFFICE_BASE}/pc2.png`,            width: 32, height: 32, isCollidable: false },
-    { name: "Water Cooler",   imageUrl: `${OFFICE_BASE}/water-cooler.png`,   width: 16, height: 32, isCollidable: true  },
-    { name: "Coffee Maker",   imageUrl: `${OFFICE_BASE}/coffee-maker.png`,   width: 64, height: 64, isCollidable: true  },
-    { name: "Writing Table",  imageUrl: `${OFFICE_BASE}/writing-table.png`,  width: 64, height: 64, isCollidable: true  },
-    { name: "Stamping Table", imageUrl: `${OFFICE_BASE}/stamping-table.png`, width: 64, height: 32, isCollidable: true  },
-    { name: "Sink",           imageUrl: `${OFFICE_BASE}/sink.png`,           width: 64, height: 64, isCollidable: true  },
-    { name: "Trash",          imageUrl: `${OFFICE_BASE}/trash.png`,          width: 16, height: 16, isCollidable: false },
-  ];
+      { name: "Desk", imageUrl: `${OFFICE_BASE}/desk.png`, width: 64, height: 32, isCollidable: true },
+      { name: "Desk with PC", imageUrl: `${OFFICE_BASE}/desk-with-pc.png`, width: 64, height: 64, isCollidable: true },
+      { name: "Chair", imageUrl: `${OFFICE_BASE}/chair.png`, width: 16, height: 16, isCollidable: false },
+      { name: "Plant", imageUrl: `${OFFICE_BASE}/plant.png`, width: 32, height: 32, isCollidable: true },
+      { name: "Cabinet", imageUrl: `${OFFICE_BASE}/cabinet.png`, width: 64, height: 64, isCollidable: true },
+      { name: "Printer", imageUrl: `${OFFICE_BASE}/printer.png`, width: 64, height: 32, isCollidable: true },
+      { name: "PC 1", imageUrl: `${OFFICE_BASE}/pc1.png`, width: 32, height: 32, isCollidable: false },
+      { name: "PC 2", imageUrl: `${OFFICE_BASE}/pc2.png`, width: 32, height: 32, isCollidable: false },
+      { name: "Water Cooler", imageUrl: `${OFFICE_BASE}/water-cooler.png`, width: 16, height: 32, isCollidable: true },
+      { name: "Coffee Maker", imageUrl: `${OFFICE_BASE}/coffee-maker.png`, width: 64, height: 64, isCollidable: true },
+      { name: "Writing Table", imageUrl: `${OFFICE_BASE}/writing-table.png`, width: 64, height: 64, isCollidable: true },
+      { name: "Stamping Table", imageUrl: `${OFFICE_BASE}/stamping-table.png`, width: 64, height: 32, isCollidable: true },
+      { name: "Sink", imageUrl: `${OFFICE_BASE}/sink.png`, width: 64, height: 64, isCollidable: true },
+      { name: "Trash", imageUrl: `${OFFICE_BASE}/trash.png`, width: 16, height: 16, isCollidable: false },
+    ];
 
   for (const el of elements) {
     const existing = await prisma.element.findFirst({
