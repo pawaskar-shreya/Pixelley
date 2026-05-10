@@ -33,45 +33,45 @@ const r2 = new S3Client({
   region: 'auto',
   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId:     process.env.R2_ACCESS_KEY_ID!,
+    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
   },
 });
 
-const BUCKET      = process.env.R2_BUCKET_NAME!;
-const PUBLIC_URL  = process.env.R2_PUBLIC_URL!.replace(/\/$/, ''); // strip trailing slash
+const BUCKET = process.env.R2_BUCKET_NAME!;
+const PUBLIC_URL = process.env.R2_PUBLIC_URL!.replace(/\/$/, ''); // strip trailing slash
 
 // Asset definitions
 
 // Local path (relative to project root) → R2 object key
 const ASSETS: { localPath: string; r2Key: string }[] = [
   // MCU Avatars
-  { localPath: 'public/mcu-avatars/blackwidow-idle.png',    r2Key: 'mcu-avatars/blackwidow-idle.png'    },
-  { localPath: 'public/mcu-avatars/blackwidow-left.png',    r2Key: 'mcu-avatars/blackwidow-left.png'    },
-  { localPath: 'public/mcu-avatars/blackwidow-right.png',   r2Key: 'mcu-avatars/blackwidow-right.png'   },
-  { localPath: 'public/mcu-avatars/blackwidow-up.png',      r2Key: 'mcu-avatars/blackwidow-up.png'      },
-  { localPath: 'public/mcu-avatars/blackwidow-down.png',    r2Key: 'mcu-avatars/blackwidow-down.png'    },
-  { localPath: 'public/mcu-avatars/ironman-idle.png',    r2Key: 'mcu-avatars/ironman-idle.png'    },
-  { localPath: 'public/mcu-avatars/ironman-left.png',    r2Key: 'mcu-avatars/ironman-left.png'    },
-  { localPath: 'public/mcu-avatars/ironman-right.png',   r2Key: 'mcu-avatars/ironman-right.png'   },
-  { localPath: 'public/mcu-avatars/ironman-up.png',      r2Key: 'mcu-avatars/ironman-up.png'      },
-  { localPath: 'public/mcu-avatars/ironman-down.png',    r2Key: 'mcu-avatars/ironman-down.png'    },
+  { localPath: 'public/mcu-avatars/blackwidow-idle.png', r2Key: 'mcu-avatars/blackwidow-idle.png' },
+  { localPath: 'public/mcu-avatars/blackwidow-left.png', r2Key: 'mcu-avatars/blackwidow-left.png' },
+  { localPath: 'public/mcu-avatars/blackwidow-right.png', r2Key: 'mcu-avatars/blackwidow-right.png' },
+  { localPath: 'public/mcu-avatars/blackwidow-up.png', r2Key: 'mcu-avatars/blackwidow-up.png' },
+  { localPath: 'public/mcu-avatars/blackwidow-down.png', r2Key: 'mcu-avatars/blackwidow-down.png' },
+  { localPath: 'public/mcu-avatars/ironman-idle.png', r2Key: 'mcu-avatars/ironman-idle.png' },
+  { localPath: 'public/mcu-avatars/ironman-left.png', r2Key: 'mcu-avatars/ironman-left.png' },
+  { localPath: 'public/mcu-avatars/ironman-right.png', r2Key: 'mcu-avatars/ironman-right.png' },
+  { localPath: 'public/mcu-avatars/ironman-up.png', r2Key: 'mcu-avatars/ironman-up.png' },
+  { localPath: 'public/mcu-avatars/ironman-down.png', r2Key: 'mcu-avatars/ironman-down.png' },
 
   // Office placeable elements
-  { localPath: 'public/free-office-pixel-art/desk.png',             r2Key: 'office/desk.png'             },
-  { localPath: 'public/free-office-pixel-art/desk-with-pc.png',     r2Key: 'office/desk-with-pc.png'     },
-  { localPath: 'public/free-office-pixel-art/chair.png',            r2Key: 'office/chair.png'            },
-  { localPath: 'public/free-office-pixel-art/plant.png',            r2Key: 'office/plant.png'            },
-  { localPath: 'public/free-office-pixel-art/cabinet.png',          r2Key: 'office/cabinet.png'          },
-  { localPath: 'public/free-office-pixel-art/printer.png',          r2Key: 'office/printer.png'          },
-  { localPath: 'public/free-office-pixel-art/pc1.png',              r2Key: 'office/pc1.png'              },
-  { localPath: 'public/free-office-pixel-art/pc2.png',              r2Key: 'office/pc2.png'              },
-  { localPath: 'public/free-office-pixel-art/water-cooler.png',     r2Key: 'office/water-cooler.png'     },
-  { localPath: 'public/free-office-pixel-art/coffee-maker.png',     r2Key: 'office/coffee-maker.png'     },
-  { localPath: 'public/free-office-pixel-art/writing-table.png',    r2Key: 'office/writing-table.png'    },
-  { localPath: 'public/free-office-pixel-art/stamping-table.png',   r2Key: 'office/stamping-table.png'   },
-  { localPath: 'public/free-office-pixel-art/sink.png',             r2Key: 'office/sink.png'             },
-  { localPath: 'public/free-office-pixel-art/trash.png',            r2Key: 'office/trash.png'            },
+  { localPath: 'public/free-office-pixel-art/desk.png', r2Key: 'office/desk.png' },
+  { localPath: 'public/free-office-pixel-art/desk-with-pc.png', r2Key: 'office/desk-with-pc.png' },
+  { localPath: 'public/free-office-pixel-art/chair.png', r2Key: 'office/chair.png' },
+  { localPath: 'public/free-office-pixel-art/plant.png', r2Key: 'office/plant.png' },
+  { localPath: 'public/free-office-pixel-art/cabinet.png', r2Key: 'office/cabinet.png' },
+  { localPath: 'public/free-office-pixel-art/printer.png', r2Key: 'office/printer.png' },
+  { localPath: 'public/free-office-pixel-art/pc1.png', r2Key: 'office/pc1.png' },
+  { localPath: 'public/free-office-pixel-art/pc2.png', r2Key: 'office/pc2.png' },
+  { localPath: 'public/free-office-pixel-art/water-cooler.png', r2Key: 'office/water-cooler.png' },
+  { localPath: 'public/free-office-pixel-art/coffee-maker.png', r2Key: 'office/coffee-maker.png' },
+  { localPath: 'public/free-office-pixel-art/writing-table.png', r2Key: 'office/writing-table.png' },
+  { localPath: 'public/free-office-pixel-art/stamping-table.png', r2Key: 'office/stamping-table.png' },
+  { localPath: 'public/free-office-pixel-art/sink.png', r2Key: 'office/sink.png' },
+  { localPath: 'public/free-office-pixel-art/trash.png', r2Key: 'office/trash.png' },
 ];
 
 // Upload helper 
@@ -93,13 +93,13 @@ async function uploadToR2(localPath: string, r2Key: string): Promise<string> {
     // Not found: proceed to upload
   }
 
-  const body        = fs.readFileSync(absPath);
+  const body = fs.readFileSync(absPath);
   const contentType = 'image/png';
 
   await r2.send(new PutObjectCommand({
-    Bucket:      BUCKET,
-    Key:         r2Key,
-    Body:        body,
+    Bucket: BUCKET,
+    Key: r2Key,
+    Body: body,
     ContentType: contentType,
     // Make publicly readable if your bucket allows it:
     // ACL: 'public-read',
@@ -117,28 +117,28 @@ async function seedAvatars(urls: Record<string, string>) {
 
   const avatars = [
     {
-      name:     'Black Widow',
-      gender:   'female',
-      idleUrl:  urls['mcu-avatars/blackwidow-idle.png'],
-      leftUrl:  urls['mcu-avatars/blackwidow-left.png'],
+      name: 'Black Widow',
+      gender: 'female',
+      idleUrl: urls['mcu-avatars/blackwidow-idle.png'],
+      leftUrl: urls['mcu-avatars/blackwidow-left.png'],
       rightUrl: urls['mcu-avatars/blackwidow-right.png'],
-      upUrl:    urls['mcu-avatars/blackwidow-up.png'],
-      downUrl:  urls['mcu-avatars/blackwidow-down.png'],
+      upUrl: urls['mcu-avatars/blackwidow-up.png'],
+      downUrl: urls['mcu-avatars/blackwidow-down.png'],
     },
     {
-      name:     'Iron Man',
-      gender:   'male',
-      idleUrl:  urls['mcu-avatars/ironman-idle.png'],
-      leftUrl:  urls['mcu-avatars/ironman-left.png'],
+      name: 'Iron Man',
+      gender: 'male',
+      idleUrl: urls['mcu-avatars/ironman-idle.png'],
+      leftUrl: urls['mcu-avatars/ironman-left.png'],
       rightUrl: urls['mcu-avatars/ironman-right.png'],
-      upUrl:    urls['mcu-avatars/ironman-up.png'],
-      downUrl:  urls['mcu-avatars/ironman-down.png'],
+      upUrl: urls['mcu-avatars/ironman-up.png'],
+      downUrl: urls['mcu-avatars/ironman-down.png'],
     },
   ];
 
   for (const avatar of avatars) {
     const record = await prisma.avatar.upsert({
-      where:  { name: avatar.name } as any, // add @@unique([name]) to schema if not present
+      where: { name: avatar.name } as any, // add @@unique([name]) to schema if not present
       update: avatar,
       create: avatar,
     });
@@ -151,12 +151,12 @@ async function seedOfficeSpace(urls: Record<string, string>) {
 
   // Upsert by name so re-runs are safe
   const space = await prisma.space.upsert({
-    where:  { name: 'Office' } as any, // add @@unique([name]) if not present, or use findFirst pattern below
+    where: { name: 'Office' } as any, // add @@unique([name]) if not present, or use findFirst pattern below
     update: {},
     create: {
-      name:      'Office',
-      width:     1200,
-      height:    800,
+      name: 'Office',
+      width: 1500,
+      height: 1000,
       thumbnail: `${PUBLIC_URL}/office/desk-with-pc.png`, // use any office asset as placeholder thumbnail
     },
   });
@@ -172,21 +172,21 @@ async function seedOfficeSpace(urls: Record<string, string>) {
     height: number;
     isCollidable: boolean;
   }[] = [
-    { name: 'Desk',           r2Key: 'office/desk.png',           width: 64, height: 32, isCollidable: true  },
-    { name: 'Desk with PC',   r2Key: 'office/desk-with-pc.png',   width: 64, height: 64, isCollidable: true  },
-    { name: 'Chair',          r2Key: 'office/chair.png',          width: 16, height: 16, isCollidable: false },
-    { name: 'Plant',          r2Key: 'office/plant.png',          width: 32, height: 32, isCollidable: true  },
-    { name: 'Cabinet',        r2Key: 'office/cabinet.png',        width: 64, height: 64, isCollidable: true  },
-    { name: 'Printer',        r2Key: 'office/printer.png',        width: 64, height: 32, isCollidable: true  },
-    { name: 'PC 1',           r2Key: 'office/pc1.png',            width: 32, height: 32, isCollidable: false },
-    { name: 'PC 2',           r2Key: 'office/pc2.png',            width: 32, height: 32, isCollidable: false },
-    { name: 'Water Cooler',   r2Key: 'office/water-cooler.png',   width: 16, height: 32, isCollidable: true  },
-    { name: 'Coffee Maker',   r2Key: 'office/coffee-maker.png',   width: 64, height: 64, isCollidable: true  },
-    { name: 'Writing Table',  r2Key: 'office/writing-table.png',  width: 64, height: 64, isCollidable: true  },
-    { name: 'Stamping Table', r2Key: 'office/stamping-table.png', width: 64, height: 32, isCollidable: true  },
-    { name: 'Sink',           r2Key: 'office/sink.png',           width: 64, height: 64, isCollidable: true  },
-    { name: 'Trash',          r2Key: 'office/trash.png',          width: 16, height: 16, isCollidable: false },
-  ];
+      { name: 'Desk', r2Key: 'office/desk.png', width: 64, height: 32, isCollidable: true },
+      { name: 'Desk with PC', r2Key: 'office/desk-with-pc.png', width: 64, height: 64, isCollidable: true },
+      { name: 'Chair', r2Key: 'office/chair.png', width: 16, height: 16, isCollidable: false },
+      { name: 'Plant', r2Key: 'office/plant.png', width: 32, height: 32, isCollidable: true },
+      { name: 'Cabinet', r2Key: 'office/cabinet.png', width: 64, height: 64, isCollidable: true },
+      { name: 'Printer', r2Key: 'office/printer.png', width: 64, height: 32, isCollidable: true },
+      { name: 'PC 1', r2Key: 'office/pc1.png', width: 32, height: 32, isCollidable: false },
+      { name: 'PC 2', r2Key: 'office/pc2.png', width: 32, height: 32, isCollidable: false },
+      { name: 'Water Cooler', r2Key: 'office/water-cooler.png', width: 16, height: 32, isCollidable: true },
+      { name: 'Coffee Maker', r2Key: 'office/coffee-maker.png', width: 64, height: 64, isCollidable: true },
+      { name: 'Writing Table', r2Key: 'office/writing-table.png', width: 64, height: 64, isCollidable: true },
+      { name: 'Stamping Table', r2Key: 'office/stamping-table.png', width: 64, height: 32, isCollidable: true },
+      { name: 'Sink', r2Key: 'office/sink.png', width: 64, height: 64, isCollidable: true },
+      { name: 'Trash', r2Key: 'office/trash.png', width: 16, height: 16, isCollidable: false },
+    ];
 
   for (const el of elements) {
     const imageUrl = urls[el.r2Key];
@@ -199,16 +199,16 @@ async function seedOfficeSpace(urls: Record<string, string>) {
     if (existing) {
       await prisma.element.update({
         where: { id: existing.id },
-        data:  { imageUrl, width: el.width, height: el.height, isCollidable: el.isCollidable },
+        data: { imageUrl, width: el.width, height: el.height, isCollidable: el.isCollidable },
       });
       console.log(`  ↺  Element updated: ${el.name}`);
     } else {
       await prisma.element.create({
         data: {
-          name:         el.name,
-          spaceId:      space.id,
-          width:        el.width,
-          height:       el.height,
+          name: el.name,
+          spaceId: space.id,
+          width: el.width,
+          height: el.height,
           isCollidable: el.isCollidable,
           imageUrl,
         },
@@ -234,8 +234,8 @@ async function main() {
   const urls: Record<string, string> = {};
 
   for (const { localPath, r2Key } of ASSETS) {
-    const url    = await uploadToR2(localPath, r2Key);
-    urls[r2Key]  = url;
+    const url = await uploadToR2(localPath, r2Key);
+    urls[r2Key] = url;
   }
 
   // Step 2: seed DB
