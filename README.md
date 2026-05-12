@@ -1,159 +1,48 @@
-# Turborepo starter
+# Pixelley
 
-This Turborepo starter is maintained by the Turborepo core team.
+Your Pixel Alley on the Internet!
 
-## Using this example
+## Demo Video
 
-Run the following command:
+[Pixelley-demo.webm](https://github.com/user-attachments/assets/fe3a35ab-54fe-4264-933a-84d83a4f2215)
 
-```sh
-npx create-turbo@latest
-```
 
-## What's inside?
+## Description
 
-This Turborepo includes the following packages/apps:
+Pixelley is a lightweight metaverse app built for teams and communities who want a shared virtual presence without the overhead of a full 3D engine or a heavy client install. Users sign in, pick a space from their dashboard, and enter it as a pixel-art avatar that others can see moving in real time. Spaces are predefined and curated each with their own theme, background, and set of placeable elements.
+The focus is on simplicity and performance. No downloads, no setup. Just sign in, walk around and chat with your team mates!
 
-### Apps and Packages
+## Features
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- Real-time user position updates: See other users move around the space live over WebSocket. Positions are broadcast with smooth interpolation so nobody teleports.
+- Animated avatars: Users animate with directional walk cycles (up, down, left, right) and return to idle when stationary. Male and female avatars with 5 sprite states each.
+- Predefined spaces: Curated environments rendered with pixel-art tilesets. Spaces load their own assets independently so only what you need is fetched.
+- Element placement: Browse space-specific elements like office desk, plants and many more and place them anywhere on the map. Elements persist across sessions for all users in that space.
+- Element deletion: Remove elements you placed. No user can delete elements placed by other user. Default elements are protected and cannot be deleted.
+- Collision system: Collidable elements like walls and furniture block movement. Non-collidable ones like rugs, floor decals let you walk over them freely.
+- Online users: See who all from your team has joined the space and is currently active.
+- Live Chat: All the joined users can chat with their team mates over a chat dedicated to their own space. 
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Technologies Used
 
-### Utilities
+### Frontend
 
-This Turborepo has some additional tools already setup for you:
+- React: UI and dashboard
+- Phaser 3: Game engine for rendering spaces, avatars, animations, and collision
+- WebSocket (native): Real-time position and element sync
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Backend
 
-### Build
+- Node.js: HTTP and WebSocket server
+- PostgreSQL: Persistent storage for users, spaces, elements, and placements
+- Prisma: ORM and schema management
 
-To build all apps and packages, run the following command:
+### Infrastructure
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+- Cloudflare R2: Object storage for avatar sprites, element images, and tilemap JSON files
 
-```sh
-cd my-turborepo
-turbo build
-```
+## Credits
 
-Without global `turbo`, use your package manager:
+- [Office Pixel Assets by Arlan_TR](https://arlantr.itch.io/free-office-pixel-art)
+- [MCU Tribute Pack by everlyspixelsandpens](https://everlywritesgames.itch.io/mcu-tribute-character-pack)
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
