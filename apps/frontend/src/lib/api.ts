@@ -27,10 +27,9 @@ function getToken() {
 }
 
 function getApiBaseUrl() {
-  // Prefer explicit env var if you add one later; otherwise rely on same-origin.
-  const envBase = "http://localhost:3000"
-  if (envBase) return envBase.replace(/\/$/, '');
-  return '';
+  // VITE_API_BASE_URL is baked in at build time (set in .env or via Docker ARG)
+  const envBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
+  return envBase.replace(/\/$/, '');
 }
 
 const http = axios.create({
